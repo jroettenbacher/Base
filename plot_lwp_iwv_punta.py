@@ -349,6 +349,7 @@ fig, ax = plt.subplots(figsize=(16, 9), dpi=600)
 ax.hist([hatpro_lwp_debilt[~hatpro_rainflag_rpg], hatpro_lwp_pa[~hatpro_rainflag_rpg],
          hatpro_lwp_rpg[~hatpro_rainflag_rpg]],
         bins=30,
+        histtype='step',
         density=True,
         label=["DeBilt-Radiosonde", "Punta Arenas-ERA5", "RPG Punta Arenas Neural Network"])
 # ax.set_xlim(right=1500)
