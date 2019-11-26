@@ -42,7 +42,7 @@ limrad94_surf_rel_hum = larda.read("LIMRAD94", "SurfRelHum", [begin_dt, end_dt])
 parsivel_rainrate = larda.read("PARSIVEL", "rainrate", [begin_dt, end_dt])  # mm / h
 
 # load local data
-path = "./HATPRO-Punta_Arenas/"
+path = "./data/HATPRO-Punta_Arenas/"
 hatpro_lwp_debilt_ds = nc.Dataset(path+"MWR_PRO_DeBilt_retrieval/ioppta_lac_mwr00_l2_clwvi_v00_20181202205030-20181207235959.nc")
 hatpro_iwv_debilt_ds = nc.Dataset(path+"MWR_PRO_DeBilt_retrieval/ioppta_lac_mwr00_l2_prw_v00_20181202205030-20181207235959.nc")
 hatpro_lwp_pa_ds = nc.Dataset(path+"MWR_PRO_PA_retrieval/ioppta_lac_mwr00_l2_clwvi_v01_20181202205030-20181207000000.nc")
