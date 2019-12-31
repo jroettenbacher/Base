@@ -1,4 +1,13 @@
 import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
+
+def set_presentation_plot_style():
+    plt.style.use('ggplot')
+    font = {'family': 'sans-serif', 'style': 'normal', 'size': 16}
+    plt.rc('font', **font)
+
 
 
 # from https://stackoverflow.com/questions/893657/how-do-i-calculate-r-squared-using-python-and-numpy
