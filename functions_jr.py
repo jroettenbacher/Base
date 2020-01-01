@@ -5,8 +5,10 @@ import matplotlib.pyplot as plt
 
 def set_presentation_plot_style():
     plt.style.use('ggplot')
-    font = {'family': 'sans-serif', 'style': 'normal', 'size': 16}
+    font = {'family': 'sans-serif', 'size': 24}
+    figure = {'figsize': [16, 9], 'dpi': 300}
     plt.rc('font', **font)
+    plt.rc('figure', **figure)
 
 
 
