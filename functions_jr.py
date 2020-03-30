@@ -1,4 +1,15 @@
 import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+
+
+def set_presentation_plot_style():
+    plt.style.use('ggplot')
+    font = {'family': 'sans-serif', 'size': 24}
+    figure = {'figsize': [16, 9], 'dpi': 300}
+    plt.rc('font', **font)
+    plt.rc('figure', **figure)
+
 
 
 # from https://stackoverflow.com/questions/893657/how-do-i-calculate-r-squared-using-python-and-numpy

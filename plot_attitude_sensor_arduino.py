@@ -45,6 +45,7 @@ starttime = matched_times["starttime"].loc[matched_times["date"] == date_dt.date
 arduino["time"] = pd.to_datetime(arduino["time"], unit='ms', origin=starttime.iloc[0])
 
 # save daily files
+import datetime as dt
 
 def plot_attitude_sensor_arduino(filename, path, save_plot):
     # read in text file with pandas
@@ -54,6 +55,11 @@ def plot_attitude_sensor_arduino(filename, path, save_plot):
     start_str = re.search(r"\d{6}_\d{6}", filename).group(0)
     # transform to datetime object
     start = datetime.datetime.strptime(start_str, "%y%m%d_%H%M%S")
+    # filename = "20191216_141500_attitude_arduino.TXT"
+    # read start time from file
+    start_str = re.search(r"\d{8}_\d{6}", filename).group(0)
+    # transform to datetime object
+    start = dt.datetime.strptime(start_str, "%Y%m%d_%H%M%S")
 
     # read in file
     file = pd.read_csv(path+filename, sep=";",  # set seperator
@@ -66,6 +72,7 @@ def plot_attitude_sensor_arduino(filename, path, save_plot):
     # cut off beginning and end if necessary
     # file = file[50:, :]  # cut of beginning
     # file = file[-50:, :]  # cut of ending
+
     # plot pitch, roll and  heading in separate plots because of scale difference
     plt.style.use("ggplot")
     plt.rcParams.update({'font.size': 16, 'figure.figsize': (16, 9)})
@@ -88,6 +95,12 @@ def plot_attitude_sensor_arduino(filename, path, save_plot):
     if save_plot == "y":
         os.chdir(r'C:\Users\Johannes\Studium\EUREC4A\data\plots_arduino')
         fig.savefig(filename.replace(".TXT", ".png"), dpi=300)
+    ax[2].xaxis.set_major_locator(dates.MinuteLocator())
+    ax[2].xaxis.set_major_formatter(hfmt)
+    ax[2].set_xlabel("Date Time [UTC]")
+    fig.autofmt_xdate()
+    if save_plot == "y":
+        fig.savefig(filename.replace(".TXT", ".png"))
         print("#########################################\n"
               "Figure saved to current working directory\n"
               "#########################################")
@@ -102,5 +115,7 @@ if __name__ == "__main__":
     filename = '200118_112848_attitude_arduino_plot.TXT'
     path = r"C:\Users\Johannes\Studium\EUREC4A\data\\"
     save_plot = 'y'
-
+    filename = input("Insert file name: ")
+    path = input("Insert path to file: ")
+    save_plot = input("Save plot (y/n): ")
     plot_attitude_sensor_arduino(filename, path, save_plot)
