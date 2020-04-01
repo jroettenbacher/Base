@@ -1,6 +1,6 @@
 #!/bin/bash 
 # Parse command-line arguments
-if [ $1 = "--date" ]; then
+if [ "$1" = "--date" ]; then
 	DAY=$2
 	echo "Uploading quicklooks from ${DAY} for LIMHAT and LIMRAD94 to ftp.uni-leipzig.de..."
 else
