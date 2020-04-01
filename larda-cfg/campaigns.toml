@@ -7,7 +7,7 @@
     mira_azi_zero = -999
     cloudnet_stationname = 'none'
     param_config_file = 'params_eurec4a.toml'
-    connectordump = '/home/remsens/code/larda3/larda-connectordump'
+    connectordump = '/projekt1/remsens/work/jroettenbacher/Base/larda-connectordump'
 
 [lacros_dacapo_catalpa]
     location = "Punta Arenas"
@@ -18,7 +18,7 @@
     mira_azi_zero = 138
     cloudnet_stationname = 'punta-arenas'
     param_config_file = 'params_dacapo_catalpa.toml'
-    connectordump = '/home/remsens/code/larda3/larda-connectordump'
+    connectordump = '/projekt1/remsens/work/jroettenbacher/Base/larda-connectordump'
 
 [lacros_dacapo_gpu]
     location = "Punta Arenas"
