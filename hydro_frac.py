@@ -3,7 +3,6 @@
 make hydrometeor fraction for all of eurec4a
 need to interpolate the range gates between first part and second part of the campaign
 '''
-import netCDF4 as nc
 import numpy as np
 import pandas as pd
 import sys
