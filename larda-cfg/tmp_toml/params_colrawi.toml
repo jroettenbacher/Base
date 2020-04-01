@@ -1,0 +1,241 @@
+ 
+
+[MIRA]
+  [MIRA.path.mmclx]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/colrawi/incoming_rao/cloudradar/mmclx/'
+    #matching_subdirs = '\d{4}\.*\/\d{8}_\d{6}'
+    matching_subdirs = '(\d{4}.*\d{8}_\d{4}.mmclx)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})'
+  [MIRA.path.spec]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/colrawi/incoming_rao/cloudradar/spectra/'
+    matching_subdirs = '(D\d{8}_T\d{4}.*standard.nc4)'
+    date_in_filename = 'D(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_T(?P<hour>\d{2})(?P<minute>\d{2})'
+  # this general settings need to be handed down to the params
+  [MIRA.generic]
+    time_variable = 'time'
+    time_microsec_variable = 'microsec'
+    range_variable = 'range'
+    colormap = "gist_rainbow"
+    which_path = 'mmclx'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    time_conversion = 'unix'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    identifier_var_lims = 'yrange'
+    #var_lims = [-40, 20]
+  [MIRA.params.Zg]
+    variable_name = 'Zg'
+    #colormap = 'rainbow'
+    #which_path = 'mmclx'
+  [MIRA.params.VELg]
+    variable_name = 'VELg'
+    colormap = 'carbonne'
+  [MIRA.params.LDRg]
+    variable_name = 'LDRg'
+    colormap = 'LDR'
+  [MIRA.params.Zspec]
+    which_path = 'spec'
+    variable_name = 'Z'
+    vel_variable = 'velocity'
+    ncreader = 'spec'
+    var_unit = 'Z m-1 s'
+    var_lims = [-50, 20]
+    rg_unit = 'm'
+    var_conversion = 'transposedim+invert3rd'
+    dimorder = [2,1,0] # (velocity, range, time as in the files from alexanders conversion)
+
+
+[CLOUDNET]
+  [CLOUDNET.path.categorize]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/cloudnet/data/lindenberg/processed/categorize/'
+    matching_subdirs = '(\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  [CLOUDNET.path.productsiwc]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/cloudnet/data/lindenberg/products/iwc-Z-T-method/'
+    matching_subdirs = '(\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  [CLOUDNET.path.productsclass]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/cloudnet/data/lindenberg/products/classification/'
+    matching_subdirs = '(\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  [CLOUDNET.generic]
+    # this general settings need to be handed down to the params
+    time_variable = 'time'
+    range_variable = 'height'
+    colormap = "gist_rainbow"
+    time_conversion = 'beginofday'
+    range_conversion = 'sealevel2range'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    identifier_var_lims = 'plot_range'
+    identifier_fill_value = 'missing_value'
+    #var_lims = [-40, 20]
+  [CLOUDNET.params.Z]
+    variable_name = 'Z'
+    which_path = 'categorize'
+    var_conversion = 'z2lin'
+  [CLOUDNET.params.LDR]
+    variable_name = 'ldr'
+    which_path = 'categorize'
+    var_conversion = 'z2lin'
+  [CLOUDNET.params.T]
+    variable_name = 'temperature'
+    which_path = 'categorize'
+    range_variable = 'model_height'
+  [CLOUDNET.params.beta]
+    variable_name = 'beta'
+    which_path = 'categorize'
+  [CLOUDNET.params.depol]
+    variable_name = 'lidar_depolarisation'
+    which_path = 'categorize'    
+    var_unit = '%'
+    var_lims = [0.0, 0.3]
+  [CLOUDNET.params.IWC]
+    variable_name = 'iwc'
+    which_path = 'productsiwc'
+  [CLOUDNET.params.LWP]
+    variable_name = 'lwp'
+    which_path = 'categorize'    
+    ncreader = 'time'
+  [CLOUDNET.params.CLASS]
+    variable_name = 'target_classification'
+    which_path = 'productsclass'
+    var_unit = ""
+    var_lims = [0, 10]
+    colormap = 'cloudnet_target'
+    fill_value = -99
+
+
+
+# for some odd reasoning make shaun a own instrument even when it is located
+# within cloudnet calibrated
+[SHAUN]
+  [SHAUN.path.nc]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/cloudnet/data/limassol/calibrated/shaun/'
+    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  # this general settings need to be handed down to the params
+  [SHAUN.generic]
+    time_variable = 'time'
+    range_variable = 'range'
+    colormap = "gist_rainbow"
+    which_path = 'nc'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    time_conversion = 'beginofday'
+    range_conversion = 'km2m'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    rg_unit = 'm'
+    identifier_var_unit = 'units'
+    identifier_var_lims = 'plot_range'
+    identifier_fill_value = 'missing_value'
+  [SHAUN.params.VEL]
+    variable_name = 'v'
+    colormap = 'carbonne'
+  [SHAUN.params.beta_raw]
+    variable_name = 'beta_raw'
+    #colormap = 'rainbow'
+    var_lims = [1e-7, 1e-4]
+
+[POLLY]
+  [POLLY.path.nc]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/cloudnet/data/limassol/calibrated/pollyxt/'
+    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  # this general settings need to be handed down to the params
+  [POLLY.generic]
+    time_variable = 'time'
+    range_variable = 'range'
+    colormap = "gist_rainbow"
+    which_path = 'nc'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    time_conversion = 'beginofday'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    identifier_var_lims = 'plot_range'
+    identifier_fill_value = 'missing_value'
+  [POLLY.params.attbsc532]
+    variable_name = 'att_beta_0532'
+  [POLLY.params.attbsc1064]
+    variable_name = 'att_beta_1064'
+  [POLLY.params.depol]
+    variable_name = 'volume_depolarization'
+    var_unit = '%'
+    var_lims = [0.0, 0.3]
+
+[MOLE]
+  [MOLE.path.rwp_grid]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/colrawi/analysis/mole_output/windprofiler_grid/'
+    matching_subdirs = '(\d{8}_\d{4}_mole_output.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})'
+  [MOLE.path.cr_grid]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/colrawi/analysis/mole_output/radar_grid/'
+    matching_subdirs = '(\d{8}_\d{4}_mole_terminal_output.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})'
+  # this general settings need to be handed down to the params
+  [MOLE.generic]
+    time_variable = 'timestamp'
+    range_variable = 'range'
+    colormap = "gist_rainbow"
+    which_path = 'rwp_grid'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    time_conversion = 'unix'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    identifier_var_lims = 'plot_range'
+    #var_lims = [-40, 20]
+  [MOLE.params.Z_fit]
+    variable_name = 'Z_fit'
+    #colormap = 'rainbow'
+    #which_path = 'mmclx'
+  [MOLE.params.Z_raw]
+    variable_name = 'Z_raw'
+    #colormap = 'rainbow'
+    #which_path = 'mmclx'
+  [MOLE.params.v_fit]
+    variable_name = 'v_fit'
+    colormap = 'carbonne'
+  [MOLE.params.v_raw]
+    variable_name = 'v_raw'
+    colormap = 'carbonne'
+  [MOLE.params.flag]
+    variable_name = 'quality_flag'
+    colormap = 'jet'
+    var_unit = ''
+  [MOLE.params.v_term]
+    variable_name = 'v_term'
+    colormap = 'carbonne'
+    which_path = 'cr_grid'
+  [MOLE.params.v_air]
+    variable_name = 'v_air'
+    colormap = 'carbonne'
+    which_path = 'cr_grid'

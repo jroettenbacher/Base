@@ -1,0 +1,83 @@
+[eurec4a]
+    location = "RV-Meteor"
+    coordinates = [13.0, -57.7]
+    altitude = 15
+    duration = [["20200114", "today"]]  # you can leave it like this for eurec4a, start is set to 20190901 for testings only and can be set to the actual start date of the campaign later on
+    systems = ["LIMRAD94",  "HATPRO", "CEILO"]
+    mira_azi_zero = -999
+    cloudnet_stationname = 'none'
+    param_config_file = 'params_eurec4a.toml'
+    connectordump = '/home/remsens/code/larda3/larda-connectordump'
+
+[lacros_dacapo_catalpa]
+    location = "Punta Arenas"
+    coordinates = [-53.1354, -70.8845]
+    altitude = 9
+    duration = [["20181127", "today"]]
+    systems = ["LIMRAD94",  "HATPRO"]
+    mira_azi_zero = 138
+    cloudnet_stationname = 'punta-arenas'
+    param_config_file = 'params_dacapo_catalpa.toml'
+    connectordump = '/home/remsens/code/larda3/larda-connectordump'
+
+[lacros_dacapo_gpu]
+    location = "Punta Arenas"
+    coordinates = [-53.1354, -70.8845]
+    altitude = 9
+    duration = [["20181127", "today"]]
+    systems = ["MIRA", "CLOUDNET", "CLOUDNET_LIMRAD", "LIMRAD94", "PARSIVEL",
+               "MRRPRO", "SHAUN", "POLLY", "POLLYNET", "peakTree", "HATPRO"]
+    mira_azi_zero = 138
+    cloudnet_stationname = 'punta-arenas'
+    param_config_file = 'params_dacapo_gpu.toml'
+    connectordump = '/home/sdig/code/larda3/larda-connectordump'
+
+[lacros_dacapo]
+    location = "Punta Arenas"
+    coordinates = [-53.1354, -70.8845]
+    altitude = 9
+    duration = [["20181127", "today"]]
+    systems = ["MIRA", "CLOUDNET", "CLOUDNET_LIMRAD", "LIMRAD94", "PARSIVEL",
+               "MRRPRO", "SHAUN", "POLLY", "POLLYNET", "peakTree", "HATPRO"]
+    mira_azi_zero = 138
+    cloudnet_stationname = 'punta-arenas'
+    param_config_file = 'params_dacapo.toml'
+    connectordump = '/home/larda3/larda-connectordump'
+
+[lacros_cycare]
+    location = "Limassol"
+    coordinates = [34.677, 33.038]
+    altitude = 11
+    duration = [["20161018", "20180325"]]
+    systems = ["MIRA", "CLOUDNET", 
+               "MRRPRO", "SHAUN", "POLLY"]
+    mira_azi_zero = 138
+    cloudnet_stationname = 'limassol'
+    param_config_file = 'params_cycare.toml'
+    connectordump = '/home/larda3/larda-connectordump/'
+
+[lacros_accept]
+    location = "Cabauw"
+    coordinates = [51.97, 4.927]
+    altitude = 0
+    mira_azi_zero = 0
+    duration = [["20141001", "20141120"]]
+    systems = ["MIRA", "CLOUDNET", 
+               "SHAUN", "POLLY"]
+    cloudnet_stationname = 'cesar'
+    param_config_file = 'params_accept.toml'
+    connectordump = '/home/larda3/larda-connectordump/'
+
+[test_filepatterns]
+    location = "Punta Arenas"
+    coordinates = [-53.1354, -70.8845]
+    altitude = 9
+    duration = [["20181127", "today"]]
+    #systems = ["MIRA", "CLOUDNET", "CLOUDNET_LIMRAD", "LIMRAD94",
+    #           "MRRPRO", "SHAUN", "POLLY"]
+    systems = ["CLOUDNET_LIMRAD"]
+    cloudnet_stationname = 'punta-arenas'
+    #param_config_file = 'test_filepatterns.toml'
+    #param_config_file = 'test_filepatterns_cloudnet.toml'
+    param_config_file = 'test_filepatterns_cloudnet_limrad.toml'
+    connectordump = '/home/larda3/larda-connectordump/'

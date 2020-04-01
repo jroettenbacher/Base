@@ -1,0 +1,536 @@
+ 
+
+[MIRA]
+  [MIRA.path.mmclx]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/mira/data/davos/'
+    matching_subdirs = '(Mom\/\d{8}_\d{4}.mmclx)$'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})'
+  [MIRA.path.spec]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/mira/data/davos/'
+    matching_subdirs = '(zspc_nc4\/\d{8}_T\d{4}.*standard.nc4)'
+    date_in_filename = 'D(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_T(?P<hour>\d{2})(?P<minute>\d{2})'
+  # this general settings need to be handed down to the params
+  [MIRA.generic]
+    time_variable = 'time'
+    time_microsec_variable = 'microsec'
+    range_variable = 'range'
+    colormap = "gist_rainbow"
+    which_path = 'mmclx'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    time_conversion = 'unix'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    identifier_var_lims = 'yrange'
+    #var_lims = [-40, 20]
+    description_file = 'mira_general.rst'
+  [MIRA.params.Zg]
+    variable_name = 'Zg'
+    #colormap = 'rainbow'
+    #which_path = 'mmclx'
+  [MIRA.params.Ze]
+    variable_name = 'Ze'
+    #colormap = 'rainbow'
+    #which_path = 'mmclx'
+  [MIRA.params.Zmie]
+    variable_name = 'Z'
+  [MIRA.params.sw]
+    variable_name = 'RMSg'
+  [MIRA.params.noiseco]
+    variable_name = 'HSDco'
+ [MIRA.params.noisecx]
+    variable_name = 'HSDcx'
+  [MIRA.params.VELg]
+    variable_name = 'VELg'
+    colormap = 'carbonne'
+  [MIRA.params.LDRg]
+    variable_name = 'LDRg'
+    colormap = 'LDR'
+#  [MIRA.params.Zspec]
+#    which_path = 'spec'
+#    variable_name = 'Z'
+#    vel_variable = 'velocity'
+#    ncreader = 'spec'
+#    var_unit = 'Z m-1 s'
+#    var_lims = [-50, 20]
+#    rg_unit = 'm'
+#    var_conversion = 'transposedim+invert3rd'
+#    dimorder = [2,1,0] # (velocity, range, time as in the files from alexanders conversion)
+
+
+
+[peakTree]
+  [peakTree.path.nc4]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/mira/data/NMRA/peakTree/'
+    matching_subdirs = '(\d{8}_\d{4}_Pun_peakTree.nc4)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})'
+  # this general settings need to be handed down to the params
+  [peakTree.generic]
+    time_variable = 'timestamp'
+    range_variable = 'range'
+    colormap = "gist_rainbow"
+    which_path = 'nc4'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    time_conversion = 'unix'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    identifier_var_lims = 'yrange'
+    #var_lims = [-40, 20]
+  [peakTree.params.tree]
+    variable_name = 'tree'
+    ncreader = 'peakTree'
+    rg_unit = 'm'
+    var_lims = [-99, -99]
+    var_unit = ''
+
+
+
+[CLOUDNET]
+  [CLOUDNET.path.categorize]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/cloudnet/data/davos/processed/categorize/'
+    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  [CLOUDNET.path.productsiwc]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/cloudnet/data/davos/products/iwc-Z-T-method/'
+    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  [CLOUDNET.path.productsclass]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/cloudnet/data/davos/products/classification/'
+    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  [CLOUDNET.path.productslwcs]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/cloudnet/data/davos/products/lwc-scaled-adiabatic/'
+    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  [CLOUDNET.path.productslwc]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/cloudnet/data/davos/products/lwc-adiabatic-method/'
+    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  [CLOUDNET.generic]
+    # this general settings need to be handed down to the params
+    time_variable = 'time'
+    range_variable = 'height'
+    colormap = "gist_rainbow"
+    time_conversion = 'beginofday'
+    range_conversion = 'sealevel2range'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    identifier_var_lims = 'plot_range'
+    identifier_fill_value = 'missing_value'
+    identifier_history = 'history'
+    #var_lims = [-40, 20]
+  [CLOUDNET.params.Z]
+    variable_name = 'Z'
+    which_path = 'categorize'
+    var_conversion = 'z2lin'
+  [CLOUDNET.params.VEL]
+    variable_name = 'v'
+    which_path = 'categorize'
+    var_conversion = 'none'
+    colormap = 'carbonne'
+    var_lims = [-3, 3]
+  [CLOUDNET.params.WIDTH]
+    variable_name = 'width'
+    which_path = 'categorize'
+  [CLOUDNET.params.LDR]
+    variable_name = 'ldr'
+    which_path = 'categorize'
+    var_conversion = 'z2lin'
+  [CLOUDNET.params.T]
+    variable_name = 'temperature'
+    which_path = 'categorize'
+    range_variable = 'model_height'
+    interp_rg_join = true
+  [CLOUDNET.params.q]
+    variable_name = 'specific_humidity'
+    which_path = 'categorize'
+    range_variable = 'model_height'
+  [CLOUDNET.params.P]
+    variable_name = 'pressure'
+    which_path = 'categorize'
+    range_variable = 'model_height'
+  [CLOUDNET.params.UWIND]
+    variable_name = 'uwind'
+    which_path = 'categorize'
+    range_variable = 'model_height'
+  [CLOUDNET.params.VWIND]
+    variable_name = 'vwind'
+    which_path = 'categorize'
+    range_variable = 'model_height'
+  [CLOUDNET.params.beta]
+    variable_name = 'beta'
+    which_path = 'categorize'
+  [CLOUDNET.params.depol]
+    variable_name = 'lidar_depolarisation'
+    which_path = 'categorize'    
+    var_unit = '%'
+    var_lims = [0.0, 0.3]
+  [CLOUDNET.params.IWC]
+    variable_name = 'iwc'
+    which_path = 'productsiwc'
+  [CLOUDNET.params.CLASS]
+    variable_name = 'target_classification'
+    which_path = 'productsclass'
+    var_unit = ""
+    var_lims = [0, 10]
+    colormap = 'cloudnet_target'
+    fill_value = -99
+  [CLOUDNET.params.LWP]
+    variable_name = 'lwp'
+    which_path = 'categorize'    
+    ncreader = 'time'
+  [CLOUDNET.params.LWC]
+    variable_name = 'lwc_adiabatic'
+    which_path = 'productslwc'    
+  [CLOUDNET.params.LWC_S]
+    variable_name = 'lwc'
+    which_path = 'productslwcs'    
+
+[POLLY]
+  [POLLY.path.nc]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/cloudnet/data/davos/calibrated/pollyxt/'
+    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  # this general settings need to be handed down to the params
+  [POLLY.generic]
+    time_variable = 'time'
+    range_variable = 'range'
+    rg_unit = 'm'
+    colormap = "gist_rainbow"
+    which_path = 'nc'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    time_conversion = 'beginofday'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    identifier_var_lims = 'plot_range'
+    identifier_fill_value = 'missing_value'
+  [POLLY.params.attbsc532]
+    variable_name = 'att_beta_0532'
+    var_unit = 'sr^-1 m^-1'
+    rg_unit = 'm'
+    colormap = 'cloudnet_jet'
+    var_lims = [3e-7, 1e-4]
+  [POLLY.params.attbsc1064]
+    variable_name = 'att_beta_1064'
+    var_unit = 'sr^-1 m^-1'
+    rg_unit = 'm'
+    colormap = 'cloudnet_jet'
+    var_lims = [3e-7, 1e-4]
+  [POLLY.params.depol]
+    variable_name = 'volume_depolarization'
+    colormap = 'cloudnet_jet'
+    rg_unit = 'm'
+    var_unit = '%'
+    var_lims = [0.0, 0.3]
+
+
+[POLLYNET]
+  [POLLYNET.path.attbsc]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/pollyhome/Picasso/results_new/arielle/'
+    matching_subdirs = '(\d{4}\/\d{2}\/\d{2}\/\d{4}_\d{2}_\d{2}_.*_\d{2}_\d{2}_\d{2}_att_bsc.nc)'
+    date_in_filename = '(?P<year>\d{4})_(?P<month>\d{2})_(?P<day>\d{2})_.*_(?P<hour>\d{2})_(?P<minute>\d{2})_\d{2}_'
+  # this general settings need to be handed down to the params
+  [POLLYNET.path.voldepol]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/pollyhome/Picasso/results_new/arielle/'
+    matching_subdirs = '(\d{4}\/\d{2}\/\d{2}\/\d{4}_\d{2}_\d{2}_.*_\d{2}_\d{2}_\d{2}_vol_depol.nc)'
+    date_in_filename = '(?P<year>\d{4})_(?P<month>\d{2})_(?P<day>\d{2})_.*_(?P<hour>\d{2})_(?P<minute>\d{2})_\d{2}_'
+  [POLLYNET.path.wv]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/pollyhome/Picasso/results_new/arielle/'
+    matching_subdirs = '(\d{4}\/\d{2}\/\d{2}\/\d{4}_\d{2}_\d{2}_.*_\d{2}_\d{2}_\d{2}_WVMR_RH.nc)'
+    date_in_filename = '(?P<year>\d{4})_(?P<month>\d{2})_(?P<day>\d{2})_.*_(?P<hour>\d{2})_(?P<minute>\d{2})_\d{2}_'
+  [POLLYNET.path.quasi]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/pollyhome/Picasso/results_new/arielle/'
+    matching_subdirs = '(\d{4}\/\d{2}\/\d{2}\/\d{4}_\d{2}_\d{2}_.*_\d{2}_\d{2}_\d{2}_quasi_results.nc)'
+    date_in_filename = '(?P<year>\d{4})_(?P<month>\d{2})_(?P<day>\d{2})_.*_(?P<hour>\d{2})_(?P<minute>\d{2})_\d{2}_'
+  [POLLYNET.path.class]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/pollyhome/Picasso/results_new/arielle/'
+    matching_subdirs = '(\d{4}\/\d{2}\/\d{2}\/\d{4}_\d{2}_\d{2}_.*_\d{2}_\d{2}_\d{2}_target_classification.nc)'
+    date_in_filename = '(?P<year>\d{4})_(?P<month>\d{2})_(?P<day>\d{2})_.*_(?P<hour>\d{2})_(?P<minute>\d{2})_\d{2}_'
+  [POLLYNET.generic]
+    time_variable = 'time'
+    range_variable = 'height'
+    colormap = "jet"
+    which_path = 'attbsc'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    time_conversion = 'unix'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'unit'
+    identifier_var_unit = 'unit'
+    identifier_var_lims = 'plot_range'
+
+  [POLLYNET.params.attbsc355]
+    which_path = 'attbsc'
+    variable_name = 'attenuated_backscatter_355nm'
+    var_lims = [3e-7, 1e-4]
+    #auto_mask_scale = false
+  [POLLYNET.params.attbsc532]
+    which_path = 'attbsc'
+    variable_name = 'attenuated_backscatter_532nm'
+    var_lims = [3e-7, 1e-4]
+    #auto_mask_scale = false
+  [POLLYNET.params.attbsc1064]
+    which_path = 'attbsc'
+    variable_name = 'attenuated_backscatter_1064nm'
+    var_lims = [3e-8, 1e-4]
+    #auto_mask_scale = false
+
+  [POLLYNET.params.voldepol355]
+    which_path = 'voldepol'
+    variable_name = 'volume_depolarization_ratio_355nm'
+    var_lims = [0.0, 0.3]
+    #auto_mask_scale = false
+  [POLLYNET.params.voldepol532]
+    which_path = 'voldepol'
+    variable_name = 'volume_depolarization_ratio_532nm'
+    var_lims = [0.0, 0.3]
+    #auto_mask_scale = false
+
+  [POLLYNET.params.qbsc532]
+    which_path = 'quasi'
+    variable_name = 'quasi_bsc_532'
+    var_lims = [3e-7, 1e-4]
+    #auto_mask_scale = false
+  [POLLYNET.params.qbsc1064]
+    which_path = 'quasi'
+    variable_name = 'quasi_bsc_1064'
+    var_lims = [3e-8, 1e-4]
+    #auto_mask_scale = false
+  [POLLYNET.params.qpardepol532]
+    which_path = 'quasi'
+    variable_name = 'quasi_pardepol_532'
+    var_lims = [0.0, 0.3]
+    #auto_mask_scale = false
+  [POLLYNET.params.qang532_1064]
+    which_path = 'quasi'
+    variable_name = 'quasi_ang_532_1064'
+    var_lims = [0.0, 1.0]
+    #auto_mask_scale = false
+  [POLLYNET.params.qflag532]
+    which_path = 'quasi'
+    variable_name = 'quality_mask_532'
+    var_lims = [0.0, 3.0]
+    #auto_mask_scale = false
+
+  [POLLYNET.params.CLASS]
+    which_path = 'class'
+    variable_name = 'target_classification'
+    colormap = 'pollynet_class'
+    var_lims = [0.0, 12.0]
+    var_unit = ''
+    fill_value = -1
+    #auto_mask_scale = false
+
+  [POLLYNET.params.wvmr]
+    which_path = 'wv'
+    variable_name = 'WVMR'
+  [POLLYNET.params.rh]
+    which_path = 'wv'
+    variable_name = 'RH'
+
+[POLLYNETprofiles]
+  [POLLYNETprofiles.path.nc]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/pollyhome/Picasso/results_new/arielle/'
+    #matching_subdirs = '(\d{8}\/\d{4}_\d{2}_\d{2}_.*_\d{2}_\d{2}_\d{2}_\d{4}_\d{4}_profiles.nc)'
+    matching_subdirs = '(\d{4}\/\d{2}\/\d{2}\/\d{4}_\d{2}_\d{2}_.*_\d{2}_\d{2}_\d{2}_\d{4}_\d{4}_profiles.nc)'
+    date_in_filename = '(?P<year>\d{4})_(?P<month>\d{2})_(?P<day>\d{2})_.*_(?P<hour>\d{2})(?P<minute>\d{2})_\d{4}_'
+  [POLLYNETprofiles.generic]
+    time_variable = 'start_time'
+    range_variable = 'height'
+    colormap = "jet"
+    which_path = 'nc'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    time_conversion = 'unix'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'pollynet_profile'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'unit'
+    identifier_var_unit = 'unit'
+    identifier_var_lims = 'plot_range'
+
+  [POLLYNETprofiles.params.end_time]
+    variable_name = 'end_time'
+    ncreader = 'aux_all_ts'
+    var_lims = [0, 0]
+  [POLLYNETprofiles.params.aerBsc_klett_355]
+    variable_name = 'aerBsc_klett_355'
+  [POLLYNETprofiles.params.aerBsc_klett_532]
+    variable_name = 'aerBsc_klett_532'
+  [POLLYNETprofiles.params.aerBsc_klett_1064]
+    variable_name = 'aerBsc_klett_1064'
+
+  [POLLYNETprofiles.params.aerBsc_raman_355]
+    variable_name = 'aerBsc_raman_355'
+  [POLLYNETprofiles.params.aerBsc_raman_532]
+    variable_name = 'aerBsc_raman_532'
+  [POLLYNETprofiles.params.aerBsc_raman_1064]
+    variable_name = 'aerBsc_raman_1064'
+
+  [POLLYNETprofiles.params.aerExt_raman_355]
+    variable_name = 'aerExt_raman_355'
+  [POLLYNETprofiles.params.aerExt_raman_532]
+    variable_name = 'aerExt_raman_532'
+
+  [POLLYNETprofiles.params.volDepol_klett_355]
+    variable_name = 'volDepol_klett_355'
+    var_lims = [0.0, 0.4]
+  [POLLYNETprofiles.params.volDepol_klett_532]
+    variable_name = 'volDepol_klett_532'
+    var_lims = [0.0, 0.4]
+  [POLLYNETprofiles.params.volDepol_raman_355]
+    variable_name = 'volDepol_raman_355'
+    var_lims = [0.0, 0.4]
+  [POLLYNETprofiles.params.volDepol_raman_532]
+    variable_name = 'volDepol_raman_532'
+    var_lims = [0.0, 0.4]
+  [POLLYNETprofiles.params.parDepol_raman_355]
+    variable_name = 'parDepol_raman_355'
+    var_lims = [0.0, 0.4]
+  [POLLYNETprofiles.params.parDepol_raman_532]
+    variable_name = 'parDepol_raman_532'
+    var_lims = [0.0, 0.4]
+
+
+[POLLYraw]
+  [POLLYraw.path.nc]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/pollyhome/arielle/data_zip/'
+    matching_subdirs = '(\d{6}\/\d{4}_\d{2}_\d{2}_.*_\d{2}_\d{2}_\d{2}.nc.zip)'
+    date_in_filename = '(?P<year>\d{4})_(?P<month>\d{2})_(?P<day>\d{2})_.*_(?P<hour>\d{2})_(?P<minute>\d{2})_\d{2}\.nc'
+  # this general settings need to be handed down to the params
+  [POLLYraw.generic]
+    time_variable = 'measurement_time'
+    #range_variable = 'altitude'
+    colormap = "gist_rainbow"
+    which_path = 'nc'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    time_conversion = 'pollytime'
+    #range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'pollyraw'
+    # if identifier is given read from ncfile, else define here
+    rg_unit = 'bins'
+    var_unit = 'counts'
+
+  [POLLYraw.params.counts_ch1]
+    which_path = 'nc'
+    variable_name = 'raw_signal:0'
+    var_lims = [0, 100000000]
+  [POLLYraw.params.counts_ch2]
+    which_path = 'nc'
+    variable_name = 'raw_signal:1'
+    var_lims = [0, 100000000]
+  [POLLYraw.params.counts_ch3]
+    which_path = 'nc'
+    variable_name = 'raw_signal:2'
+    var_lims = [0, 100000000]
+  [POLLYraw.params.counts_ch4]
+    which_path = 'nc'
+    variable_name = 'raw_signal:3'
+    var_lims = [0, 100000000]
+  [POLLYraw.params.counts_ch5]
+    which_path = 'nc'
+    variable_name = 'raw_signal:4'
+    var_lims = [0, 100000000]
+  [POLLYraw.params.counts_ch6]
+    which_path = 'nc'
+    variable_name = 'raw_signal:5'
+    var_lims = [0, 100000000]
+  [POLLYraw.params.counts_ch7]
+    which_path = 'nc'
+    variable_name = 'raw_signal:6'
+    var_lims = [0, 100000000]
+  [POLLYraw.params.counts_ch8]
+    which_path = 'nc'
+    variable_name = 'raw_signal:7'
+    var_lims = [0, 100000000]
+  [POLLYraw.params.counts_ch9]
+    which_path = 'nc'
+    variable_name = 'raw_signal:8'
+    var_lims = [0, 100000000]
+  [POLLYraw.params.counts_ch10]
+    which_path = 'nc'
+    variable_name = 'raw_signal:9'
+    var_lims = [0, 100000000]
+  [POLLYraw.params.counts_ch11]
+    which_path = 'nc'
+    variable_name = 'raw_signal:10'
+    var_lims = [0, 100000000]
+  [POLLYraw.params.counts_ch12]
+    which_path = 'nc'
+    variable_name = 'raw_signal:11'
+    var_lims = [0, 100000000]
+  [POLLYraw.params.counts_ch13]
+    which_path = 'nc'
+    variable_name = 'raw_signal:12'
+    var_lims = [0, 100000000]
+
+[PARSIVEL]
+  [PARSIVEL.path.nc]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/disdrometer/data/'
+    matching_subdirs = 'data\/(\d{4}\/\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  # this general settings need to be handed down to the params
+  [PARSIVEL.generic]
+    time_variable = 'time'
+    range_variable = 'range'
+    colormap = "gist_rainbow"
+    which_path = 'nc'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    time_conversion = 'unix'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'time'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    #identifier_var_lims = 'plot_range'
+    identifier_fill_value = '_FillValue'
+  [PARSIVEL.params.rainrate]
+    variable_name = 'rainfall_rate'
+    var_lims = [0.0, 0.000001]
+  [PARSIVEL.params.Z]
+    variable_name = 'radar_reflectivity'
+    var_lims = [0, 40]
+    fill_value = -9.999
+    var_conversion = 'z2lin'
