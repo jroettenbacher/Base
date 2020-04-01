@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import sys
 # just needed to find pyLARDA from this location
-sys.path.append('/projekt1/remsens/code/larda3/larda/')
+sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda/')
 sys.path.append('.')
 import matplotlib
 # matplotlib.use('Agg')
