@@ -1,11 +1,11 @@
 
 [LIMRAD94]
   [LIMRAD94.path.l1]
-    base_dir = '/home/remsens/data/LIMRAD94/'
+    base_dir = '/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/'
     matching_subdirs = '(Y\d{4}\/M\d{2}\/D\d{2}.*\d{6}_\d{6}.*.LV1.(?i)NC)'
     date_in_filename = '(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [LIMRAD94.path.l0]
-    base_dir = '/home/remsens/data/LIMRAD94/'
+    base_dir = '/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/'
     matching_subdirs = '(Y\d{4}\/M\d{2}\/D\d{2}.*\d{6}_\d{6}.*.LV0.(?i)NC)'
     date_in_filename = '(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [LIMRAD94.generic]
@@ -292,7 +292,7 @@
 
 [LIMRAD94_cn_input]
   [LIMRAD94_cn_input.path.nc]
-    base_dir = '/home/remsens/data/LIMRAD94/cloudnet_input/'
+    base_dir = '/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/cloudnet_input/'
     matching_subdirs = '(.*\d{8}_\d{6}-\d{6}_LIMRAD94.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
     # _(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})
@@ -384,22 +384,22 @@
 [HATPRO]
   [HATPRO.path.lv2_prw]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/home/remsens/data/LIMHAT/met/data/level2/'
+    base_dir = '/projekt2/remsens/data/HATPRO/rvm/data/level2/'
     matching_subdirs = '(\d{4}\/sups_met_mwr00_l2_prw_v00_\d{14}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [HATPRO.path.lv2_hua]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/home/remsens/data/LIMHAT/met/data/level2/'
+    base_dir = '/projekt2/remsens/data/HATPRO/rvm/data/level2/'
     matching_subdirs = '(\d{4}\/sups_met_mwr00_l2_hua_v00_\d{14}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [HATPRO.path.lv2_clwvi]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/home/remsens/data/LIMHAT/met/data/level2/'
+    base_dir = '/projekt2/remsens/data/HATPRO/rvm/data/level2/'
     matching_subdirs = '(\d{4}\/sups_met_mwr00_l2_clwvi_v00_\d{14}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [HATPRO.path.lv2_ta]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/home/remsens/data/LIMHAT/met/data/level2/'
+    base_dir = '/projekt2/remsens/data/HATPRO/rvm/data/level2/'
     matching_subdirs = '(\d{4}\/sups_met_mwr00_l2_ta_v00_\d{14}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   # this general settings need to be handed down to the params
@@ -446,7 +446,7 @@
 [CEILO]
   [CEILO.path.nc]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/home/remsens/data/CEILOMETER/CHM170158/'
+    base_dir = '/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_CEILOMETER/CHM170158/'
     matching_subdirs = '(\d{4}\/\d{2}\/\d{8}_FSMETEOR_CHM170158.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   # this general settings need to be handed down to the params
