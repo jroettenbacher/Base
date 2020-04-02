@@ -39,10 +39,7 @@ new_time = np.array([h.dt_to_ts(time) for time in new_time])  # convert to unix 
 # 30m range steps, started from rounded down to the next 100 first range gate, and rounded up to the next 1000 last rg
 new_range = np.arange(Ze['rg'][0]//100*100, np.round(Ze['rg'][-1], -3)+30, 30)  # 300-15000 or 300-13020 m
 Ze = interpolate2d(Ze, new_time=new_time, new_range=new_range, method='linear')
-
-
-
-
-
-outfile = f"{outpath}RV-METEOR_LIMRAD94_Ze_{date:%Y%m%d}.nc"
+# generate nc file
+container = {'Ze': Ze}  # create a container for the routine
+flag = nc.generate_30s_averaged_Ze_files(container, outpath)
 
