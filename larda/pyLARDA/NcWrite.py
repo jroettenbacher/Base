@@ -218,11 +218,11 @@ def generate_30s_averaged_Ze_files(data, path, **kwargs):
     ds_name = path + f"RV-METEOR_LIMRAD94_Ze_{h.ts_to_dt(data['Ze']['ts'][0]):%Y%m%d}.nc"
     ds = netCDF4.Dataset(ds_name, "w", format="NETCDF4")
     # ds.commit_id = subprocess.check_output(["git", "describe", "--always"]) .rstrip()
-    ds.description = 'Preliminary LIMRAD 94GHz - FMCW Radar Data, averaged to 30s and 30m time/range resolution\n' \
-                     'filters applied: ghos-echo, despeckle, use only main peak\n' \
-                     'Institution: University Leipzig - Institute for Meteorology\n' \
+    ds.description = 'Preliminary LIMRAD 94GHz - FMCW Radar Data, averaged to 30s and 30m time/range resolution \n' \
+                     'filters applied: ghos-echo, despeckle, use only main peak \n ' \
+                     'Institution: University Leipzig - Institute for Meteorology \n ' \
                      'Contact: heike.kalesse@uni-leipzig.de'
-    ds.history = 'Created ' + time.ctime(time.time())
+    ds.history = 'Created ' + time.ctime(time.time()) + ' UTC'
     ds.source = data['Ze']['paraminfo']['location']
     ds.FillValue = data['Ze']['paraminfo']['fill_value']
     ds.createDimension('time', data['Ze']['ts'].size)
