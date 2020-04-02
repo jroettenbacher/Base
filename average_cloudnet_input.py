@@ -14,11 +14,10 @@ from pyLARDA.Transformations import interpolate2d
 import pyLARDA.NcWrite as nc
 import logging
 log = logging.getLogger('pyLARDA')
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 log.addHandler(logging.StreamHandler())
 import numpy as np
 import pandas as pd
-import functions_jr as jr
 
 # Load LARDA
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
@@ -30,6 +29,7 @@ outpath = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/cloudnet_input/"  #
 
 # loop through all files in date range
 # for date in dates:
+t1 = time.time()
 # load data from larda
 date = dates[0]
 Ze = larda.read("LIMRAD94_cn_input", "Ze", [date, (date + dt.timedelta(days=1))], [0, 'max'])
@@ -42,4 +42,5 @@ Ze = interpolate2d(Ze, new_time=new_time, new_range=new_range, method='linear')
 # generate nc file
 container = {'Ze': Ze}  # create a container for the routine
 flag = nc.generate_30s_averaged_Ze_files(container, outpath)
+print(f"Generated nc file for {date} in {time.time() - t1}.")
 
