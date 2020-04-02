@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import datetime as dt
 
 
 def set_presentation_plot_style():
@@ -31,6 +32,17 @@ def polyfit(x, y, degree):
     results['determination'] = ssreg / sstot
 
     return results
+
+
+def daterange(start_date, end_date):
+    """ Generator to create a loop over dates by day
+    from: https://stackoverflow.com/questions/1060279/iterating-through-a-range-of-dates-in-python
+    :param start_date: datetime date object
+    :param end_date: datetime date object
+    :return: loop over date
+    """
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + dt.timedelta(n)
 
 
 if __name__ == '__main__':
