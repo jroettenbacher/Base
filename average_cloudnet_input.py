@@ -23,8 +23,18 @@ import pandas as pd
 # Load LARDA
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 # set end and start date
-begin_dt = dt.datetime(2020, 2, 1, 0, 0, 0)
-end_dt = dt.datetime(2020, 2, 19, 0, 0, 0)
+# gather command line arguments
+method_name, args, kwargs = h._method_info_from_argv(sys.argv)
+
+# gather argument
+if 'date' in kwargs:
+    date = str(kwargs['date'])
+    begin_dt = dt.datetime.strptime(date + ' 00:00:00', '%Y%m%d %H:%M:%S')
+    end_dt = dt.datetime.strptime(date + ' 00:00:00', '%Y%m%d %H:%M:%S')
+else:
+    begin_dt = dt.datetime(2020, 1, 17, 0, 0, 0)
+    end_dt = dt.datetime(2020, 2, 27, 0, 0, 0)
+
 dates = pd.date_range(begin_dt, end_dt).to_pydatetime()  # define all dates
 outpath = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/upload_to_aeris/"  # define path for output
 
