@@ -22,7 +22,7 @@ larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 begin_dt = dt.datetime(2020, 1, 17, 0, 0, 0)
 end_dt = dt.datetime(2020, 2, 20, 0, 0, 0)
 dates = pd.date_range(begin_dt, end_dt)  # define all dates
-path = "./data/cloudnet_input/"  # define path to cloudnet files
+path = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/cloudnet_input/"  # define path to cloudnet files
 
 # loop through all files in date range
 # for date in dates:
