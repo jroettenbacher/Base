@@ -4,6 +4,7 @@
 # output averaged netcdf files
 
 import sys
+import os
 import time
 import datetime as dt
 sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
@@ -40,6 +41,17 @@ for date in dates:
     Ze = interpolate2d(Ze, new_time=new_time, new_range=new_range, method='linear')
     # generate nc file
     container = {'Ze': Ze}  # create a container for the routine
-    flag = nc.generate_30s_averaged_Ze_files(container, outpath)
-    print(f"Generated nc file for {date} in {time.time() - t1}.")
+    outfile = f"RV-METEOR_LIMRAD94_Ze_{date:%Y%m%d}.nc"
+    if os.path.isfile(f"{outpath}{outfile}"):
+        check1 = input(f"{outfile} already exists! Do you want to replace it? (This action cannot be undone!): ")
+        if check1.startswith("y"):
+            print(f"Deleting {outfile}...")
+            os.remove(f"{outpath}{outfile}")
+            print(f"Creating new nc file {outfile}")
+            flag = nc.generate_30s_averaged_Ze_files(container, outpath)
+            print(f"Generated nc file for {date} in {time.time() - t1}.")
+    else:
+        print(f"Creating new nc file {outfile}")
+        flag = nc.generate_30s_averaged_Ze_files(container, outpath)
+        print(f"Generated nc file for {date} in {time.time() - t1}.")
 
