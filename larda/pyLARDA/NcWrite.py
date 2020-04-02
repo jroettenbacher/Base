@@ -218,9 +218,10 @@ def generate_30s_averaged_Ze_files(data, path, **kwargs):
     ds_name = path + f"RV-METEOR_LIMRAD94_Ze_{h.ts_to_dt(data['Ze']['ts'][0]):%Y%m%d}.nc"
     ds = netCDF4.Dataset(ds_name, "w", format="NETCDF4")
     # ds.commit_id = subprocess.check_output(["git", "describe", "--always"]) .rstrip()
-    ds.description = 'Preliminary LIMRAD 94GHz - FMCW Radar Data, averaged to 30s and 30m time/range resolution \n' \
-                     'filters applied: ghos-echo, despeckle, use only main peak \n ' \
-                     'Institution: University Leipzig - Institute for Meteorology \n ' \
+    ds.description = 'Preliminary LIMRAD 94GHz - FMCW Doppler radar data, averaged to 30s and 30m time/range resolution \n' \
+                     'filters applied: ghost-echo; despeckle; the reflectivity calculated is only based on the main ' \
+                     'radar peak if several are separated by the noise floor \n ' \
+                     'Institution: Leipzig University - Institute for Meteorology \n ' \
                      'Contact: heike.kalesse@uni-leipzig.de'
     ds.history = 'Created ' + time.ctime(time.time()) + ' UTC'
     ds.source = data['Ze']['paraminfo']['location']
@@ -246,7 +247,7 @@ def generate_30s_averaged_Ze_files(data, path, **kwargs):
 
     # 2D variables
     nc_add_variable(ds, val=data['Ze']['var'], dimension=('time', 'range',),
-                    var_name='Ze', type=np.float32, long_name='Linear averaged equivalent radar reflectivity factor',
+                    var_name='Ze', type=np.float32, long_name='Linearly averaged equivalent radar reflectivity factor',
                     unit='mm^6/m^3')
 
     ds.close()
