@@ -15,7 +15,7 @@ from pyLARDA.Transformations import interpolate2d
 import pyLARDA.NcWrite as nc
 import logging
 log = logging.getLogger('pyLARDA')
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 log.addHandler(logging.StreamHandler())
 import numpy as np
 import pandas as pd
@@ -29,8 +29,8 @@ method_name, args, kwargs = h._method_info_from_argv(sys.argv)
 # gather argument
 if 'date' in kwargs:
     date = str(kwargs['date'])
-    begin_dt = dt.datetime.strptime(date + ' 00:00:00', '%Y%m%d %H:%M:%S')
-    end_dt = dt.datetime.strptime(date + ' 00:00:00', '%Y%m%d %H:%M:%S')
+    begin_dt = dt.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
+    end_dt = dt.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
 else:
     begin_dt = dt.datetime(2020, 1, 17, 0, 0, 0)
     end_dt = dt.datetime(2020, 2, 27, 0, 0, 0)
@@ -42,7 +42,8 @@ outpath = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/upload_to_aeris/"  
 for date in dates:
     t1 = time.time()
     # load data from larda
-    Ze = larda.read("LIMRAD94_cn_input", "Ze", [date, (date + dt.timedelta(days=1))], [0, 'max'])
+    Ze = larda.read("LIMRAD94_cn_input", "Ze", [date, (date + dt.timedelta(hours=23, minutes=59, seconds=30))],
+                    [0, 'max'])
     # define new dimensions
     new_time = np.array([date + dt.timedelta(seconds=i) for i in range(0, int((24*60*60)), 30)])  # 30s timestep
     new_time = np.array([h.dt_to_ts(time) for time in new_time])  # convert to unix time stamps
