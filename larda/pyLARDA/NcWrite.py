@@ -205,3 +205,51 @@ def generate_weather_file_LIMRAD94(data, path, **kwargs):
     print('save calibrated to :: ', ds_name)
 
     return 0
+
+
+def generate_30s_averaged_Ze_files(data, path, **kwargs):
+    """
+    This routine generates a daily NetCDF4 file for the RPG 94 GHz FMCW radar 'LIMRAD94'.
+    Args:
+        data (dict): dictionary of larda containers
+        path (string): path where the NetCDF file is stored
+    """
+    import time
+    ds_name = path + f"RV-METEOR_LIMRAD94_Ze_{h.ts_to_dt(data['Ze']['ts'][0]):%Y%m%d}.nc"
+    ds = netCDF4.Dataset(ds_name, "w", format="NETCDF4")
+    # ds.commit_id = subprocess.check_output(["git", "describe", "--always"]) .rstrip()
+    ds.description = 'Preliminary LIMRAD 94GHz - FMCW Radar Data, averaged to 30s and 30m time/range resolution' \
+                     'filters applied: ghos-echo, despeckle, use only main peak' \
+                     'Institution: University Leipzig - Institute for Meteorology' \
+                     'Contact: heike.kalesse@uni-leipzig.de'
+    ds.history = 'Created ' + time.ctime(time.time())
+    ds.source = data['Ze']['paraminfo']['location']
+    ds.FillValue = data['Ze']['paraminfo']['fill_value']
+    ds.createDimension('time', data['Ze']['ts'].size)
+    ds.createDimension('range', data['Ze']['rg'].size)
+
+    # coordinates
+    nc_add_variable(ds, val=data['Ze']['paraminfo']['coordinates'][0], dimension=(),
+                    var_name='latitude', type=np.float32, long_name='GPS latitude', unit='deg')
+
+    nc_add_variable(ds, val=data['Ze']['paraminfo']['coordinates'][1], dimension=(),
+                    var_name='longitude', type=np.float32, long_name='GPS longitude', unit='deg')
+
+    # time and range variable
+    # convert to time since 20010101
+    ts = np.subtract(data['Ze']['ts'], datetime.datetime(2001, 1, 1, 0, 0, 0).timestamp())
+    nc_add_variable(ds, val=ts, dimension=('time',),
+                    var_name='time', type=np.float64, long_name='Seconds since 01.01.2001 00:00 UTC', unit='sec')
+
+    nc_add_variable(ds, val=data['Ze']['rg'], dimension=('range',),
+                    var_name='range', type=np.float32, long_name='range', unit='m')
+
+    # 2D variables
+    nc_add_variable(ds, val=data['Ze']['var'], dimension=('time', 'range',),
+                    var_name='Ze', type=np.float32, long_name='Linear averaged equivalent radar reflectivity factor',
+                    unit='mm^6/m^3')
+
+    ds.close()
+    print('save calibrated to :: ', ds_name)
+
+    return 0
