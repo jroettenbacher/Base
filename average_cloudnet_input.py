@@ -11,13 +11,25 @@ sys.path.append('.')
 import pyLARDA
 import pyLARDA.helpers as h
 import pyLARDA.NcWrite as nc
-from larda.pyLARDA.spec2mom_limrad94 import spectra2moments, build_extended_container
 import logging
 import numpy as np
+import pandas as pd
+import functions_jr as jr
 
 # Load LARDA
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
-begin_dt = dt.date(2020, 1, 18)
-end_dt = dt.date(2020, 2, 19)
-# loop through all files in date range
+# set end and start date
+begin_dt = dt.datetime(2020, 1, 17, 0, 0, 0)
+end_dt = dt.datetime(2020, 2, 20, 0, 0, 0)
+dates = pd.date_range(begin_dt, end_dt)  # define all dates
+path = "./data/cloudnet_input/"  # define path to cloudnet files
 
+# loop through all files in date range
+# for date in dates:
+# load data from larda
+date = begin_dt
+Ze = larda.read("LIMRAD94_cn_input", "Ze", [date, (date + dt.timedelta(days=1))], [0, max])
+# define new dimensions
+new_time = np.array([date + dt.timedelta(seconds=i) for i in range(0, int((24*60*60)), 30)])  # 30s timestep
+# new_range =
+file = f"{path}{date:%Y%m%d}_000000-240000_LIMRAD94.nc"
