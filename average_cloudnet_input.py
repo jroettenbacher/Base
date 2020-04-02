@@ -26,7 +26,7 @@ larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 begin_dt = dt.datetime(2020, 1, 17, 0, 0, 0)
 end_dt = dt.datetime(2020, 2, 20, 0, 0, 0)
 dates = pd.date_range(begin_dt, end_dt).to_pydatetime()  # define all dates
-outpath = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/cloudnet_input/upload_to_aeris/"  # define path for output
+outpath = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/upload_to_aeris/"  # define path for output
 
 # loop through all files in date range
 for date in dates:
@@ -50,6 +50,8 @@ for date in dates:
             print(f"Creating new nc file {outfile}")
             flag = nc.generate_30s_averaged_Ze_files(container, outpath)
             print(f"Generated nc file for {date} in {time.time() - t1}.")
+        else:
+            print("Moving on to next file.")
     else:
         print(f"Creating new nc file {outfile}")
         flag = nc.generate_30s_averaged_Ze_files(container, outpath)
