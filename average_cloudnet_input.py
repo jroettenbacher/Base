@@ -6,7 +6,7 @@
 import sys
 import time
 import datetime as dt
-sys.path.append(r'C:\Users\Johannes\PycharmProjects\Base\larda')
+sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
 import pyLARDA
 import pyLARDA.helpers as h
