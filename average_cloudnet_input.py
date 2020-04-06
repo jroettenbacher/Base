@@ -42,7 +42,7 @@ outpath = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/30s_averages/"  # d
 for date in dates:
     t1 = time.time()
     # load data from larda
-    Ze = larda.read("LIMRAD94_cn_input", "Ze", [date, (date + dt.timedelta(hours=23, minutes=59, seconds=30))],
+    Ze = larda.read("LIMRAD94_cn_input", "Ze", [date, (date + dt.timedelta(hours=23, minutes=59, seconds=59))],
                     [0, 'max'])
     # define new dimensions
     new_time = np.array([date + dt.timedelta(seconds=i) for i in range(0, int((24*60*60)), 30)])  # 30s timestep
