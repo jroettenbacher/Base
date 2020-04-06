@@ -44,6 +44,10 @@ for date in dates:
     # load data from larda
     Ze = larda.read("LIMRAD94_cn_input", "Ze", [date, (date + dt.timedelta(hours=23, minutes=59, seconds=30))],
                     [0, 'max'])
+    # mask values = -999
+    Ze["var"] = np.ma.masked_where(Ze["var"] == -999, Ze["var"])
+    # overwrite mask in larda container -> does not change plot output
+    Ze["mask"] = Ze["var"].mask
     # define new dimensions
     new_time = np.array([date + dt.timedelta(seconds=i) for i in range(0, int((24*60*60)), 30)])  # 30s timestep
     new_time = np.array([h.dt_to_ts(time) for time in new_time])  # convert to unix time stamps
