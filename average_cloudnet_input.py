@@ -32,7 +32,7 @@ if 'date' in kwargs:
     begin_dt = dt.datetime.strptime(date + ' 00:00:00', '%Y%m%d %H:%M:%S')
     end_dt = dt.datetime.strptime(date + ' 00:00:00', '%Y%m%d %H:%M:%S')
 else:
-    begin_dt = dt.datetime(2020, 2, 1, 0, 0, 0)
+    begin_dt = dt.datetime(2020, 1, 28, 0, 0, 0)
     end_dt = dt.datetime(2020, 2, 19, 0, 0, 0)
 
 dates = pd.date_range(begin_dt, end_dt).to_pydatetime()  # define all dates
