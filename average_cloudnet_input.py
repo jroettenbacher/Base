@@ -36,7 +36,7 @@ else:
     end_dt = dt.datetime(2020, 2, 6, 0, 0, 0)
 
 dates = pd.date_range(begin_dt, end_dt).to_pydatetime()  # define all dates
-outpath = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/upload_to_aeris/"  # define path for output
+outpath = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/30s_averages/"  # define path for output
 
 # loop through all files in date range
 for date in dates:
