@@ -102,7 +102,7 @@ def generate_cloudnet_input_LIMRAD94(data, path, **kwargs):
 
     range_offsets = np.ones(no_chirps, dtype=np.uint32)
     for iC in range(no_chirps - 1):
-        range_offsets[iC + 1] = range_offsets[iC] + data['C' + str(iC + 1) + 'Range']['var'].shape
+        range_offsets[iC + 1] = range_offsets[iC] + data['C' + str(iC + 1) + 'Range']['var'][0].shape
 
     nc_add_variable(ds, val=range_offsets, dimension=('chirp',),
                     var_name='range_offsets', type=np.uint32,
