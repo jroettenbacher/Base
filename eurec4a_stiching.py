@@ -45,7 +45,7 @@ c_info = [larda.camp.LOCATION, larda.camp.VALID_DATES]
 begin_dates = [dt.datetime(2020, 1, 27, 3, 8, 6), dt.datetime(2020, 1, 27, 15, 7, 45),
                dt.datetime(2020, 1, 27, 23, 3, 4)]
 end_dates = [dt.datetime(2020, 1, 27, 13, 3, 0), dt.datetime(2020, 1, 27, 21, 2, 0),
-             dt.datetime(2020, 1, 28, 11, 4, 0)]
+             dt.datetime(2020, 1, 27, 23, 59, 59)]
 print('days with data', larda.days_with_data())
 for begin_dt, end_dt in zip(begin_dates, end_dates):
     std_above_mean_noise = 6.0
@@ -71,9 +71,9 @@ for begin_dt, end_dt in zip(begin_dates, end_dates):
     LIMRAD94_moments['ldr']['var'] = np.ma.masked_where(LIMRAD94_moments['Ze']['mask'] == True,
                                                         LIMRAD94_moments['ldr']['var'])
 
-    path = f""
+    path = f"/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/cloudnet_input_test"
 
-    flag = nc.generate_cloudnet_input_LIMRAD94(LIMRAD94_moments, path)
+    flag = nc.generate_cloudnet_input_LIMRAD94(LIMRAD94_moments, path, time_frame=f"{begin_dt:%H%M%S}-{end_dt:%H%M%S}")
 
     ########################################################################################################################
 
