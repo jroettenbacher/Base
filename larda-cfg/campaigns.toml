@@ -3,7 +3,7 @@
     coordinates = [13.0, -57.7]
     altitude = 15
     duration = [["20200114", "today"]]  # you can leave it like this for eurec4a, start is set to 20190901 for testings only and can be set to the actual start date of the campaign later on
-    systems = ["LIMRAD94",  "HATPRO", "CEILO", "LIMRAD94_cn_input"]
+    systems = ["LIMRAD94",  "HATPRO", "CEILO", "LIMRAD94_cn_input", "LIMRAD94_30s"]
     mira_azi_zero = -999
     cloudnet_stationname = 'none'
     param_config_file = 'params_eurec4a.toml'
