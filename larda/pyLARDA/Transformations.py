@@ -149,7 +149,13 @@ def join(datadict1, datadict2):
         except ValueError:
             print("Dimensions seem to be switched...\nTrying np.vstack()")
             new_data['var'] = np.vstack((datadict1['var'], datadict2['var']))
-        new_data['mask'] = np.hstack((datadict1['mask'], datadict2['mask']))
+        try:
+            new_data['mask'] = np.hstack((datadict1['mask'], datadict2['mask']))
+        except ValueError:
+            print("Dimensions seem to be switched...\nTrying np.vstack()")
+            new_data['mask'] = np.vstack((datadict1['mask'], datadict2['mask']))
+
+
 
     return new_data
 
