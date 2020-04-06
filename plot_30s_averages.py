@@ -48,10 +48,10 @@ else:
 #  read in moments
 system = "LIMRAD94_30s"
 radar_Z = larda.read(system, "Ze", [begin_dt, end_dt], plot_range)
-# mask values = -999
-radar_Z["var"] = np.ma.masked_where(radar_Z["var"] == -999, radar_Z["var"])
-# overwrite mask in larda container -> does not change plot output
-radar_Z["mask"] = radar_Z["var"].mask
+# # mask values = -999
+# radar_Z["var"] = np.ma.masked_where(radar_Z["var"] == -999, radar_Z["var"])
+# # overwrite mask in larda container -> does not change plot output
+# radar_Z["mask"] = radar_Z["var"].mask
 name = f'plots/' \
        f'{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{plot_range[1] / 1000:.0f}km_30s'
 
