@@ -5,6 +5,7 @@ import sys
 sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
 import numpy as np
+import time
 import pyLARDA
 import pyLARDA.helpers as h
 import pyLARDA.Transformations as pLTransf
@@ -24,7 +25,7 @@ plot_path = "/projekt1/remsens/work/jroettenbacher/Base/plots"
 
 
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
-
+t1 = time.time()
 
 Ze_LIMRAD = larda.read("LIMRAD94_cn_input", "Ze", [begin_dt, end_dt], [0, 'max'])
 Ze_LIMRAD['var_unit'] = 'dBZ'
@@ -49,4 +50,4 @@ ax.plot(dt_list, var, '.', ms=2.5, label='cloud base height ceilometer', color='
 # ax.plot(dt_list, var[:, 2], 'p', ms=3, label='cloud base height 3', color='blue', alpha=0.7)
 # ax.legend()
 fig.savefig(f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range / 1000:.0f}km_Ze_ceilo_cbh.png')
-
+print(f"saved figure to {plot_path}\nTime needed {time.time() - t1}")
