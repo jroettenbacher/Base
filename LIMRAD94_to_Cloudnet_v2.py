@@ -14,8 +14,7 @@ Example:
 
 import sys, datetime, time
 
-
-sys.path.append('/home/remsens/code/larda3/larda/')
+sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
 
 import pyLARDA
