@@ -2,7 +2,7 @@
 import datetime
 import sys
 # path to local larda source code - no data needed locally
-sys.path.append('/home/remsens/code/larda3/larda/')
+sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
 import numpy as np
 import pyLARDA
@@ -16,9 +16,11 @@ log = logging.getLogger('pyLARDA')
 # log.setLevel(logging.DEBUG)
 log.addHandler(logging.StreamHandler())
 
-begin_dt = datetime.datetime(2020, 2, 16, 0, 0, 0)
-end_dt = datetime.datetime(2020, 2, 16, 12, 30, 0)
+begin_dt = datetime.datetime(2020, 2, 5, 0, 0, 5)
+end_dt = datetime.datetime(2020, 2, 6, 23, 59, 0)
 plot_range = 3000
+
+plot_path = "/projekt1/remsens/work/jroettenbacher/Base/plots"
 
 
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
@@ -46,6 +48,5 @@ ax.plot(dt_list, var, '.', ms=2.5, label='cloud base height ceilometer', color='
 # ax.plot(dt_list, var[:, 1], 's', ms=3, label='cloud base height 2', color='green', alpha=0.7)
 # ax.plot(dt_list, var[:, 2], 'p', ms=3, label='cloud base height 3', color='blue', alpha=0.7)
 # ax.legend()
-fig.savefig(f'/home/remsens/code/larda3/scripts/plots/ceilo/'
-            f'{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range / 1000:.0f}km_Ze_ceilo_cbh.png')
+fig.savefig(f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range / 1000:.0f}km_Ze_ceilo_cbh.png')
 
