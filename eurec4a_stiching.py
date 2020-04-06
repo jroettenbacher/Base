@@ -43,11 +43,18 @@ log.addHandler(logging.StreamHandler())
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 c_info = [larda.camp.LOCATION, larda.camp.VALID_DATES]
 begin_dates = [dt.datetime(2020, 1, 27, 3, 8, 6), dt.datetime(2020, 1, 27, 15, 7, 45),
-               dt.datetime(2020, 1, 27, 23, 3, 4)]
+               dt.datetime(2020, 1, 27, 23, 3, 4), dt.datetime(2020, 1, 29, 0, 0, 5),
+               dt.datetime(2020, 1, 29, 18, 0, 40), dt.datetime(2020, 1, 30, 0, 0, 5),
+               dt.datetime(2020, 1, 30, 15, 10, 0)]
 end_dates = [dt.datetime(2020, 1, 27, 13, 3, 0), dt.datetime(2020, 1, 27, 21, 2, 0),
-             dt.datetime(2020, 1, 27, 23, 59, 59)]
+             dt.datetime(2020, 1, 27, 23, 59, 59), dt.datetime(2020, 1, 29, 18, 0, 0),
+             dt.datetime(2020, 1, 29, 23, 59, 59), dt.datetime(2020, 1, 30, 15, 8, 0),
+             dt.datetime(2020, 1, 30, 23, 42, 0)]
 print('days with data', larda.days_with_data())
+# create cloudnet input files with moments calculated from spectra for each time period
 for begin_dt, end_dt in zip(begin_dates, end_dates):
+    time_frame = f"{begin_dt:%H%M%S}-{end_dt:%H%M%S}"
+    print(f"Starting {begin_dt:%Y-%m-%d} {time_frame}\n")
     std_above_mean_noise = 6.0
 
     LIMRAD_Zspec = build_extended_container(larda, 'VSpec', begin_dt, end_dt,
@@ -71,9 +78,9 @@ for begin_dt, end_dt in zip(begin_dates, end_dates):
     LIMRAD94_moments['ldr']['var'] = np.ma.masked_where(LIMRAD94_moments['Ze']['mask'] == True,
                                                         LIMRAD94_moments['ldr']['var'])
 
-    path = f"/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/cloudnet_input_test"
+    path = f"/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/cloudnet_input_test/"
 
-    flag = nc.generate_cloudnet_input_LIMRAD94(LIMRAD94_moments, path, time_frame=f"{begin_dt:%H%M%S}-{end_dt:%H%M%S}")
+    flag = nc.generate_cloudnet_input_LIMRAD94(LIMRAD94_moments, path, time_frame=time_frame)
 
     ########################################################################################################################
 
