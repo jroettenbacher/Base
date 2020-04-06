@@ -489,7 +489,7 @@
     time_conversion = 'since19040101'
     range_conversion = 'none'
     var_conversion = 'none'
-    ncreader = 'time'
+    ncreader = 'aux'
     # if identifier is given read from ncfile, else define here
     identifier_rg_unit = 'units'
     identifier_var_unit = 'units'
