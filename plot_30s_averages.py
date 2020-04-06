@@ -43,7 +43,7 @@ else:
 if 'plot_range' in kwargs:
     plot_range = [0, int(kwargs['plot_range'])]
 else:
-    plot_range = [0, 12000]
+    plot_range = [0, 3000]
 
 #  read in moments
 system = "LIMRAD94_30s"
