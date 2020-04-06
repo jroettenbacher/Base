@@ -77,8 +77,8 @@ radar_Z['var_unit'] = 'dBZ'
 radar_Z['colormap'] = 'jet'
 fig, _ = pyLARDA.Transformations.plot_timeheight(radar_Z, range_interval=plot_range, rg_converter=True, title=True,
                                                  z_converter='lin2z')
-# fig.savefig(name + '_Z.png', dpi=250)
-# print(f'figure saved :: {name}_Z.png')
+fig.savefig(name + '_Z.png', dpi=250)
+print(f'figure saved :: {name}_Z.png')
 #
 # fig, _ = pyLARDA.Transformations.plot_timeheight(radar_MDV, rg_converter=True, title=True)
 # fig.savefig(name + '_MDV.png', dpi=250)
