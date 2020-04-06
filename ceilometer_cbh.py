@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 # optionally setup logging
 import logging
 log = logging.getLogger('pyLARDA')
-# log.setLevel(logging.DEBUG)
+log.setLevel(logging.DEBUG)
 log.addHandler(logging.StreamHandler())
 
 begin_dt = datetime.datetime(2020, 2, 5, 0, 0, 5)
