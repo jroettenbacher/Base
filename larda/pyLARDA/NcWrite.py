@@ -19,8 +19,7 @@ def generate_cloudnet_input_LIMRAD94(data, path, **kwargs):
     no_chirps = 3
 
     if 'time_frame' in kwargs:
-        ds_name = path + kwargs['time_frame'] + '_LIMRAD94.nc'.format(h.ts_to_dt(data['Ze']['ts'][0]).strftime("%Y%m%d"),
-                                                                      kwargs['time_frame'])
+        ds_name = f"{path}{h.ts_to_dt(data['Ze']['ts'][0]).strftime('%Y%m%d')}_{kwargs['time_frame']}_LIMRAD94.nc"
     else:
         ds_name = path + '{}_000000-240000_LIMRAD94.nc'.format(h.ts_to_dt(data['Ze']['ts'][0]).strftime("%Y%m%d"))
 
