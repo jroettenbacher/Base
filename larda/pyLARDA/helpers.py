@@ -4,7 +4,9 @@
 import datetime, os, copy
 import numpy as np
 import pprint as pp
+import re
 import errno
+import ast
 
 def ident(x):
     return x
@@ -24,6 +26,8 @@ def get_converter_array(string, **kwargs):
         return lambda x: x + dt_to_ts(datetime.datetime(2001, 1, 1)), ident
     elif string == 'unix':
         return lambda x: x, ident
+    elif string == 'since19040101':
+        return lambda x: x + dt_to_ts(datetime.datetime(1904, 1, 1)), ident
     elif string == 'since19691231':
         return lambda x: x + dt_to_ts(datetime.datetime(1969, 12, 31, 23)), ident
     elif string == 'since19700101':
@@ -67,6 +71,12 @@ def get_converter_array(string, **kwargs):
         return divide_by(2.), ident
     elif string == 'raw2Z':
         return raw2Z(**kwargs), ident
+    elif string == "extract_level0":
+        return lambda x: x[:,0], ident
+    elif string == "extract_level1":
+        return lambda x: x[:,1], ident
+    elif string == "extract_level2":
+        return lambda x: x[:,2], ident
     elif string == "none":
         return ident, ident
     else:
@@ -158,6 +168,38 @@ def fill_with(array, mask, fill):
     filled = array.copy()
     filled[mask] = fill
     return filled
+
+
+def guess_str_to_dict(string):
+    """try to convert a text string into a dict
+    intended to be used in the var_def
+
+    Returns:
+        dict with flag as key and description string
+    """
+
+
+    if "{" in string:
+        #probalby already the stringified python format
+        return ast.iteral_eval(string)
+
+    elif "\n" in string:
+        #the cloudnet format 0: desc\n ....
+        d = {}
+        for e in string.split('\n'):
+            k, v = e.split(':')
+            d[int(k)] = v.strip()
+        return d
+    elif "\\n" in string:
+        # pollynet format
+        d = {}
+        for e in string.split('\\n'):
+            m = re.match(r'(\d{1,2}): (.*)', e.replace(r'\"', ''))
+            d[int(m.group(1))] = m.group(2).strip()
+        return d
+    else:
+        # unknown format
+        return string
 
 
 def _method_info_from_argv(argv=None):
@@ -388,6 +430,16 @@ def extract_case_from_excel_sheet(data_loc, sheet_nr=0, **kwargs):
     return case_list
 
 
+def interp_only_3rd_dim(arr, old, new):
+    """function to interpolate only the velocity (3rd) axis"""
+
+    from scipy import interpolate
+
+    f = interpolate.interp1d(old, arr, axis=2,
+                             bounds_error=False, fill_value=-999.)
+    new_arr = f(new)
+
+    return new_arr
 
 def put_in_container(data, data_container, **kwargs):
     """
@@ -431,3 +483,17 @@ def change_dir(folder_path, **kwargs):
 
     os.chdir(folder_path)
     print('\ncd to: ', folder_path)
+
+
+def smooth(y, box_pts):
+    """Smooth a one dimensional array using a rectangular window of box_pts points
+
+    Args:
+        y (np.array): array to be smoothed
+        box_pts: number of points of the rectangular smoothing window
+    Returns:
+        y_smooth (np.arrax): smoothed array
+    """
+    box = np.ones(box_pts) / box_pts
+    y_smooth = np.convolve(y, box, mode='same')
+    return y_smooth
