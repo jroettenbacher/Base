@@ -481,7 +481,7 @@
   # this general settings need to be handed down to the params
   [CEILO.generic]
     time_variable = 'time'
-    range_variable = 'layer'
+    range_variable = 'range'
     colormap = "gist_rainbow"
     which_path = 'nc'
     # define how the values from the nc file have to
