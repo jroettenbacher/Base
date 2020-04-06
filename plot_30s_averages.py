@@ -48,10 +48,6 @@ else:
 #  read in moments
 system = "LIMRAD94_30s"
 radar_Z = larda.read(system, "Ze", [begin_dt, end_dt], plot_range)
-# # mask values = -999
-# radar_Z["var"] = np.ma.masked_where(radar_Z["var"] == -999, radar_Z["var"])
-# # overwrite mask in larda container -> does not change plot output
-# radar_Z["mask"] = radar_Z["var"].mask
 name = f'plots/' \
        f'{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{plot_range[1] / 1000:.0f}km_30s'
 
@@ -61,35 +57,4 @@ fig, _ = pyLARDA.Transformations.plot_timeheight(radar_Z, range_interval=plot_ra
                                                  z_converter='lin2z')
 fig.savefig(name + '_Z.png', dpi=250)
 print(f'figure saved :: {name}_Z.png')
-#
-# fig, _ = pyLARDA.Transformations.plot_timeheight(radar_MDV, rg_converter=True, title=True)
-# fig.savefig(name + '_MDV.png', dpi=250)
-# print(f'figure saved :: {name}_MDV.png')
-# #
-# fig, _ = pyLARDA.Transformations.plot_timeheight(radar_sw, rg_converter=True, title=True)
-# fig.savefig(name + '_width.png', dpi=250)
-# print(f'figure saved :: {name}_width.png')
-#
-# radar_LDR['var_lims'] = [-30, 0]
-# radar_LDR['colormap'] = 'jet'
-# fig, _ = pyLARDA.Transformations.plot_timeheight(radar_LDR, rg_converter=True, title=True)
-# fig.savefig(name+'_LDR.png', dpi=250)
-# print(f'figure saved :: {name}_LDR.png')
-#
-# radar_ZDR['var_lims'] = [-0.2, 1]
-# radar_ZDR['colormap'] = 'jet'
-# fig, _ = pyLARDA.Transformations.plot_timeheight(radar_ZDR, rg_converter=True, title=True)
-# fig.savefig(name+'_ZDR.png', dpi=250)
-# print(f'figure saved :: {name}_ZDR.png')
-#
-# radar_RHV['var_lims'] = [0.85, 1]
-# radar_RHV['colormap'] = 'jet'
-# fig, _ = pyLARDA.Transformations.plot_timeheight(radar_RHV, rg_converter=True, title=True)
-# fig.savefig(name+'_RHV.png', dpi=250)
-# print(f'figure saved :: {name}_RHV.png')
-#
-# radar_PhiDP['var_lims'] = [0, 5]
-# radar_PhiDP['colormap'] = 'jet'
-# fig, _ = pyLARDA.Transformations.plot_timeheight(radar_PhiDP, rg_converter=True, title=True)
-# fig.savefig(name+'_PhiDP.png', dpi=250)
-# print(f'figure saved :: {name}_PhiDP.png')
+
