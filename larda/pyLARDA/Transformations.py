@@ -621,6 +621,7 @@ def plot_timeheight(data, **kwargs):
     if time_extend > datetime.timedelta(hours=24):
         ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%b %d'))
         ax.xaxis.set_major_locator(matplotlib.dates.HourLocator(byhour=[0]))
+        ax.xaxis.set_minor_formatter(matplotlib.dates.DateFormatter('%H:%M'))
         ax.xaxis.set_minor_locator(matplotlib.dates.HourLocator(byhour=[12]))
     elif time_extend > datetime.timedelta(hours=6):
         ax.xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%H:%M'))
