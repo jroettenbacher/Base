@@ -17,7 +17,7 @@ log = logging.getLogger('pyLARDA')
 log.addHandler(logging.StreamHandler())
 
 begin_dt = datetime.datetime(2020, 2, 5, 0, 0, 5)
-end_dt = datetime.datetime(2020, 2, 6, 23, 59, 0)
+end_dt = datetime.datetime(2020, 2, 6, 23, 59, 30)
 plot_range = 3000
 
 plot_path = "/projekt1/remsens/work/jroettenbacher/Base/plots"
