@@ -29,8 +29,8 @@ method_name, args, kwargs = h._method_info_from_argv(sys.argv)
 # gather argument
 if 'date' in kwargs:
     date = str(kwargs['date'])
-    begin_dt = dt.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
-    end_dt = dt.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
+    begin_dt = dt.datetime.strptime(date + ' 00:00:00', '%Y%m%d %H:%M:%S')
+    end_dt = dt.datetime.strptime(date + ' 00:00:00', '%Y%m%d %H:%M:%S')
 else:
     begin_dt = dt.datetime(2020, 2, 1, 0, 0, 0)
     end_dt = dt.datetime(2020, 2, 19, 0, 0, 0)
