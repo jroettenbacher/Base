@@ -60,7 +60,7 @@ if __name__ == '__main__':
         begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
         end_dt = datetime.datetime.strptime(date + ' 23:59:55', '%Y%m%d %H:%M:%S')
     else:
-        date = '20200131'
+        date = '20200128'
         begin_dt = datetime.datetime.strptime(date + ' 12:00:05', '%Y%m%d %H:%M:%S')
         end_dt = datetime.datetime.strptime(date + ' 23:59:55', '%Y%m%d %H:%M:%S')
 
@@ -106,7 +106,7 @@ if __name__ == '__main__':
         elif c_info[0] == 'Leipzig':
             path = cloudnet_remsens_lim_path + 'leipzig/' + 'calibrated/limrad94/' + date[:4] + '/'
         elif c_info[0] == 'RV-Meteor':
-            cloudnet_remsens_lim_path = '/home/remsens/data/LIMRAD94/cloudnet_input/'
+            cloudnet_remsens_lim_path = '/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/cloudnet_input_test/'
             path = cloudnet_remsens_lim_path
         else:
             print('Error: No other sites implemented jet!')
