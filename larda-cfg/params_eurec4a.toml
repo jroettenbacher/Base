@@ -381,13 +381,13 @@
     ncreader = 'aux'
     var_lims = []
 
-[LIMRAD94_cn_input]
-  [LIMRAD94_cn_input.path.nc]
+[LIMRAD94_30s]
+  [LIMRAD94_30s.path.nc]
     base_dir = '/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/30s_averages/'
     matching_subdirs = '(.*RV-METEOR_LIMRAD94_Ze_\d{8}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
     # _(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})
-  [LIMRAD94_cn_input.generic]
+  [LIMRAD94_30s.generic]
     # this general settings need to be handed down to the params
     colormap = "gist_rainbow"
     which_path = 'nc'
@@ -404,7 +404,7 @@
     identifier_var_unit = 'Units'
     fill_value = -999.0
     description_file = 'limrad94_general.rst'
-  [LIMRAD94_cn_input.params.Ze]
+  [LIMRAD94_30s.params.Ze]
     variable_name = 'Ze'
     var_unit = 'mm^6/m^3'
     colormap = 'jet'
