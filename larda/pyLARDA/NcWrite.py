@@ -102,8 +102,11 @@ def generate_cloudnet_input_LIMRAD94(data, path, **kwargs):
 
     range_offsets = np.ones(no_chirps, dtype=np.uint32)
     for iC in range(no_chirps - 1):
-        range_offsets[iC + 1] = range_offsets[iC] + data['C' + str(iC + 1) + 'Range']['var'][0].shape
-
+        try:
+            range_offsets[iC + 1] = range_offsets[iC] + data['C' + str(iC + 1) + 'Range']['var'][0].shape
+        except ValueError:
+            # in case only one file is read in data["C1Range"]["var"] has only one dimension
+            range_offsets[iC + 1] = range_offsets[iC] + data['C' + str(iC + 1) + 'Range']['var'].shape
     nc_add_variable(ds, val=range_offsets, dimension=('chirp',),
                     var_name='range_offsets', type=np.uint32,
                     long_name='chirp sequences start index array in altitude layer array', unit='[-]')
