@@ -36,7 +36,7 @@ import numpy as np
 start_time = time.time()
 
 log = logging.getLogger('pyLARDA')
-log.setLevel(logging.INFO)
+log.setLevel(logging.DEBUG)
 log.addHandler(logging.StreamHandler())
 
 # Load LARDA
