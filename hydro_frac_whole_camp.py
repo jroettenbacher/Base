@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import sys
 import time
+from scipy import interpolate
 # just needed to find pyLARDA from this location
 sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda/')
 sys.path.append('.')
@@ -102,8 +103,12 @@ for Ze in [Ze1, Ze2]:
 ########################################################################################################################
 # interpolation between different range resolution
 ########################################################################################################################
-
-
+print("Interpolating data\n")
+hydro1 = hydro_out['Ze1']
+hydro2 = hydro_out['Ze2']
+f = interpolate.interp1d(hydro2["Height_m"], hydro2["hydro_frac"], kind='linear')
+new_hydro = f(hydro1["Height_m"])  # interpolate hydro1 data to range gates of hydro2
+print("Done with skript.")
 ########################################################################################################################
 # plotting section
 ########################################################################################################################
