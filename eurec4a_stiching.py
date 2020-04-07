@@ -128,3 +128,10 @@ for begin_dt, end_dt in zip(begin_dates, end_dates):
 ########################################################################################################################
 
 print('Finished with all files.\nTotal elapsed time = {:.3f} sec.'.format(time.time() - start_time))
+
+print(f"Start stiching files together with cdo...")
+os.chdir(path)  # change into directoy with all nc files
+cdo.mergetime(input="20200127_030806-130300_LIMRAD94.nc 20200127_150745-210200_LIMRAD94.nc "
+                    "20200127_230304-235959_LIMRAD94.nc",
+              output="20200127_030806-235959_LIMRAD94.nc")
+print(f"Done with eurec4a_stiching.py in {time.time() - start_time}")
