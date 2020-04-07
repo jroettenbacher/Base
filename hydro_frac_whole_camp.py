@@ -108,35 +108,36 @@ hydro1 = hydro_out['Ze1'].reset_index()
 hydro2 = hydro_out['Ze2'].reset_index()
 f = interpolate.interp1d(hydro1["Height_m"], hydro1["hydro_frac"], kind='linear')
 new_hydro = f(hydro2["Height_m"])  # interpolate hydro1 data to range gates of hydro2
-print("Done with script.")
+# combine hydro fractions by averaging them
+new_hydro_frac = (hydro2["hydro_frac"] + new_hydro) / 2
+hydro_frac = pd.DataFrame({'Height_m': hydro2["Height_m"], "hydro_frac": new_hydro_frac})
 ########################################################################################################################
 # plotting section
 ########################################################################################################################
-# print("Start plotting...")
-# # some layout stuff
-# plt.style.use("default")
-# plt.rcParams.update({'font.size': 16, 'figure.figsize': (10, 10)})
-#
-# if chunk_size == 'max':
-#     hydro_frac_plt = hydro_frac.reset_index()
-#
-#     fig, ax = plt.subplots()
-#     ax.plot(hydro_frac_plt['hydro_frac'], hydro_frac_plt['Height_m'], label="Hydrometeor Fraction", linewidth=3)
-#     ax.legend(title='', fontsize=14, bbox_to_anchor=(1., 1.))
-#     ax.set_ylabel("Height [m]")
-#     ax.set_xlabel("Hydrometeor Fraction")
-#     ax.set_title(
-#         f"Hydrometeor Fraction in the whole Troposphere Eurec4a "
-#         f"\n RV-Meteor - {begin_dt:%Y-%m-%d} - {end_dt2:%Y-%m-%d} "
-#         f"\nCloudradar Uni Leipzig")
-#     ax.yaxis.set_minor_locator(AutoMinorLocator(5))
-#     ax.xaxis.set_minor_locator(AutoMinorLocator(2))
-#     ax.yaxis.set_minor_formatter(FormatStrFormatter('%d'))
-#     ax.tick_params(which='minor', length=4, labelsize=12)
-#     plt.tight_layout()
-#     ax.grid(True, which='minor', color="grey", linestyle='-', linewidth=1)
-#     ax.xaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
-#     ax.yaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
-#     # plt.show()
-#     plt.savefig(f"{plot_path}/RV-Meteor_cloudradar_hydro-fraction_{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}.png", dpi=250)
-#     print(f"Saved figure to {plot_path}")
+print("Start plotting...")
+# some layout stuff
+plt.style.use("default")
+plt.rcParams.update({'font.size': 16, 'figure.figsize': (10, 10)})
+
+fig, ax = plt.subplots()
+ax.plot(hydro_frac['hydro_frac'], hydro_frac['Height_m'], label="Hydrometeor Fraction", linewidth=3)
+ax.legend(title='', fontsize=14, bbox_to_anchor=(1., 1.))
+ax.set_ylabel("Height [m]")
+ax.set_xlabel("Hydrometeor Fraction")
+ax.set_title(
+    f"Hydrometeor Fraction in the whole Troposphere Eurec4a "
+    f"\n RV-Meteor - {begin_dt:%Y-%m-%d} - {end_dt2:%Y-%m-%d} "
+    f"\nCloudradar Uni Leipzig")
+ax.yaxis.set_minor_locator(AutoMinorLocator(5))
+ax.xaxis.set_minor_locator(AutoMinorLocator(2))
+ax.yaxis.set_minor_formatter(FormatStrFormatter('%d'))
+ax.tick_params(which='minor', length=4, labelsize=12)
+plt.tight_layout()
+ax.grid(True, which='minor', color="grey", linestyle='-', linewidth=1)
+ax.xaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
+ax.yaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
+# plt.show()
+plt.savefig(f"{plot_path}/RV-Meteor_cloudradar_hydro-fraction_{begin_dt:%Y%m%d}-{end_dt2:%Y%m%d}.png", dpi=250)
+print(f"Saved figure to {plot_path}")
+
+print("Done with script.")
