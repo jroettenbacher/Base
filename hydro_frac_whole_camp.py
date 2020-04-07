@@ -6,6 +6,7 @@ need to interpolate the range gates between first part and second part of the ca
 import numpy as np
 import pandas as pd
 import sys
+import time
 # just needed to find pyLARDA from this location
 sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda/')
 sys.path.append('.')
@@ -46,12 +47,15 @@ plot_path = "/project1/remsens/work/jroettenbacher/Base/plots"
 ########################################################################################################################
 # read in files with larda
 ########################################################################################################################
+print("Read in data...\n")
 Ze1 = larda.read("LIMRAD94_cn_input", "Ze", [begin_dt, end_dt], [0, 'max'])
 Ze2 = larda.read("LIMRAD94_cn_input", "Ze", [begin_dt2, end_dt2], [0, 'max'])
 i = 0
 hydro_out = dict()
 for Ze in [Ze1, Ze2]:
+    t1 = time.time()
     i += 1
+    print(f"Starting with Ze{i}\n")
     # mask values = -999
     Ze["var"] = np.ma.masked_where(Ze["var"] == -999, Ze["var"])
     # overwrite mask in larda container
@@ -70,6 +74,7 @@ for Ze in [Ze1, Ze2]:
     # calculate hydrometeor fraction
     ####################################################################################################################
     # allocate array for all CFs but the first row (ghost echo bug fix)
+    print("Calculating hydrometeor fraction\n")
     Ze_CF = np.empty((Ze['var'].shape[1] - 1))
     for j in range(0, Ze_CF.shape[0]):
         # loop through all height bins but the first one
@@ -91,7 +96,9 @@ for Ze in [Ze1, Ze2]:
     hydro_out[f'Ze{i}'] = hydro_frac
 
     # write csv file
+    print(f"Writing csv file...\n")
     hydro_frac.to_csv(f"{output_path}/hydro_frac_Ze{i}.csv", sep=",", na_rep="NA")
+    print(f"Done with Ze{i} in {time.time() - t1:.3f} seconds\n")
 ########################################################################################################################
 # interpolation between different range resolution
 ########################################################################################################################
