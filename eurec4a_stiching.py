@@ -33,11 +33,13 @@ import pyLARDA.NcWrite as nc
 from larda.pyLARDA.spec2mom_limrad94 import spectra2moments, build_extended_container
 import logging
 import numpy as np
+from cdo import *
+cdo = Cdo()
 
 start_time = time.time()
 
 log = logging.getLogger('pyLARDA')
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 log.addHandler(logging.StreamHandler())
 
 # Load LARDA
@@ -47,7 +49,7 @@ begin_dates = [dt.datetime(2020, 1, 27, 3, 8, 6), dt.datetime(2020, 1, 27, 15, 7
                dt.datetime(2020, 1, 27, 23, 3, 4), dt.datetime(2020, 1, 29, 0, 0, 5),
                dt.datetime(2020, 1, 29, 18, 0, 40), dt.datetime(2020, 1, 30, 0, 0, 5),
                dt.datetime(2020, 1, 30, 15, 10, 0), dt.datetime(2020, 1, 30, 23, 42, 40),
-               dt.datetime(2020, 1, 31, 11, 38, 5), dt.datetime(2020, 1, 31, 22, 27, 5)]
+               dt.datetime(2020, 1, 31, 11, 38, 5), dt.datetime(2020, 1, 31, 22, 29, 5)]
 end_dates = [dt.datetime(2020, 1, 27, 13, 3, 0), dt.datetime(2020, 1, 27, 21, 2, 0),
              dt.datetime(2020, 1, 27, 23, 59, 59), dt.datetime(2020, 1, 29, 18, 0, 0),
              dt.datetime(2020, 1, 29, 23, 59, 59), dt.datetime(2020, 1, 30, 15, 8, 0),
