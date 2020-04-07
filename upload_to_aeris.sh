@@ -2,7 +2,9 @@
 # short shell script to upload data from eurec4a to aeris by mirroring a whole folder
 # before uploading, check if the folder you want to upload to already exists
 # connect to aeris via lftp and cd to where the folder should be
-# if not there mkdir "dirname" to create it
+# lftp eurec4a@ftp.climserv.ipsl.polytechnique.fr
+# password: pass4eurec4a!
+# if not there, mkdir "dirname" to create it
 # or use WinSCP for that
 
 DAY=$(date +%Y%m%d)
