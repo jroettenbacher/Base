@@ -39,10 +39,10 @@ chunk_size = 'max'  # chunk size in hours
 
 # define path where to write csv file (no / at end of path please)
 # output_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
-output_path = "/project1/remsens/work/jroettenbacher/Base/tmp"
+output_path = "/projekt1/remsens/work/jroettenbacher/Base/tmp"
 # define output path for plots (no / at end of path please)
 # plot_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
-plot_path = "/project1/remsens/work/jroettenbacher/Base/plots"
+plot_path = "/projekt1/remsens/work/jroettenbacher/Base/plots"
 
 ########################################################################################################################
 # read in files with larda
