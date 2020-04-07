@@ -49,7 +49,7 @@ plot_path = "/project1/remsens/work/jroettenbacher/Base/plots"
 Ze1 = larda.read("LIMRAD94_cn_input", "Ze", [begin_dt, end_dt], [0, 'max'])
 Ze2 = larda.read("LIMRAD94_cn_input", "Ze", [begin_dt2, end_dt2], [0, 'max'])
 i = 0
-hydro_out = dict
+hydro_out = dict()
 for Ze in [Ze1, Ze2]:
     i += 1
     # mask values = -999
