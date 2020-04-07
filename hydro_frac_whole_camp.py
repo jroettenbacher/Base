@@ -104,8 +104,8 @@ for Ze in [Ze1, Ze2]:
 # interpolation between different range resolution
 ########################################################################################################################
 print("Interpolating data\n")
-hydro1 = hydro_out['Ze1']
-hydro2 = hydro_out['Ze2']
+hydro1 = hydro_out['Ze1'].reset_index()
+hydro2 = hydro_out['Ze2'].reset_index()
 f = interpolate.interp1d(hydro2["Height_m"], hydro2["hydro_frac"], kind='linear')
 new_hydro = f(hydro1["Height_m"])  # interpolate hydro1 data to range gates of hydro2
 print("Done with skript.")
