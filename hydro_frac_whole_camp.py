@@ -108,9 +108,9 @@ hydro1 = hydro_out['Ze1'].reset_index()
 hydro2 = hydro_out['Ze2'].reset_index()
 # select only range gates which are smaller than the highest range gate in hydro2
 hydro1 = hydro1[hydro1["Height_m"] < np.max(hydro2["Height_m"])]
-f = interpolate.interp1d(hydro2["Height_m"], hydro2["hydro_frac"], kind='linear')
-new_hydro = f(hydro1["Height_m"])  # interpolate hydro1 data to range gates of hydro2
-print("Done with skript.")
+f = interpolate.interp1d(hydro1["Height_m"], hydro1["hydro_frac"], kind='linear')
+new_hydro = f(hydro2["Height_m"])  # interpolate hydro1 data to range gates of hydro2
+print("Done with script.")
 ########################################################################################################################
 # plotting section
 ########################################################################################################################
