@@ -15,7 +15,7 @@ from pyLARDA.Transformations import interpolate2d
 import pyLARDA.NcWrite as nc
 import logging
 log = logging.getLogger('pyLARDA')
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.WARNING)
 log.addHandler(logging.StreamHandler())
 import numpy as np
 import pandas as pd
