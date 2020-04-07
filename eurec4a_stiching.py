@@ -47,12 +47,12 @@ begin_dates = [dt.datetime(2020, 1, 27, 3, 8, 6), dt.datetime(2020, 1, 27, 15, 7
                dt.datetime(2020, 1, 27, 23, 3, 4), dt.datetime(2020, 1, 29, 0, 0, 5),
                dt.datetime(2020, 1, 29, 18, 0, 40), dt.datetime(2020, 1, 30, 0, 0, 5),
                dt.datetime(2020, 1, 30, 15, 10, 0), dt.datetime(2020, 1, 30, 23, 42, 40),
-               dt.datetime(2020, 1, 31, 0, 0, 5)]
+               dt.datetime(2020, 1, 31, 11, 38, 5), dt.datetime(2020, 1, 31, 22, 27, 5)]
 end_dates = [dt.datetime(2020, 1, 27, 13, 3, 0), dt.datetime(2020, 1, 27, 21, 2, 0),
              dt.datetime(2020, 1, 27, 23, 59, 59), dt.datetime(2020, 1, 29, 18, 0, 0),
              dt.datetime(2020, 1, 29, 23, 59, 59), dt.datetime(2020, 1, 30, 15, 8, 0),
              dt.datetime(2020, 1, 30, 23, 42, 0), dt.datetime(2020, 1, 30, 23, 59, 59),
-             dt.datetime(2020, 1, 31, )]
+             dt.datetime(2020, 1, 31, 22, 26, 55), dt.datetime(2020, 1, 31, 23, 59, 59)]
 print('days with data', larda.days_with_data())
 # create cloudnet input files with moments calculated from spectra for each time period
 for begin_dt, end_dt in zip(begin_dates, end_dates):
