@@ -28,7 +28,7 @@ larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 ########################################################################################################################
 # Set Date, Chunk Size and Paths
 ########################################################################################################################
-begin_dt = datetime.datetime(2020, 1, 18, 0, 0, 5)
+begin_dt = datetime.datetime(2020, 1, 17, 0, 0, 5)
 end_dt = datetime.datetime(2020, 1, 31, 23, 59, 55)
 begin_dt2 = datetime.datetime(2020, 2, 1, 0, 0, 5)
 end_dt2 = datetime.datetime(2020, 2, 19, 23, 59, 55)
@@ -38,10 +38,10 @@ chunk_size = 'max'  # chunk size in hours
 
 # define path where to write csv file (no / at end of path please)
 # output_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
-output_path = "/project1/remsens/work/jroettenbacher"
+output_path = "/project1/remsens/work/jroettenbacher/Base/tmp"
 # define output path for plots (no / at end of path please)
 # plot_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
-plot_path = "/project1/remsens/work/jroettenbacher/plots"
+plot_path = "/project1/remsens/work/jroettenbacher/Base/plots"
 
 ########################################################################################################################
 # read in files with larda
