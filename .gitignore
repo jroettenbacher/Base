@@ -9,3 +9,5 @@
 Thumbs.db
 /eurec4a_scripts/
 /larda-connectordump/
+/log/
+/__pycache__/
