@@ -61,7 +61,7 @@ if __name__ == '__main__':
     else:
         date = '20200117'
         begin_dt = datetime.datetime.strptime(date + ' 00:00:01', '%Y%m%d %H:%M:%S')
-        end_dt = datetime.datetime.strptime(date + ' 23:559:59', '%Y%m%d %H:%M:%S')
+        end_dt = datetime.datetime.strptime(date + ' 23:59:59', '%Y%m%d %H:%M:%S')
 
     std_above_mean_noise = float(kwargs['NF']) if 'NF' in kwargs else 6.0
 
