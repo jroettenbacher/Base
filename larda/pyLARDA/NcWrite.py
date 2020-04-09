@@ -253,7 +253,7 @@ def generate_30s_averaged_Ze_files(data, path, **kwargs):
                     unit='mm^6/m^3')
     nc_add_variable(ds, val=data['Ze']['cloud_mask'], dimension=('time', 'range',),
                     var_name='cloud_bases_tops', type=np.int16, long_name='Cloud bases (-1) and tops (1)',
-                    unit='none')
+                    unit='[-]')
 
     ds.close()
     print('save calibrated to :: ', ds_name)
