@@ -23,4 +23,4 @@ def find_bases_tops(mask, rg_list):
                            'idx_ct': tops, 'val_ct': rg_list[tops],  # cloud tops
                            'width': [ct - cb for ct, cb in zip(rg_list[tops], rg_list[bases])]
                            })
-    return cloud_prop, cloud_mas
+    return cloud_prop, cloud_mask
