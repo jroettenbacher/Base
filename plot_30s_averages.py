@@ -56,6 +56,8 @@ cloud_bases_tops = larda.read(system, "cloud_bases_tops", [begin_dt, end_dt], pl
 dt_list = np.asarray([datetime.datetime.utcfromtimestamp(time) for time in cloud_bases_tops['ts']])
 range_list = cloud_bases_tops['rg']/1000.0
 var = cloud_bases_tops['var']
+# mask 0 = no signal
+var = np.ma.masked_where(var == 0, var)
 name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{plot_range[1] / 1000:.0f}km_30s'
 
 fig, ax = pyLARDA.Transformations.plot_timeheight(radar_Z, range_interval=plot_range, rg_converter=True, title=True,
