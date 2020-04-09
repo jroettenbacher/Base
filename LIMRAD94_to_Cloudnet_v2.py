@@ -21,7 +21,7 @@ import pyLARDA
 import pyLARDA.helpers as h
 import pyLARDA.NcWrite as nc
 from larda.pyLARDA.spec2mom_limrad94 import spectra2moments, build_extended_container
-
+import functions_jr as jr
 import logging
 
 import numpy as np
@@ -59,9 +59,9 @@ if __name__ == '__main__':
         begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
         end_dt = datetime.datetime.strptime(date + ' 23:59:55', '%Y%m%d %H:%M:%S')
     else:
-        date = '20200129'
-        begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
-        end_dt = datetime.datetime.strptime(date + ' 18:00:00', '%Y%m%d %H:%M:%S')
+        date = '20200117'
+        begin_dt = datetime.datetime.strptime(date + ' 00:00:01', '%Y%m%d %H:%M:%S')
+        end_dt = datetime.datetime.strptime(date + ' 23:559:59', '%Y%m%d %H:%M:%S')
 
     std_above_mean_noise = float(kwargs['NF']) if 'NF' in kwargs else 6.0
 
@@ -92,6 +92,12 @@ if __name__ == '__main__':
                                                             LIMRAD94_moments['DiffAtt']['var'])
     LIMRAD94_moments['ldr']['var'] = np.ma.masked_where(LIMRAD94_moments['Ze']['mask'] == True,
                                                         LIMRAD94_moments['ldr']['var'])
+    # find cloud bases and tops and add variable to larda container
+    cloud_prop, cloud_mask = jr.find_bases_tops(LIMRAD94_moments["Ze"]["mask"], LIMRAD94_moments["Ze"]["rg"])
+    LIMRAD94_moments.update({"cloud_mask": cloud_mask})
+    # fill values = 0 with -999
+    LIMRAD94_moments["cloud_mask"] = h.fill_with(LIMRAD94_moments["cloud_mask"],
+                                                 LIMRAD94_moments["cloud_mask"] == 0, -999)
 
     cloudnet_remsens_lim_path = '/media/sdig/LACROS/cloudnet/data/'
 

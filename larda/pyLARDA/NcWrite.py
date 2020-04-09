@@ -74,6 +74,10 @@ def generate_cloudnet_input_LIMRAD94(data, path, **kwargs):
     nc_add_variable(ds, val=data['DiffAtt']['var'], dimension=('time', 'range',),
                     var_name='DiffAtt', type=np.float32, long_name='Differential attenuation', unit='dB/km')
 
+    nc_add_variable(ds, val=data['cloud_mask'], dimension=('time', 'range',),
+                    var_name='cloud_bases_tops', type=np.int16, long_name='Cloud bases (-1) and tops (1)',
+                    unit='[-]')
+
     # 1D variables
     nc_add_variable(ds, val=data['bt']['var'], dimension=('time',),
                     var_name='bt', type=np.float32, long_name='Direct detection brightness temperature', unit='K')
