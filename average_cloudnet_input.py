@@ -62,6 +62,8 @@ for date in dates:
     # find cloud bases and tops and add variable to larda container
     cloud_prop, cloud_mask = jr.find_bases_tops(Ze["mask"], Ze["rg"])
     Ze["cloud_mask"] = cloud_mask
+    # fill masked values with -999
+    Ze["cloud_mask"] = h.fill_with(Ze["cloud_mask"], Ze["mask"], -999)
 
     # generate nc file
     container = {'Ze': Ze}  # create a container for the routine
