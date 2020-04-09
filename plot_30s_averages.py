@@ -63,3 +63,8 @@ ax.plot(dt_list, var, '.', ms=2.5, label='cloud bases and tops', alpha=0.7)
 fig.savefig(name + '_cbt_Z.png', dpi=250)
 print(f'figure saved :: {name}_cbt_Z.png')
 
+fig, ax = pyLARDA.Transformations.plot_timeheight(cloud_bases_tops, range_interval=plot_range, rg_converter=True,
+                                                  title=True)
+fig.savefig(name + '_cbt.png', dpi=250)
+print(f'figure saved :: {name}_cbt.png')
+
