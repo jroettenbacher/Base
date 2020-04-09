@@ -63,7 +63,8 @@ name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{pl
 fig, ax = pyLARDA.Transformations.plot_timeheight(radar_Z, range_interval=plot_range, rg_converter=True, title=True,
                                                   z_converter='lin2z')
 ax.pcolormesh(matplotlib.dates.date2num(dt_list[:]), range_list[:], np.transpose(var[:, :]),
-              label='cloud bases and tops', alpha=0.7, cmap="BrBG")
+              label='cloud bases and tops', cmap="PRGn")
+ax.label()
 fig.savefig(name + '_cbt_Z.png', dpi=250)
 print(f'figure saved :: {name}_cbt_Z.png')
 
