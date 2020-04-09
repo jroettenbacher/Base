@@ -47,7 +47,7 @@ def generate_cloudnet_input_LIMRAD94(data, path, **kwargs):
     # convert to time since 20010101
     ts = np.subtract(data['Ze']['ts'], datetime.datetime(2001, 1, 1, 0, 0, 0).timestamp())
     nc_add_variable(ds, val=ts, dimension=('time',),
-                    var_name='time', type=np.float64, long_name='Seconds since 01.01.2001 00:00 UTC', unit='sec')
+                    var_name='time', type=np.float64, long_name='Seconds since 2001-01-01 00:00 UTC', unit='seconds')
 
     nc_add_variable(ds, val=data['Ze']['rg'], dimension=('range',),
                     var_name='range', type=np.float32, long_name='range', unit='m')
@@ -175,7 +175,7 @@ def generate_weather_file_LIMRAD94(data, path, **kwargs):
     # convert to time since 20010101
     ts = np.subtract(data['SurfWS']['ts'], datetime.datetime(2001, 1, 1, 0, 0, 0).timestamp())
     nc_add_variable(ds, val=ts, dimension=('time',),
-                    var_name='time', type=np.float64, long_name='Seconds since 01.01.2001 00:00 UTC', unit='sec')
+                    var_name='time', type=np.float64, long_name='Seconds since 2001-01-01 00:00 UTC', unit='seconds')
 
     # 1D variables
     nc_add_variable(ds, val=data['SurfRelHum']['var'], dimension=('time',),
@@ -242,7 +242,7 @@ def generate_30s_averaged_Ze_files(data, path, **kwargs):
     # convert to time since 20010101
     ts = np.subtract(data['Ze']['ts'], datetime.datetime(2001, 1, 1, 0, 0, 0).timestamp())
     nc_add_variable(ds, val=ts, dimension=('time',),
-                    var_name='time', type=np.float64, long_name='Seconds since 01.01.2001 00:00 UTC', unit='sec')
+                    var_name='time', type=np.float64, long_name='Seconds since 2001-01-01 00:00 UTC', unit='seconds')
 
     nc_add_variable(ds, val=data['Ze']['rg'], dimension=('range',),
                     var_name='range', type=np.float32, long_name='range', unit='m')
@@ -251,6 +251,9 @@ def generate_30s_averaged_Ze_files(data, path, **kwargs):
     nc_add_variable(ds, val=data['Ze']['var'], dimension=('time', 'range',),
                     var_name='Ze', type=np.float32, long_name='Linearly averaged equivalent radar reflectivity factor',
                     unit='mm^6/m^3')
+    nc_add_variable(ds, val=data['Ze']['cloud_mask'], dimension=('time', 'range',),
+                    var_name='cloud_bases_tops', type=np.int8, long_name='Cloud bases (-1) and tops (1)',
+                    unit='none')
 
     ds.close()
     print('save calibrated to :: ', ds_name)
