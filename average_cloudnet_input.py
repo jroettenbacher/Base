@@ -33,7 +33,7 @@ if 'date' in kwargs:
     begin_dt = dt.datetime.strptime(date + ' 00:00:00', '%Y%m%d %H:%M:%S')
     end_dt = dt.datetime.strptime(date + ' 00:00:00', '%Y%m%d %H:%M:%S')
 else:
-    begin_dt = dt.datetime(2020, 1, 27, 0, 0, 0)
+    begin_dt = dt.datetime(2020, 1, 17, 0, 0, 0)
     end_dt = dt.datetime(2020, 2, 19, 0, 0, 0)
 
 dates = pd.date_range(begin_dt, end_dt).to_pydatetime()  # define all dates
@@ -45,11 +45,13 @@ for date in dates:
     # load data from larda
     Ze = larda.read("LIMRAD94_cn_input", "Ze", [date, (date + dt.timedelta(hours=23, minutes=59, seconds=59))],
                     [0, 'max'])
+
     # define new dimensions
     new_time = np.array([date + dt.timedelta(seconds=i) for i in range(0, int((24*60*60)), 30)])  # 30s timestep
     new_time = np.array([h.dt_to_ts(time) for time in new_time])  # convert to unix time stamps
     # 30m range steps, started from rounded down to the next 100 first range gate, and rounded up to the next 1000 last rg
     new_range = np.arange(Ze['rg'][0]//100*100, np.round(Ze['rg'][-1], -3)+30, 30)  # 300-15000 or 300-13020 m
+    # interpolate data to new resolution 30m/30s
     Ze = interpolate2d(Ze, new_time=new_time, new_range=new_range, method='linear')
 
     # turn mask from 1s and 0s to True and False
@@ -60,6 +62,7 @@ for date in dates:
     # find cloud bases and tops and add variable to larda container
     cloud_prop, cloud_mask = jr.find_bases_tops(Ze["mask"], Ze["rg"])
     Ze["cloud_mask"] = cloud_mask
+
     # generate nc file
     container = {'Ze': Ze}  # create a container for the routine
     outfile = f"RV-METEOR_LIMRAD94_Ze_{date:%Y%m%d}.nc"
