@@ -22,6 +22,8 @@ log = logging.getLogger('pyLARDA')
 log.setLevel(logging.WARNING)
 log.addHandler(logging.StreamHandler())
 
+# define plot path
+plot_path = "/projekt1/remsens/work/jroettenbacher/plots"
 # Load LARDA
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 
@@ -48,13 +50,16 @@ else:
 #  read in moments
 system = "LIMRAD94_30s"
 radar_Z = larda.read(system, "Ze", [begin_dt, end_dt], plot_range)
-name = f'plots/' \
-       f'{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{plot_range[1] / 1000:.0f}km_30s'
-
 radar_Z['var_unit'] = 'dBZ'
 radar_Z['colormap'] = 'jet'
-fig, _ = pyLARDA.Transformations.plot_timeheight(radar_Z, range_interval=plot_range, rg_converter=True, title=True,
-                                                 z_converter='lin2z')
-fig.savefig(name + '_Z.png', dpi=250)
-print(f'figure saved :: {name}_Z.png')
+cloud_bases_tops = larda.read(system, "Ze", [begin_dt, end_dt], plot_range)
+dt_list = np.asarray([datetime.datetime.utcfromtimestamp(time) for time in cloud_bases_tops['ts']])
+var = cloud_bases_tops['var']
+name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{plot_range[1] / 1000:.0f}km_30s'
+
+fig, ax = pyLARDA.Transformations.plot_timeheight(radar_Z, range_interval=plot_range, rg_converter=True, title=True,
+                                                  z_converter='lin2z')
+ax.plot(dt_list, var, '.', ms=2.5, label='cloud bases and tops', alpha=0.7)
+fig.savefig(name + '_cbt_Z.png', dpi=250)
+print(f'figure saved :: {name}_cbt_Z.png')
 
