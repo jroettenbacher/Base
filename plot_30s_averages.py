@@ -54,12 +54,14 @@ radar_Z['var_unit'] = 'dBZ'
 radar_Z['colormap'] = 'jet'
 cloud_bases_tops = larda.read(system, "cloud_bases_tops", [begin_dt, end_dt], plot_range)
 dt_list = np.asarray([datetime.datetime.utcfromtimestamp(time) for time in cloud_bases_tops['ts']])
+range_list = cloud_bases_tops['rg']/1000.0
 var = cloud_bases_tops['var']
 name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{plot_range[1] / 1000:.0f}km_30s'
 
 fig, ax = pyLARDA.Transformations.plot_timeheight(radar_Z, range_interval=plot_range, rg_converter=True, title=True,
                                                   z_converter='lin2z')
-ax.pcolormesh(var, label='cloud bases and tops', alpha=0.7, cmap="BrBG")
+ax.pcolormesh(matplotlib.dates.date2num(dt_list[:]), range_list[:], np.transpose(var[:, :]),
+              label='cloud bases and tops', alpha=0.7, cmap="BrBG")
 fig.savefig(name + '_cbt_Z.png', dpi=250)
 print(f'figure saved :: {name}_cbt_Z.png')
 
