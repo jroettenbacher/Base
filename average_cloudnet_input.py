@@ -79,5 +79,5 @@ for date in dates:
     else:
         print(f"Creating new nc file {outfile}")
         flag = nc.generate_30s_averaged_Ze_files(container, outpath)
-        print(f"Generated nc file for {date} in {time.time() - t1}.")
+        print(f"Generated nc file for {date:%Y-%m-%d} in {time.time() - t1}.")
 

@@ -409,6 +409,11 @@
     var_unit = 'mm^6/m^3'
     colormap = 'jet'
     var_lims = [ -40, 20 ]
+  [LIMRAD94_30s.params.cloud_bases_tops]
+    variable_name = 'cloud_bases_tops'
+    var_unit = ''
+    colormap = 'jet'
+    var_lims = [ -1, 1 ]
 
 [HATPRO]
   [HATPRO.path.lv2_prw]
