@@ -7,6 +7,7 @@ import sys
 import os
 import time
 import datetime as dt
+import functions_jr as jr
 sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
 import pyLARDA
@@ -50,10 +51,15 @@ for date in dates:
     # 30m range steps, started from rounded down to the next 100 first range gate, and rounded up to the next 1000 last rg
     new_range = np.arange(Ze['rg'][0]//100*100, np.round(Ze['rg'][-1], -3)+30, 30)  # 300-15000 or 300-13020 m
     Ze = interpolate2d(Ze, new_time=new_time, new_range=new_range, method='linear')
+
     # turn mask from 1s and 0s to True and False
     Ze["mask"] = Ze["mask"] == 1
     # fill masked values with -999
     Ze["var"] = h.fill_with(Ze["var"], Ze["mask"], -999)
+
+    # find cloud bases and tops and add variable to larda container
+    cloud_prop, cloud_mask = jr.find_bases_tops(Ze["mask"], Ze["rg"])
+    Ze["cloud_mask"] = cloud_mask
     # generate nc file
     container = {'Ze': Ze}  # create a container for the routine
     outfile = f"RV-METEOR_LIMRAD94_Ze_{date:%Y%m%d}.nc"
