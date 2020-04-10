@@ -380,6 +380,11 @@
     variable_name = 'range_offset'
     ncreader = 'aux'
     var_lims = []
+[LIMRAD94_cn_input.params.cloud_bases_tops]
+    variable_name = 'cloud_bases_tops'
+    var_unit = ''
+    colormap = 'PRGn'
+    var_lims = [ -1, 1 ]
 
 [LIMRAD94_30s]
   [LIMRAD94_30s.path.nc]
