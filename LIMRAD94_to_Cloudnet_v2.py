@@ -93,6 +93,7 @@ if __name__ == '__main__':
     LIMRAD94_moments['ldr']['var'] = np.ma.masked_where(LIMRAD94_moments['Ze']['mask'] == True,
                                                         LIMRAD94_moments['ldr']['var'])
     # find cloud bases and tops and add variable to larda container
+    print(f"creating cloud mask")
     cloud_prop, cloud_mask = jr.find_bases_tops(LIMRAD94_moments["Ze"]["mask"], LIMRAD94_moments["Ze"]["rg"])
     LIMRAD94_moments.update({"cloud_mask": cloud_mask})
     # fill values = 0 with -999
