@@ -112,7 +112,7 @@ if __name__ == '__main__':
         elif c_info[0] == 'Leipzig':
             path = cloudnet_remsens_lim_path + 'leipzig/' + 'calibrated/limrad94/' + date[:4] + '/'
         elif c_info[0] == 'RV-Meteor':
-            cloudnet_remsens_lim_path = '/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/cloudnet_input_test/'
+            cloudnet_remsens_lim_path = '/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/cloudnet_input/'
             path = cloudnet_remsens_lim_path
         else:
             print('Error: No other sites implemented jet!')
