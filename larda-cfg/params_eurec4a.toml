@@ -294,8 +294,7 @@
   [LIMRAD94_cn_input.path.nc]
     base_dir = '/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/cloudnet_input/'
     matching_subdirs = '(.*\d{8}_\d{6}-\d{6}_LIMRAD94.nc)'
-    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
-    # _(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [LIMRAD94_cn_input.generic]
     # this general settings need to be handed down to the params
     colormap = "gist_rainbow"
