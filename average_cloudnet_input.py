@@ -33,8 +33,8 @@ if 'date' in kwargs:
     begin_dt = dt.datetime.strptime(date + ' 00:00:00', '%Y%m%d %H:%M:%S')
     end_dt = dt.datetime.strptime(date + ' 00:00:00', '%Y%m%d %H:%M:%S')
 else:
-    begin_dt = dt.datetime(2020, 1, 17, 0, 0, 0)
-    end_dt = dt.datetime(2020, 2, 19, 0, 0, 0)
+    begin_dt = dt.datetime(2020, 1, 17, 0, 0, 5)
+    end_dt = dt.datetime(2020, 2, 19, 23, 59, 55)
 
 dates = pd.date_range(begin_dt, end_dt).to_pydatetime()  # define all dates
 outpath = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/30s_averages/"  # define path for output
