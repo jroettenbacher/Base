@@ -32,7 +32,7 @@ larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 ########################################################################################################################
 begin_dt = [datetime.datetime(2020, 1, 17, 0, 0, 5), datetime.datetime(2020, 1, 29, 18, 1, 0),
             datetime.datetime(2020, 1, 30, 15, 8, 5), datetime.datetime(2020, 1, 31, 22, 27, 0)]
-end_dt = [datetime.datetime(2020, 1, 29, 18, 0, 0), datetime.datetime(2020, 1, 30, 15, 7, 55),
+end_dt = [datetime.datetime(2020, 1, 29, 17, 59, 55), datetime.datetime(2020, 1, 30, 15, 7, 55),
           datetime.datetime(2020, 1, 31, 22, 26, 50), datetime.datetime(2020, 2, 19, 23, 59, 55)]
 # calculate hours for weighted average
 hours = dict()
