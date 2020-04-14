@@ -75,7 +75,8 @@ def generate_cloudnet_input_LIMRAD94(data, path, **kwargs):
                     var_name='DiffAtt', type=np.float32, long_name='Differential attenuation', unit='dB/km')
 
     nc_add_variable(ds, val=data['cloud_mask'], dimension=('time', 'range',),
-                    var_name='cloud_bases_tops', type=np.int16, long_name='Cloud bases (-1) and cloud tops (1)',
+                    var_name='cloud_bases_tops', type=np.int16,
+                    long_name='Hydrometeor layer bases (-1) and hydrometeor layer tops (1)',
                     unit='[-]')
 
     # 1D variables
@@ -257,7 +258,8 @@ def generate_30s_averaged_Ze_files(data, path, **kwargs):
                     var_name='Ze', type=np.float32, long_name='Linearly averaged equivalent radar reflectivity factor',
                     unit='mm^6/m^3')
     nc_add_variable(ds, val=data['Ze']['cloud_mask'], dimension=('time', 'range',),
-                    var_name='cloud_bases_tops', type=np.int16, long_name='Cloud bases (-1) and cloud tops (1)',
+                    var_name='cloud_bases_tops', type=np.int16,
+                    long_name='Hydrometeor layer bases (-1) and hydrometeor layer tops (1)',
                     unit='[-]')
 
     ds.close()
