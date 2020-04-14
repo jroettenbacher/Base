@@ -1,7 +1,6 @@
 #!/bin/bash
 # loop through days and run LIMRAD94_to_Cloudnet_v2.py
 
-dates="117 118 119 120 121 122 123 124 125 126 128 201 202 203 204 205 206 207 208  209 210 211 212 213 214 215 216 217 218 219"
 cd /projekt1/remsens/work/jroettenbacher/Base
 for date in {117..126}; do
 	echo "##################################################"

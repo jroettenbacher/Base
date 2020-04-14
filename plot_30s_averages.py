@@ -35,13 +35,13 @@ if 'date_begin' in kwargs:
     date_begin = str(kwargs['date_begin'])
     begin_dt = datetime.datetime.strptime(date_begin + ' 00:00:05', '%Y%m%d %H:%M:%S')
 else:
-    begin_dt = datetime.datetime(2020, 2, 5, 0, 0, 5)
+    begin_dt = datetime.datetime(2020, 2, 5, 12, 0, 5)
 
 if 'date_end' in kwargs:
     date_end = str(kwargs['date_end'])
     end_dt = datetime.datetime.strptime(date_end + ' 23:59:55', '%Y%m%d %H:%M:%S')
 else:
-    end_dt = datetime.datetime(2020, 2, 5, 23, 59, 55)
+    end_dt = datetime.datetime(2020, 2, 5, 14, 59, 55)
 
 if 'plot_range' in kwargs:
     plot_range = [0, int(kwargs['plot_range'])]
@@ -55,7 +55,7 @@ radar_Z['var_unit'] = 'dBZ'
 radar_Z['colormap'] = 'jet'
 cloud_bases_tops = larda.read(system, "cloud_bases_tops", [begin_dt, end_dt], plot_range)
 dt_list = np.asarray([datetime.datetime.utcfromtimestamp(time) for time in cloud_bases_tops['ts']])
-range_list = cloud_bases_tops['rg']/1000.0
+range_list = cloud_bases_tops['rg']/1000.0  # convert m to km
 var = cloud_bases_tops['var']
 # mask -999 = fill value
 var = np.ma.masked_where(var == -999, var)
