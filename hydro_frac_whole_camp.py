@@ -113,6 +113,12 @@ for i in range(len(begin_dt)-1):
         new_height_bins = hydro_out["Ze4"]["Height_m"][hydro_out["Ze4"]["Height_m"] <
                                                        np.max(hydro_out[f"Ze{j}"]["Height_m"])]
         new_hydro[j] = f(new_height_bins)  # interpolate data to height bins of last time range
+        # add nan values to new_hydro if it is shorter than Ze4
+        needed_values = len(hydro_out["Ze4"]["Height_m"]) - len(new_hydro[j])
+        fill_array = np.empty(needed_values)
+        fill_array.fill(np.nan)
+        new_hydro[j] = np.append(new_hydro[j], fill_array)
+
 
 # combine hydro fractions by a weighted average, weighted by hours
 new_hydro_frac = (hydro_out["Ze4"]["hydro_frac"] * hours[1] + new_hydro[1] * hours[2]
