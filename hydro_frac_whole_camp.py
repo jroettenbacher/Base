@@ -39,7 +39,7 @@ hours = dict()
 i = 0
 for begin, end in zip(begin_dt, end_dt):
     i += 1
-    hours[i] = end - begin
+    hours[i] = (end - begin)
 
 # define path where to write csv file (no / at end of path please)
 # output_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
@@ -68,10 +68,6 @@ for begin, end in zip(begin_dt, end_dt):
     # extract variables from container
     ####################################################################################################################
     range_bins = Ze['rg']  # unit m
-    time_dt = np.asarray([h.ts_to_dt(ts) for ts in Ze['ts']])
-    # get length of file timewise, first as datetime.timedelta, extract seconds, convert to decimal hours
-    # and round to the next full hour
-    hours = np.ceil((time_dt.max() - time_dt.min()).total_seconds() / 3600)
 
     ####################################################################################################################
     # calculate hydrometeor fraction
