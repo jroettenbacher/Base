@@ -49,7 +49,8 @@ for date in dates:
     # define new dimensions
     new_time = np.array([date + dt.timedelta(seconds=i) for i in range(0, int((24*60*60)), 30)])  # 30s timestep
     new_time = np.array([h.dt_to_ts(time) for time in new_time])  # convert to unix time stamps
-    # 30m range steps, started from rounded down to the next 100 first range gate, and rounded up to the next 1000 last rg
+    # 30m range steps, started from rounded down to the next 100 first range gate
+    # and rounded up to the next 1000 last rg
     new_range = np.arange(Ze['rg'][0]//100*100, np.round(Ze['rg'][-1], -3)+30, 30)  # 300-15000 or 300-13020 m
     # interpolate data to new resolution 30m/30s
     Ze = interpolate2d(Ze, new_time=new_time, new_range=new_range, method='linear')
