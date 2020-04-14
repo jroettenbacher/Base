@@ -121,8 +121,8 @@ for i in range(len(begin_dt)-1):
 
 
 # combine hydro fractions by a weighted average, weighted by hours
-new_hydro_frac = (hydro_out["Ze4"]["hydro_frac"] * hours[1] + new_hydro[1] * hours[2]
-                  + new_hydro[2] * hours[3] + new_hydro[3] * hours[4]) / 4 / sum(hours.values())
+new_hydro_frac = (new_hydro[1] * hours[1] + new_hydro[2] * hours[2] + new_hydro[3] * hours[3]
+                  + hydro_out["Ze4"]["hydro_frac"] * hours[4]) / 4 / sum(hours.values())
 hydro_frac = pd.DataFrame({'Height_m': hydro_out["Ze4"]["Height_m"], "hydro_frac": new_hydro_frac})
 ########################################################################################################################
 # plotting section
