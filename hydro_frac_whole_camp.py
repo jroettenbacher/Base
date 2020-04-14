@@ -150,7 +150,7 @@ ax.grid(True, which='minor', color="grey", linestyle='-', linewidth=1)
 ax.xaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
 ax.yaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
 # plt.show()
-plt.savefig(f"{plot_path}/RV-Meteor_cloudradar_hydro-fraction_{begin_dt:%Y%m%d}-{end_dt2:%Y%m%d}.png", dpi=250)
+plt.savefig(f"{plot_path}/RV-Meteor_cloudradar_hydro-fraction_{begin_dt[0]:%Y%m%d}-{end_dt[-1]:%Y%m%d}.png", dpi=250)
 print(f"Saved figure to {plot_path}")
 
 print("Done with script.")
