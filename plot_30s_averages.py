@@ -69,7 +69,7 @@ ax.pcolormesh(matplotlib.dates.date2num(dt_list[:]), range_list[:], np.transpose
               label='cloud bases and tops', cmap=cmap)
 legend_elements = [Patch(facecolor='darkgreen', label='Bases'),
                    Patch(facecolor='darkmagenta', label='Tops')]
-ax.legend(handles=legend_elements, title="Hydrometeor")
+ax.legend(handles=legend_elements, title="Hydrometeor Layers")
 fig.savefig(name + '_cbt_Z.png', dpi=250)
 print(f'figure saved :: {name}_cbt_Z.png')
 
