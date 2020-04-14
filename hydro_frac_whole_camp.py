@@ -39,7 +39,7 @@ hours = dict()
 i = 0
 for begin, end in zip(begin_dt, end_dt):
     i += 1
-    hours[i] = (end - begin)
+    hours[i] = (end - begin).seconds / 60 / 60
 
 # define path where to write csv file (no / at end of path please)
 # output_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
@@ -54,11 +54,11 @@ plot_path = "/projekt1/remsens/work/jroettenbacher/plots"
 i = 0
 hydro_out = dict()
 for begin, end in zip(begin_dt, end_dt):
+    print(f"Starting with Ze{i}\n")
     print("Read in data...\n")
     Ze = larda.read("LIMRAD94_cn_input", "Ze", [begin, end], [0, 'max'])
     t1 = time.time()
     i += 1
-    print(f"Starting with Ze{i}\n")
     # mask values = -999
     Ze["var"] = np.ma.masked_where(Ze["var"] == -999, Ze["var"])
     # overwrite mask in larda container
