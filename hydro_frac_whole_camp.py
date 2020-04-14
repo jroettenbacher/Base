@@ -103,26 +103,27 @@ for begin, end in zip(begin_dt, end_dt):
 ########################################################################################################################
 print("Interpolating data\n")
 new_hydro = dict()
-for i in range(len(begin_dt)-1):
+new_hydro_frac = np.empty_like(hydro_out["Ze4"]["hydro_frac"])
+for i in range(len(begin_dt)):
     j = i + 1
     # create linear function to model hydro fractions
     f = interpolate.interp1d(hydro_out[f"Ze{j}"]["Height_m"], hydro_out[f"Ze{j}"]["hydro_frac"], kind='linear')
     try:
         new_hydro[j] = f(hydro_out["Ze4"]["Height_m"])  # interpolate data to height bins of last time range
+        new_hydro_frac = new_hydro_frac + new_hydro[j] * hours[j]
     except ValueError:
         new_height_bins = hydro_out["Ze4"]["Height_m"][hydro_out["Ze4"]["Height_m"] <
                                                        np.max(hydro_out[f"Ze{j}"]["Height_m"])]
         new_hydro[j] = f(new_height_bins)  # interpolate data to height bins of last time range
-        # add nan values to new_hydro if it is shorter than Ze4
+        # add values to new_hydro if it is shorter than Ze4
         needed_values = len(hydro_out["Ze4"]["Height_m"]) - len(new_hydro[j])
         fill_array = np.empty(needed_values)
         fill_array.fill(np.nan)
         new_hydro[j] = np.append(new_hydro[j], fill_array)
-
+        new_hydro_frac = new_hydro_frac + new_hydro[j] * hours[j]
 
 # combine hydro fractions by a weighted average, weighted by hours
-new_hydro_frac = (new_hydro[1] * hours[1] + new_hydro[2] * hours[2] + new_hydro[3] * hours[3]
-                  + hydro_out["Ze4"]["hydro_frac"] * hours[4]) / 4 / sum(hours.values())
+new_hydro_frac = new_hydro_frac / sum(hours.values())
 hydro_frac = pd.DataFrame({'Height_m': hydro_out["Ze4"]["Height_m"], "hydro_frac": new_hydro_frac})
 ########################################################################################################################
 # plotting section
