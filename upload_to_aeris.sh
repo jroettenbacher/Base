@@ -13,7 +13,10 @@ YYYYMMDD=$(date +%Y%m%d --date="$DAY")
 HOST="ftp.climserv.ipsl.polytechnique.fr"  # define host server -> aeris
 RUSER="eurec4a"  # define user
 PASS="pass4eurec4a!"  # define password
-LCD="/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/upload_to_aeris"  # define local directory
-RCD="/upload/SHIPS/RV-METEOR/cloudradar/ncfiles"  # define remote directory
-
+# define local directory
+# LCD="/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/upload_to_aeris"  # LIMRAD94 data (30s averages)
+LCD="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_CEILOMETER/upload_to_aeris"  # ceilometer data (nc files)
+# define remote directory
+# RCD="/upload/SHIPS/RV-METEOR/cloudradar/ncfiles"  # cloud radar
+RCD="/upload/SHIPS/RV-METEOR/ceilometer/ncfiles"  # ceilometer nc files
 lftp -e "mirror -R $LCD $RCD " -u "$RUSER","$PASS" "$HOST"
