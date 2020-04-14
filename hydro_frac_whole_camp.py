@@ -53,7 +53,7 @@ plot_path = "/projekt1/remsens/work/jroettenbacher/plots"
 ########################################################################################################################
 i = 0
 hydro_out = dict()
-for begin, end in [begin_dt, end_dt]:
+for begin, end in zip(begin_dt, end_dt):
     print("Read in data...\n")
     Ze = larda.read("LIMRAD94_cn_input", "Ze", [begin, end], [0, 'max'])
     t1 = time.time()
