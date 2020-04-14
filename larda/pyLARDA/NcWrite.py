@@ -27,7 +27,7 @@ def generate_cloudnet_input_LIMRAD94(data, path, **kwargs):
 
     # ds.commit_id = subprocess.check_output(["git", "describe", "--always"]) .rstrip()
     ds.description = 'Concatenated data files of LIMRAD 94GHz - FMCW Radar, used as input for Cloudnet processing, ' \
-                     'filters applied: ghos-echo, despeckle, use only main peak'
+                     'filters applied: ghost-echo, despeckle, use only main peak'
     ds.history = 'Created ' + time.ctime(time.time())
     ds.source = data['Ze']['paraminfo']['location']
     ds.FillValue = data['Ze']['paraminfo']['fill_value']
@@ -92,7 +92,8 @@ def generate_cloudnet_input_LIMRAD94(data, path, **kwargs):
                     var_name='SurfRelHum', type=np.float32, long_name='Relative humidity from weather station', unit='%')
 
     nc_add_variable(ds, val=data['Inc_ElA']['var'], dimension=('time',),
-                    var_name='Inc_ElA', type=np.float32, long_name='Pitch (RPG: Inclination of elevation axis (IncElA))',
+                    var_name='Inc_ElA', type=np.float32,
+                    long_name='Pitch (RPG: Inclination of elevation axis (Inc_ElA))',
                     unit='deg')
 
     nc_add_variable(ds, val=data['Inc_El']['var'], dimension=('time',),
