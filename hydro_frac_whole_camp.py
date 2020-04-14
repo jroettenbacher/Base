@@ -39,7 +39,7 @@ hours = dict()
 i = 0
 for begin, end in zip(begin_dt, end_dt):
     i += 1
-    hours["i"] = end - begin
+    hours[i] = end - begin
 
 # define path where to write csv file (no / at end of path please)
 # output_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
@@ -109,12 +109,18 @@ print("Interpolating data\n")
 new_hydro = dict()
 for i in range(len(begin_dt)-1):
     j = i + 1
-    # create linear function to model first three hydro fractions
+    # create linear function to model hydro fractions
     f = interpolate.interp1d(hydro_out[f"Ze{j}"]["Height_m"], hydro_out[f"Ze{j}"]["hydro_frac"], kind='linear')
-    new_hydro[j] = f(hydro_out["Ze4"]["Height_m"])  # interpolate data to range gates of last time range
+    try:
+        new_hydro[j] = f(hydro_out["Ze4"]["Height_m"])  # interpolate data to height bins of last time range
+    except ValueError:
+        new_height_bins = hydro_out["Ze4"]["Height_m"][hydro_out["Ze4"]["Height_m"] <
+                                                       np.max(hydro_out[f"Ze{j}"]["Height_m"])]
+        new_hydro[j] = f(new_height_bins)  # interpolate data to height bins of last time range
+
 # combine hydro fractions by a weighted average, weighted by hours
-new_hydro_frac = (hydro_out["Ze4"]["hydro_frac"] * hours["1"] + new_hydro[1] * hours["2"]
-                  + new_hydro[2] * hours["3"] + new_hydro[3] * hours["4"]) / 4
+new_hydro_frac = (hydro_out["Ze4"]["hydro_frac"] * hours[1] + new_hydro[1] * hours[2]
+                  + new_hydro[2] * hours[3] + new_hydro[3] * hours[4]) / 4 / sum(hours.values())
 hydro_frac = pd.DataFrame({'Height_m': hydro_out["Ze4"]["Height_m"], "hydro_frac": new_hydro_frac})
 ########################################################################################################################
 # plotting section
