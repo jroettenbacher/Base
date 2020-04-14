@@ -28,32 +28,34 @@ log.addHandler(logging.StreamHandler())
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 
 ########################################################################################################################
-# Set Date, Chunk Size and Paths
+# Set Date and Paths
 ########################################################################################################################
-begin_dt = datetime.datetime(2020, 1, 17, 0, 0, 5)
-end_dt = datetime.datetime(2020, 1, 31, 23, 59, 55)
-begin_dt2 = datetime.datetime(2020, 2, 1, 0, 0, 5)
-end_dt2 = datetime.datetime(2020, 2, 19, 23, 59, 55)
-
-# if chunk size is 'max' then the hydrometer fraction over the whole period is calculated and plotted (like BAMS paper)
-chunk_size = 'max'  # chunk size in hours
+begin_dt = [datetime.datetime(2020, 1, 17, 0, 0, 5), datetime.datetime(2020, 1, 29, 18, 1, 0),
+            datetime.datetime(2020, 1, 30, 15, 8, 5), datetime.datetime(2020, 1, 31, 22, 27, 0)]
+end_dt = [datetime.datetime(2020, 1, 29, 18, 0, 0), datetime.datetime(2020, 1, 30, 15, 7, 55),
+          datetime.datetime(2020, 1, 31, 22, 26, 50), datetime.datetime(2020, 2, 19, 23, 59, 55)]
+# calculate hours for weighted average
+hours = dict()
+i = 0
+for begin, end in zip(begin_dt, end_dt):
+    i += 1
+    hours["i"] = end - begin
 
 # define path where to write csv file (no / at end of path please)
 # output_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
 output_path = "/projekt1/remsens/work/jroettenbacher/Base/tmp"
 # define output path for plots (no / at end of path please)
 # plot_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
-plot_path = "/projekt1/remsens/work/jroettenbacher/Base/plots"
+plot_path = "/projekt1/remsens/work/jroettenbacher/plots"
 
 ########################################################################################################################
 # read in files with larda
 ########################################################################################################################
-print("Read in data...\n")
-Ze1 = larda.read("LIMRAD94_cn_input", "Ze", [begin_dt, end_dt], [0, 'max'])
-Ze2 = larda.read("LIMRAD94_cn_input", "Ze", [begin_dt2, end_dt2], [0, 'max'])
 i = 0
 hydro_out = dict()
-for Ze in [Ze1, Ze2]:
+for begin, end in [begin_dt, end_dt]:
+    print("Read in data...\n")
+    Ze = larda.read("LIMRAD94_cn_input", "Ze", [begin, end], [0, 'max'])
     t1 = time.time()
     i += 1
     print(f"Starting with Ze{i}\n")
@@ -94,7 +96,7 @@ for Ze in [Ze1, Ze2]:
                               index=np.floor(range_bins[1:len(Ze_CF)+1]))
     hydro_frac.index.name = "Height_m"  # set index title of data frame
     # save data frame to dictionary
-    hydro_out[f'Ze{i}'] = hydro_frac
+    hydro_out[f'Ze{i}'] = hydro_frac.reset_index()
 
     # write csv file
     print(f"Writing csv file...\n")
@@ -104,13 +106,16 @@ for Ze in [Ze1, Ze2]:
 # interpolation between different range resolution
 ########################################################################################################################
 print("Interpolating data\n")
-hydro1 = hydro_out['Ze1'].reset_index()
-hydro2 = hydro_out['Ze2'].reset_index()
-f = interpolate.interp1d(hydro1["Height_m"], hydro1["hydro_frac"], kind='linear')
-new_hydro = f(hydro2["Height_m"])  # interpolate hydro1 data to range gates of hydro2
-# combine hydro fractions by averaging them
-new_hydro_frac = (hydro2["hydro_frac"] + new_hydro) / 2
-hydro_frac = pd.DataFrame({'Height_m': hydro2["Height_m"], "hydro_frac": new_hydro_frac})
+new_hydro = dict()
+for i in range(len(begin_dt)):
+    j = i + 1
+    # create linear function to model first three hydro fractions
+    f = interpolate.interp1d(hydro_out[f"Ze{j}"]["Height_m"], hydro_out[f"Ze{j}"]["hydro_frac"], kind='linear')
+    new_hydro[j] = f(hydro_out["Ze4"]["Height_m"])  # interpolate data to range gates of last time range
+# combine hydro fractions by a weighted average, weighted by hours
+new_hydro_frac = (hydro_out["Ze4"]["hydro_frac"] * hours["1"] + new_hydro[1] * hours["2"]
+                  + new_hydro[2] * hours["3"] + new_hydro[3] * hours["4"]) / 4
+hydro_frac = pd.DataFrame({'Height_m': hydro_out["Ze4"]["Height_m"], "hydro_frac": new_hydro_frac})
 ########################################################################################################################
 # plotting section
 ########################################################################################################################
@@ -126,7 +131,7 @@ ax.set_ylabel("Height [m]")
 ax.set_xlabel("Hydrometeor Fraction")
 ax.set_title(
     f"Hydrometeor Fraction in the whole Troposphere Eurec4a "
-    f"\n RV-Meteor - {begin_dt:%Y-%m-%d} - {end_dt2:%Y-%m-%d} "
+    f"\n RV-Meteor - {begin_dt[0]:%Y-%m-%d} - {end_dt[-1]:%Y-%m-%d} "
     f"\nCloudradar Uni Leipzig")
 ax.yaxis.set_minor_locator(AutoMinorLocator(5))
 ax.xaxis.set_minor_locator(AutoMinorLocator(2))
