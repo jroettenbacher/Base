@@ -107,7 +107,7 @@ for begin, end in zip(begin_dt, end_dt):
 ########################################################################################################################
 print("Interpolating data\n")
 new_hydro = dict()
-for i in range(len(begin_dt)):
+for i in range(len(begin_dt)-1):
     j = i + 1
     # create linear function to model first three hydro fractions
     f = interpolate.interp1d(hydro_out[f"Ze{j}"]["Height_m"], hydro_out[f"Ze{j}"]["hydro_frac"], kind='linear')
