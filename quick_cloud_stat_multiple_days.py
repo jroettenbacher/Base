@@ -32,7 +32,7 @@ end_dt = datetime.datetime(2020, 2, 17, 23, 59, 55)
 # if chunk size is smaller 12: x hourly hydro fractions are calculated and plotted -> should be used for one day only
 # if chunk size is greater 11 the mean, median and std of the x hr chunks are calculated and plotted
 # if chunk size is 'max' then the hydrometer fraction over the whole period is calculated and plotted (like BAMS paper)
-chunk_size = '11'  # chunk size in hours
+chunk_size = 11  # chunk size in hours or 'max'
 
 # define path where to write csv file (no / at end of path please)
 output_path = "/projekt1/remsens/work/jroettenbacher/plots/radar_hydro_frac"
