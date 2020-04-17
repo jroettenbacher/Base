@@ -33,6 +33,7 @@ end_dt = datetime.datetime(2020, 2, 17, 23, 59, 55)
 # if chunk size is greater 11 the mean, median and std of the x hr chunks are calculated and plotted
 # if chunk size is 'max' then the hydrometer fraction over the whole period is calculated and plotted (like BAMS paper)
 chunk_size = 11  # chunk size in hours or 'max'
+assert chunk_size in [1, 3, 12, 'max'] or chunk_size > 12, "Not a valid chunk size given"
 
 # define path where to write csv file (no / at end of path please)
 output_path = "/projekt1/remsens/work/jroettenbacher/plots/radar_hydro_frac"
