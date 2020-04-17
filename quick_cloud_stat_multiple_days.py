@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import sys
 # just needed to find pyLARDA from this location
-sys.path.append('/home/remsens/code/larda3/larda/')
+sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
 import matplotlib
 matplotlib.use('Agg')
@@ -35,9 +35,9 @@ end_dt = datetime.datetime(2020, 2, 17, 23, 59, 55)
 chunk_size = 'max'  # chunk size in hours
 
 # define path where to write csv file (no / at end of path please)
-output_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
+output_path = "/projekt1/remsens/work/jroettenbacher/plots/radar_hydro_frac"
 # define output path for plots (no / at end of path please)
-plot_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
+plot_path = "/projekt1/remsens/work/jroettenbacher/plots/radar_hydro_frac"
 
 ########################################################################################################################
 # read in nc files
@@ -52,12 +52,6 @@ Ze = larda.read("LIMRAD94_cn_input", "Ze", [begin_dt, end_dt], [0, 'max'])
 Ze["var"] = np.ma.masked_where(Ze["var"] == -999, Ze["var"])
 # overwrite mask in larda container
 Ze["mask"] = Ze["var"].mask
-# Ze2 = larda.read("LIMRAD94", "Ze", [begin_dt2, end_dt2], [0, 'max'])
-# # combine two containers
-# Ze_var = np.vstack((Ze["var"], Ze2["var"]))
-# Ze_mask = np.vstack((Ze["mask"], Ze2["mask"]))
-# Ze_time = np.hstack((Ze["ts"], Ze2["ts"]))
-# Ze = larda.put_in_container(data=Ze_var, data_container=Ze, mask=Ze_mask, ts=Ze_time)
 
 ########################################################################################################################
 # extract variables from container
@@ -67,18 +61,9 @@ time_dt = np.asarray([h.ts_to_dt(ts) for ts in Ze['ts']])
 # get length of file timewise, first as datetime.timedelta, extract seconds, convert to decimal hours
 # and round to the next full hour
 hours = np.ceil((time_dt.max() - time_dt.min()).total_seconds() / 3600)
-# # define upper ranges for lower, mid and high troposphere in meters
-# low, mid, high = 1200, 6000, np.ceil(range_bins.max())
-# # get indices for corresponding low mid and high upper ranges
-# ind = [0]  # start with zero to define lower boundary
-# # quick bug fix
-# # start with 1 to ignore ghost echo in first range gate which is caused by the new chirp table Cu_small_Tint2
-# ind = [1]
-# for i in [low, mid, high]:
-#     ind.append(np.where(np.abs(range_bins-i) == np.min(np.abs(range_bins-i)))[0][0])
 
 ########################################################################################################################
-# calculate hydrometeor fraction for time chunks for the low, mid and high atmosphere
+# calculate hydrometeor fraction for time chunks
 ########################################################################################################################
 if chunk_size != 'max':
     num_chunks = int(hours / chunk_size)  # get number of chunks by dividing number of observed hours by chunk size
@@ -98,8 +83,7 @@ if chunk_size != 'max':
             # mean hydrometeor fraction profile for whole time range
             # sum up all values which have a reflectivity value and divide by the number of time steps
             Ze_CF[j, i] = np.sum(~Ze_slice[:, j].mask) / Ze_slice.shape[0]
-        # TODO standard deviation of hydrometeor fraction per 3h chunk
-        # find index of highest hydrometeor fraction
+
 elif chunk_size == 'max':
     # allocate array for all CFs but the first row (ghost echo bug fix)
     Ze_CF = np.empty((Ze['var'].shape[1] - 1))
