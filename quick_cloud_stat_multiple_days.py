@@ -35,8 +35,6 @@ end_dt = datetime.datetime(2020, 2, 17, 23, 59, 55)
 chunk_size = 12  # chunk size in hours or 'max'
 assert chunk_size in [1, 3, 12, 'max'] or chunk_size > 12, "Not a valid chunk size given"
 
-# define path where to write csv file (no / at end of path please)
-output_path = "/projekt1/remsens/work/jroettenbacher/plots/radar_hydro_frac"
 # define output path for plots (no / at end of path please)
 plot_path = "/projekt1/remsens/work/jroettenbacher/plots/radar_hydro_frac"
 
