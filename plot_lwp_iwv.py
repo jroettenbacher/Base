@@ -131,7 +131,7 @@ print(f"Done with stats in {time.time() - t1:.2f}")
 print("Plotting statistics...")
 t1 = time.time()
 plt.style.use("default")
-plt.rcParams.update({'font.size': 16, 'figure.figsize': (12, 10)})
+plt.rcParams.update({'figure.figsize': (2.7, 3.2)})
 variables = ["lwp", "iwv"]
 ylabels = ["Liquid Water Path [g m-2]", "Integrated Water Vapor [kg m-2]"]
 titles = ["Liquid Water Path", "Integrated Water Vapor"]
@@ -161,7 +161,7 @@ for i in stats:
         ax.yaxis.set_minor_formatter(FormatStrFormatter('%d'))
         ax.tick_params(which='minor', length=4, labelsize=12)
         fig.autofmt_xdate()
-        plt.tight_layout()
+        # plt.tight_layout()
         # ax.grid(True, which='minor', color="grey", linestyle='-', linewidth=1)
         ax.xaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
         ax.yaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
