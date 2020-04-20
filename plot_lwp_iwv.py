@@ -131,7 +131,7 @@ print(f"Done with stats in {time.time() - t1:.2f}")
 print("Plotting statistics...")
 t1 = time.time()
 plt.style.use("default")
-plt.rcParams.update({'figure.figsize': (2.7, 3.2)})
+plt.rcParams.update({'figure.figaspect': 0.75})
 variables = ["lwp", "iwv"]
 ylabels = ["Liquid Water Path [g m-2]", "Integrated Water Vapor [kg m-2]"]
 titles = ["Liquid Water Path", "Integrated Water Vapor"]
