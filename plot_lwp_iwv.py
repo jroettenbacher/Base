@@ -46,7 +46,7 @@ MWR_temp = larda.read('HATPRO', "T", [begin_dt, end_dt], plot_range)
 
 print("Loading DWD Weather Station data")
 # weather data, time res = 1 min, only read in Dauer (duration) column, gives rain duration in seconds
-weather = pd.read_csv("/home/remsens/data/RV-METEOR_DWD/20200114_M161_Nsl.CSV", sep=";", index_col="Timestamp",
+weather = pd.read_csv("/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DWD/20200114_M161_Nsl.CSV", sep=";", index_col="Timestamp",
                       usecols=[0, 5], squeeze=True)
 weather.index = pd.to_datetime(weather.index, format="%d.%m.%Y %H:%M")
 weather = weather[begin_dt:end_dt]  # select date range
