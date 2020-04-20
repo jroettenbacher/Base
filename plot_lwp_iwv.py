@@ -26,7 +26,7 @@ log.addHandler(logging.StreamHandler())
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 
 begin_dt = datetime.datetime(2020, 1, 17, 0, 0, 5)
-end_dt = datetime.datetime(2020, 2, 17, 23, 59, 55)
+end_dt = datetime.datetime(2020, 1, 19, 23, 59, 55)
 plot_range = [0, 'max']
 plot_path = f'/projekt1/remsens/work/jroettenbacher/plots'
 
@@ -131,7 +131,7 @@ print(f"Done with stats in {time.time() - t1:.2f}")
 print("Plotting statistics...")
 t1 = time.time()
 plt.style.use("default")
-plt.rcParams.update({'font.size': 16, 'figure.figsize': (4, 3)})
+plt.rcParams.update({'font.size': 16, 'figure.figsize': (12, 10)})
 variables = ["lwp", "iwv"]
 ylabels = ["Liquid Water Path [g m-2]", "Integrated Water Vapor [kg m-2]"]
 titles = ["Liquid Water Path", "Integrated Water Vapor"]
@@ -144,7 +144,7 @@ for i in stats:
         fig, ax = plt.subplots()
         ax.errorbar(stats[i].index, stats[i][var], yerr=stats[i][f'{var}_std'], fmt='-b',
                     ecolor='lightgrey', label=f"{var.swapcase()} with 1 standard deviation", linewidth=3)
-        ax.legend(title='', fontsize=14)
+        ax.legend(title='', fontsize=14, loc='upper right')
         if var == "iwv":
             ax.set_ylim([15, 50])
         elif var == "lwp":
