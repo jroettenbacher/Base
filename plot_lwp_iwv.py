@@ -2,7 +2,7 @@
 
 import sys
 # just needed to find pyLARDA from this location
-sys.path.append('/home/remsens/code/larda3/larda/')
+sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda/')
 sys.path.append('.')
 import matplotlib
 matplotlib.use('Agg')
@@ -28,7 +28,7 @@ larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 begin_dt = datetime.datetime(2020, 1, 17, 0, 0, 5)
 end_dt = datetime.datetime(2020, 2, 17, 23, 59, 55)
 plot_range = [0, 'max']
-plot_path = f'/home/remsens/code/larda3/scripts/plots/mwr'
+plot_path = f'/projekt1/remsens/work/jroettenbacher/plots'
 
 # read in MWR variables
 print(f"Loading HATPRO data...")
@@ -131,7 +131,7 @@ print(f"Done with stats in {time.time() - t1:.2f}")
 print("Plotting statistics...")
 t1 = time.time()
 plt.style.use("default")
-plt.rcParams.update({'font.size': 16, 'figure.figsize': (16, 9)})
+plt.rcParams.update({'font.size': 16, 'figure.figsize': (4, 3)})
 variables = ["lwp", "iwv"]
 ylabels = ["Liquid Water Path [g m-2]", "Integrated Water Vapor [kg m-2]"]
 titles = ["Liquid Water Path", "Integrated Water Vapor"]
