@@ -144,7 +144,7 @@ for i in stats:
         fig, ax = plt.subplots()
         ax.errorbar(stats[i].index, stats[i][var], yerr=stats[i][f'{var}_std'], fmt='-b',
                     ecolor='lightgrey', label=f"{var.swapcase()} with 1 standard deviation", linewidth=3)
-        ax.legend(title='', fontsize=14, loc='upper right')
+        ax.legend(title='', loc='upper right')
         if var == "iwv":
             ax.set_ylim([15, 50])
         elif var == "lwp":
