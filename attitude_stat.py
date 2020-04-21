@@ -53,7 +53,7 @@ end_dt = datetime.datetime(2020, 2, 10, 23, 59, 59)
 ########################################################################################################################
 # RV-Meteor
 # list all files in directory, read them in and concat them, then select the date range
-all_files = sorted(glob.glob(os.path.join(input_path + "RV-METEOR_DSHIP/*_10Hz.dat")))
+all_files = sorted(glob.glob(os.path.join(input_path + "/RV-METEOR_DSHIP/*_10Hz.dat")))
 file_list = []
 for f in all_files:
     # match anything (.*) and the date group (?P<date>) consisting of 8 digits (\d{8})
@@ -87,7 +87,7 @@ radar_pitch = larda.read("LIMRAD94_cn_input", "Inc_ElA", [begin_dt, end_dt])
 ########################################################################################################################
 # Arduino
 # read in measurement data
-all_files = sorted(glob.glob(os.path.join(input_path + "ARDUINO/final_daily_files/*_attitude_arduino.csv")))
+all_files = sorted(glob.glob(os.path.join(input_path + "/ARDUINO/final_daily_files/*_attitude_arduino.csv")))
 file_list = []
 for f in all_files:
     # match anything (.*) and the date group (?P<date>) consisting of 8 digits (\d{8})
