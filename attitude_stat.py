@@ -107,11 +107,11 @@ arduino.columns = ['Heading [°]', 'Pitch [°]', 'Roll [°]']
 # PDF Plotting
 ########################################################################################################################
 # RV-Meteor
-variables = ["Heave [m]", "Pitch [°]", "Roll [°]"]
-# subsample data by 0.5, 1 and 3 seconds
-rv_meteor_500ms = rv_meteor.resample("0.5S").mean()
-rv_meteor_1s = rv_meteor.resample("1S").mean()
-rv_meteor_3s = rv_meteor.resample("3S").mean()
+# variables = ["Heave [m]", "Pitch [°]", "Roll [°]"]
+# # subsample data by 0.5, 1 and 3 seconds
+# rv_meteor_500ms = rv_meteor.resample("0.5S").mean()
+# rv_meteor_1s = rv_meteor.resample("1S").mean()
+# rv_meteor_3s = rv_meteor.resample("3S").mean()
 # plot PDFs for each variable
 # plt.style.use('ggplot')
 # plt.rcParams.update({'font.size': 16, 'figure.figsize': (16, 9)})
@@ -132,8 +132,8 @@ rv_meteor_3s = rv_meteor.resample("3S").mean()
 #     print(f"Figure saved to {filename}")
 ########################################################################################################################
 # LIMRAD94
-variables = [radar_roll, radar_pitch]
-names = ["Roll", "Pitch"]
+# variables = [radar_roll, radar_pitch]
+# names = ["Roll", "Pitch"]
 # for var, name in zip(variables, names):
 #     # plot PDF, 40 bins
 #     plt.hist(var['var'], bins=40, density=True, histtype='bar', log=True, label="Median: 1.88s")
@@ -171,11 +171,11 @@ names = ["Roll", "Pitch"]
 # fig.close()
 ########################################################################################################################
 # ARDUINO attitude sensor
-variables = ["Pitch [°]", "Roll [°]"]
-# subsample data by 0.5, 1 and 3 seconds
-arduino_500ms = arduino.resample("0.5S").mean()
-arduino_1s = arduino.resample("1S").mean()
-arduino_3s = arduino.resample("3S").mean()
+# variables = ["Pitch [°]", "Roll [°]"]
+# # subsample data by 0.5, 1 and 3 seconds
+# arduino_500ms = arduino.resample("0.5S").mean()
+# arduino_1s = arduino.resample("1S").mean()
+# arduino_3s = arduino.resample("3S").mean()
 # plot PDFs for each variable
 # plt.style.use('ggplot')
 # plt.rcParams.update({'font.size': 16, 'figure.figsize': (16, 9)})
@@ -203,7 +203,7 @@ arduino_3s = arduino.resample("3S").mean()
 # begin_dt = datetime.datetime(2020, 1, 31, 0, 0, 0)
 # end_dt = datetime.datetime(2020, 2, 2, 23, 59, 59)
 # use 3 second averaged data to decrease number of points to plot, drop Heading
-rv_meteor_plot = rv_meteor_3s.drop('Heading [°]', axis=1).loc[begin_dt:end_dt]
+# rv_meteor_plot = rv_meteor_3s.drop('Heading [°]', axis=1).loc[begin_dt:end_dt]
 # subset ctd data
 # ctd_plot = rv_meteor_action.loc[begin_dt:end_dt]
 
@@ -270,14 +270,14 @@ for var, radar_var in zip(variables, [radar_roll, radar_pitch]):
     fig, ax = plt.subplots()
     ax.set_title(f"{var[:-4]} Motion \n "
                  f"EUREC4A - RV-Meteor {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d}")
-    ax.plot(rv_meteor[var], 'g', label='Seapath 10Hz')
-    ax.plot(arduino[var], 'b', label='Arduino 4Hz')
-    ax.plot(radar_var['var'], 'r', label='LIMRAD94 0.5Hz')
+    ax.plot(rv_meteor[var], rv_meteor.index, 'g', label='Seapath 10Hz')
+    ax.plot(arduino[var], arduino.index, 'b', label='Arduino 4Hz')
+    ax.plot(radar_var['var'], [h.ts_to_dt(ts) for ts in radar_var['ts']], 'r', label='LIMRAD94 0.5Hz')
     ax.set_ylabel(var)
     ax.set_xlabel("Datetime [UTC]")
     ax.xaxis.set_major_formatter(hfmt)
     ax.legend(title='Instrument')
-    # fig.autofmt_xdate()
+    fig.autofmt_xdate()
     if end_dt.date() > begin_dt.date():
         filename = f"{output_path}/RV-Meteor_{var[:-4]}_comparison_{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}.png"
         plt.savefig(filename, dpi=250)
