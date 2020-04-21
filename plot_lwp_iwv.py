@@ -101,7 +101,7 @@ for hour in hours:
     std = df_masked.rolling(f"{hour}H").std()
     std.columns = ["lwp_std", "iwv_std"]  # rename columns of std data frame for merging
     # merge data frames on index and save to dictionary
-    stats[f"{hour}h_mean"] = df.merge(std, left_index=True, right_index=True)
+    # stats[f"{hour}h_mean"] = df.merge(std, left_index=True, right_index=True)
     # calculate median, merge with standard deviation and save to dictionary
     df = df_masked.rolling(f"{hour}H").median()
     stats[f"{hour}h_median"] = df.merge(std, left_index=True, right_index=True)
