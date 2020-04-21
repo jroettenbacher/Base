@@ -209,7 +209,7 @@ arduino.columns = ['Heading [°]', 'Pitch [°]', 'Roll [°]']
 
 # plot style options
 plt.style.use('ggplot')
-plt.rcParams.update({'figure.figsize': (11/2.54, 3.5/2.54)})
+# plt.rcParams.update({'figure.figsize': (11/2.54, 3.5/2.54)})
 # set date tick locator and formater
 hfmt = mdates.DateFormatter('%d/%m/%y %H')
 
@@ -267,7 +267,7 @@ hfmt = mdates.DateFormatter('%d/%m/%y %H')
 # plot all three instrument measurements in one plot
 variables = ["Roll [°]", "Pitch [°]"]
 for var, radar_var in zip(variables, [radar_roll, radar_pitch]):
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(11/2.54, 3.5/2.54))
     ax.set_title(f"{var[:-4]} Motion \n "
                  f"EUREC4A - RV-Meteor {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d}")
     ax.plot(rv_meteor[var], 'g', label='Seapath 10Hz')
