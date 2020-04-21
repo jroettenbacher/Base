@@ -272,12 +272,12 @@ for var, radar_var in zip(variables, [radar_roll, radar_pitch]):
                  f"EUREC4A - RV-Meteor {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d}")
     ax.plot(rv_meteor[var], 'g', label='Seapath 10Hz')
     ax.plot(arduino[var], 'b', label='Arduino 4Hz')
-    ax.plot(radar_roll['var'], 'r', label='LIMRAD94 0.5Hz')
+    ax.plot(radar_var['var'], 'r', label='LIMRAD94 0.5Hz')
     ax.set_ylabel(var)
     ax.set_xlabel("Datetime [UTC]")
     ax.xaxis.set_major_formatter(hfmt)
     ax.legend(title='Instrument')
-    fig.autofmt_xdate()
+    # fig.autofmt_xdate()
     if end_dt.date() > begin_dt.date():
         filename = f"{output_path}/RV-Meteor_{var[:-4]}_comparison_{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}.png"
         plt.savefig(filename, dpi=250)
