@@ -277,7 +277,7 @@ for var, radar_var in zip(variables, [radar_roll, radar_pitch]):
     ax.set_xlabel("Datetime [UTC]")
     # ax.xaxis.set_major_formatter(hfmt)
     ax.legend(title='Instrument')
-    fig.autofmt_xdate()
+    # fig.autofmt_xdate()
     if end_dt.date() > begin_dt.date():
         filename = f"{output_path}/RV-Meteor_{var[:-4]}_comparison_{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}.png"
         plt.savefig(filename, dpi=250)
