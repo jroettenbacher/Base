@@ -271,7 +271,7 @@ for var, radar_var in zip(variables, [radar_roll, radar_pitch]):
     ax.set_title(f"{var[:-4]} Motion \n "
                  f"EUREC4A - RV-Meteor {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d}")
     ax.plot(rv_meteor[var], rv_meteor.index, 'g', label='Seapath 10Hz')
-    ax.plot(arduino[var], arduino.index, 'b', label='Arduino 4Hz')
+    # ax.plot(arduino[var], arduino.index, 'b', label='Arduino 4Hz')
     # ax.plot(radar_var['var'], [h.ts_to_dt(ts) for ts in radar_var['ts']], 'r', label='LIMRAD94 0.5Hz')
     ax.set_ylabel(var)
     ax.set_xlabel("Datetime [UTC]")
