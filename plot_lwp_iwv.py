@@ -26,7 +26,7 @@ log.addHandler(logging.StreamHandler())
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 
 begin_dt = datetime.datetime(2020, 1, 17, 0, 0, 5)
-end_dt = datetime.datetime(2020, 1, 19, 23, 59, 55)
+end_dt = datetime.datetime(2020, 2, 19, 23, 59, 55)
 plot_range = [0, 'max']
 plot_path = f'/projekt1/remsens/work/jroettenbacher/plots'
 
