@@ -17,8 +17,7 @@ import glob
 import re
 import sys
 # just needed to find pyLARDA from this location
-sys.path.append('/home/remsens/code/larda3/larda/')
-sys.path.append('Y:/code/larda3/larda/')
+sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda/')
 sys.path.append('.')
 
 import pyLARDA
