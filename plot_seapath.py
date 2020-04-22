@@ -27,7 +27,7 @@ all_files = sorted(glob.glob(os.path.join(inpath + "/*_DSHIP_seapath_*Hz.dat")))
 file_list = []
 for f in all_files:
     # match anything (.*) and the date group (?P<date>) consisting of 8 digits (\d{8})
-    match = re.match(r"(?P<date>\d{8}).*", f)
+    match = re.match(r".*(?P<date>\d{8})", f)
     # convert string to datetime
     date_from_file = dt.datetime.strptime(match.group('date'), '%Y%m%d')
     if begin_dt <= date_from_file <= end_dt:
