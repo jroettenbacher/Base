@@ -19,8 +19,8 @@ import glob
 inpath = "/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP"
 plotpath = "/projekt1/remsens/work/jroettenbacher/plots/seapath"
 
-begin_dt = dt.date(2020, 1, 17)
-end_dt = dt.date(2020, 2, 29)
+begin_dt = dt.datetime(2020, 1, 17)
+end_dt = dt.datetime(2020, 2, 29)
 
 # data read in
 all_files = sorted(glob.glob(os.path.join(inpath + "/*_DSHIP_seapath_*Hz.dat")))
