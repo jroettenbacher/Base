@@ -23,7 +23,7 @@ begin_dt = dt.date(2020, 1, 17)
 end_dt = dt.date(2020, 2, 29)
 
 # data read in
-all_files = sorted(glob.glob(os.path.join(inpath + "/.*_DSHIP_seapath_*Hz.dat")))
+all_files = sorted(glob.glob(os.path.join(inpath + "/*_DSHIP_seapath_*Hz.dat")))
 file_list = []
 for f in all_files:
     # match anything (.*) and the date group (?P<date>) consisting of 8 digits (\d{8})
