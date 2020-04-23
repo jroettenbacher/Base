@@ -81,7 +81,7 @@ for date in pd.date_range("2020-01-17", "2020-02-19"):
     cbh = larda.read("CEILO", "cbh", [begin_dt, end_dt])
     time_list = cbh['ts']
     var = cbh['var'].copy()
-    var = np.ma.masked_where(var < 100, var)
+    var = np.ma.masked_where(var < 100 | var > plot_range[1], var)
     dt_list = np.asarray([datetime.datetime.utcfromtimestamp(time) for time in time_list])
 
 
