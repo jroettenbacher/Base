@@ -62,6 +62,7 @@ for date in pd.date_range("2020-01-17", "2020-02-19"):
     radar_MDV = larda.read(system, "Vel", [begin_dt, end_dt], plot_range)
     # overwrite mask in larda container
     radar_MDV["mask"] = radar_Z["var"].mask
+    radar_MDV["var_lims"] = [-7, 7]
     # radar_sw = larda.read(system, "sw", [begin_dt, end_dt], plot_range)
     # # overwrite mask in larda container
     # radar_sw["mask"] = radar_Z["var"].mask
@@ -107,6 +108,7 @@ for date in pd.date_range("2020-01-17", "2020-02-19"):
 
     fig, _ = pyLARDA.Transformations.plot_timeheight(radar_MDV, rg_converter=True, title=True)
     fig.savefig(name + '_MDV.png', dpi=250)
+    fig.close()
     print(f'figure saved :: {name}_MDV.png')
     # #
     # fig, _ = pyLARDA.Transformations.plot_timeheight(radar_sw, rg_converter=True, title=True)
