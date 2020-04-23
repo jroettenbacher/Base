@@ -108,7 +108,7 @@ for date in pd.date_range("2020-01-17", "2020-02-19"):
 
     fig, _ = pyLARDA.Transformations.plot_timeheight(radar_MDV, rg_converter=True, title=True)
     fig.savefig(name + '_MDV.png', dpi=250)
-    fig.close()
+    plt.close()
     print(f'figure saved :: {name}_MDV.png')
     # #
     # fig, _ = pyLARDA.Transformations.plot_timeheight(radar_sw, rg_converter=True, title=True)

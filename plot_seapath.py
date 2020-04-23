@@ -37,3 +37,6 @@ seapath = pd.concat(pd.read_csv(f, encoding='windows-1252', sep="\t", skiprows=(
 seapath.index = pd.to_datetime(seapath.index, infer_datetime_format=True)
 seapath.index.name = 'datetime'
 seapath.columns = ['Heading [°]', 'Heave [m]', 'Pitch [°]', 'Roll [°]']
+
+# plotting
+seapath.groupby(seapath.index.date).count().plot()
