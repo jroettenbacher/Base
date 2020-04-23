@@ -77,14 +77,6 @@ for date in pd.date_range("2020-01-17", "2020-02-19"):
     # # mask -999 = fill value
     # var = np.ma.masked_where(var == -999, var)
 
-    # read in ceilometer base height
-    cbh = larda.read("CEILO", "cbh", [begin_dt, end_dt])
-    time_list = cbh['ts']
-    var = cbh['var'].copy()
-    var = np.ma.masked_where((var < 100) | (var > plot_range[1]), var)
-    dt_list = np.asarray([datetime.datetime.utcfromtimestamp(time) for time in time_list])
-
-
     name = f'{plot_path}/' \
            f'{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{plot_range[1] / 1000:.0f}km_cloudnet_input'
 
@@ -115,10 +107,6 @@ for date in pd.date_range("2020-01-17", "2020-02-19"):
     # print(f'figure saved :: {name}_cbt_Z.png')
 
     fig, ax = pyLARDA.Transformations.plot_timeheight(radar_MDV, rg_converter=False, title=True)
-    ax.plot(dt_list, var[:, 0], '-', ms=2.5, label='cloud base height ceilometer 1', color='purple', alpha=0.5)
-    ax.plot(dt_list, var[:, 1], '-', ms=2.5, label='cloud base height ceilometer 2', color='grey', alpha=0.5)
-    ax.plot(dt_list, var[:, 2], '-', ms=2.5, label='cloud base height ceilometer 3', color='black', alpha=0.5)
-    ax.legend(loc='upper right')
     fig.savefig(name + '_MDV.png', dpi=250)
     plt.close()
     print(f'figure saved :: {name}_MDV.png')
