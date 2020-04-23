@@ -49,7 +49,7 @@ if 'plot_range' in kwargs:
 else:
     plot_range = [0, 3000]
 
-for date in pd.date_range("2020-01-17", "2020-02-19"):
+for date in pd.date_range("2020-02-19", "2020-02-29"):
     begin_dt = (date + datetime.timedelta(0, 5)).to_pydatetime()
     end_dt = (date + datetime.timedelta(0, 23*60*60+59*60+55)).to_pydatetime()
     # read in moments
