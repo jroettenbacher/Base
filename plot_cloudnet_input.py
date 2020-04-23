@@ -36,13 +36,13 @@ if 'date_begin' in kwargs:
     date_begin = str(kwargs['date_begin'])
     begin_dt = datetime.datetime.strptime(date_begin + ' 00:00:05', '%Y%m%d %H:%M:%S')
 else:
-    begin_dt = datetime.datetime(2020, 1, 17, 15, 0, 5)
+    begin_dt = datetime.datetime(2020, 1, 27, 5, 0, 5)
 
 if 'date_end' in kwargs:
     date_end = str(kwargs['date_end'])
     end_dt = datetime.datetime.strptime(date_end + ' 23:59:55', '%Y%m%d %H:%M:%S')
 else:
-    end_dt = datetime.datetime(2020, 1, 17, 17, 59, 55)
+    end_dt = datetime.datetime(2020, 1, 27, 9, 59, 55)
 
 if 'plot_range' in kwargs:
     plot_range = [0, int(kwargs['plot_range'])]
