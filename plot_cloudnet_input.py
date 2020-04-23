@@ -115,9 +115,9 @@ for date in pd.date_range("2020-01-17", "2020-02-19"):
     # print(f'figure saved :: {name}_cbt_Z.png')
 
     fig, ax = pyLARDA.Transformations.plot_timeheight(radar_MDV, rg_converter=False, title=True)
-    ax.plot(dt_list, var[0], '-', ms=2.5, label='cloud base height ceilometer 1', color='purple', alpha=0.5)
-    ax.plot(dt_list, var[1], '-', ms=2.5, label='cloud base height ceilometer 2', color='grey', alpha=0.5)
-    ax.plot(dt_list, var[2], '-', ms=2.5, label='cloud base height ceilometer 3', color='black', alpha=0.5)
+    ax.plot(dt_list, var[:, 0], '-', ms=2.5, label='cloud base height ceilometer 1', color='purple', alpha=0.5)
+    ax.plot(dt_list, var[:, 1], '-', ms=2.5, label='cloud base height ceilometer 2', color='grey', alpha=0.5)
+    ax.plot(dt_list, var[:, 2], '-', ms=2.5, label='cloud base height ceilometer 3', color='black', alpha=0.5)
     ax.legend(loc='upper right')
     fig.savefig(name + '_MDV.png', dpi=250)
     plt.close()
