@@ -25,7 +25,7 @@ log.setLevel(logging.WARNING)
 log.addHandler(logging.StreamHandler())
 
 # define plot path
-plot_path = "/projekt1/remsens/work/jroettenbacher/plots"
+plot_path = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/quicklooks/3km_MDV"
 # Load LARDA
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 
@@ -76,7 +76,8 @@ for date in pd.date_range("2020-01-17", "2020-02-19"):
     # # mask -999 = fill value
     # var = np.ma.masked_where(var == -999, var)
 
-    name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{plot_range[1] / 1000:.0f}km_cloudnet_input'
+    name = f'{plot_path}/' \
+           f'{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{plot_range[1] / 1000:.0f}km_cloudnet_input'
 
     # plot Roll and pitch
     # fig, ax = pyLARDA.Transformations.plot_timeseries(radar_Inc_El)
