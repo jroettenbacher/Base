@@ -84,7 +84,7 @@ if __name__ == '__main__':
     #   |_|_| |  \ |  |  |___    |___ |  | |___ | |__] |  \ |  |  |  |___ |__/    | \| |___    |    | |___ |___
     #'Inc_El', 'Inc_ElA'
     for var in ['DiffAtt', 'ldr', 'bt', 'rr', 'LWP', 'MaxVel', 'DoppLen', 'C1Range', 'C2Range', 'C3Range', 'SurfRelHum',
-                'Inc_El', 'Inc_ElA', 'C1MeanVel', 'C2MeanVel', 'C3MeanVel']:
+                'Inc_El', 'Inc_ElA']:
         print('loading variable from LV1 :: ' + var)
         LIMRAD94_moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
 
@@ -94,11 +94,11 @@ if __name__ == '__main__':
                                                         LIMRAD94_moments['ldr']['var'])
     # find cloud bases and tops and add variable to larda container
     print(f"creating cloud mask")
-    cloud_prop, cloud_mask = jr.find_bases_tops(LIMRAD94_moments["Ze"]["mask"], LIMRAD94_moments["Ze"]["rg"])
+    cloud_prop, cloud_mask = jr.find_bases_tops(LIMRAD94_moments['Ze']['mask'], LIMRAD94_moments['Ze']['rg'])
     LIMRAD94_moments.update({"cloud_mask": cloud_mask})
     # fill values = 0 with -999
-    LIMRAD94_moments["cloud_mask"] = h.fill_with(LIMRAD94_moments["cloud_mask"],
-                                                 LIMRAD94_moments["cloud_mask"] == 0, -999)
+    LIMRAD94_moments['cloud_mask'] = h.fill_with(LIMRAD94_moments['cloud_mask'],
+                                                 LIMRAD94_moments['cloud_mask'] == 0, -999)
 
     cloudnet_remsens_lim_path = '/media/sdig/LACROS/cloudnet/data/'
 
