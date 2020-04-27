@@ -99,6 +99,12 @@ if __name__ == '__main__':
     # fill values = 0 with -999
     LIMRAD94_moments['cloud_mask'] = h.fill_with(LIMRAD94_moments['cloud_mask'],
                                                  LIMRAD94_moments['cloud_mask'] == 0, -999)
+    # make heave correction
+    new_vel, seapath_chirptimes = jr.heave_correction(LIMRAD94_moments, date)
+    # add new variable to container with same attributes as VEL
+    LIMRAD94_moments.update({'Vel_cor': LIMRAD94_moments['VEL']})
+    # overwrite var with corrected mean Doppler velocities
+    LIMRAD94_moments['Vel_cor']['var'] = np.ma.masked_where(LIMRAD94_moments['Ze']['mask'], new_vel)
 
     cloudnet_remsens_lim_path = '/media/sdig/LACROS/cloudnet/data/'
 
