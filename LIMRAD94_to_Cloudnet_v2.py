@@ -83,8 +83,8 @@ if __name__ == '__main__':
     #   | | | |__/ |  |  |___    |    |__| |    | |__] |__/ |__|  |  |___ |  \    |\ | |       |___ | |    |___
     #   |_|_| |  \ |  |  |___    |___ |  | |___ | |__] |  \ |  |  |  |___ |__/    | \| |___    |    | |___ |___
     #'Inc_El', 'Inc_ElA'
-    for var in ['DiffAtt', 'ldr', 'bt', 'rr', 'LWP', 'MaxVel', 'C1Range', 'C2Range', 'C3Range', 'SurfRelHum',
-                'Inc_El', 'Inc_ElA']:
+    for var in ['DiffAtt', 'ldr', 'bt', 'rr', 'LWP', 'MaxVel', 'DoppLen', 'C1Range', 'C2Range', 'C3Range', 'SurfRelHum',
+                'Inc_El', 'Inc_ElA', 'C1MeanVel', 'C2MeanVel', 'C3MeanVel']:
         print('loading variable from LV1 :: ' + var)
         LIMRAD94_moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
 
