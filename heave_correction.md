@@ -21,6 +21,6 @@ Three components:
 * pitch induced heave
 * roll induced heave
 
-TODO: Adjust calculation based on date -> higher resolution of Seapath measurements after 27.01.20
- 
-### 2. 
+### 2. Correct Each Chirp's Mean Doppler Velocity
+
+* create dataframe with velocities, each range bin = 1 column, index = time -> 

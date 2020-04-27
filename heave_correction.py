@@ -14,6 +14,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
+# position of radar in relation to Measurement Reference Unit (Seapath) of RV-Meteor in meters
+x_radar = -11
+y_radar = 4.07
+z_radar = 15.81
 ########################################################################################################################
 # Data Read in
 ########################################################################################################################
@@ -21,10 +25,10 @@ start = time.time()
 input_path = "/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP"
 plot_path = "/projekt1/remsens/work/jroettenbacher/plots/heave_correction"
 # begin and end date
-# TODO: get begin and end dt from LIMRAD94_to_Cloudnet_v2.py
+# TODO: get date from LIMRAD94_to_Cloudnet_v2.py
 date = dt.datetime(2020, 1, 17)
 ########################################################################################################################
-# Seapath attitude and heave data 1 or 10 Hz
+# Seapath attitude and heave data 1 or 10 Hz, choose file depending on date
 if date < dt.datetime(2020, 1, 27):
     file = f"{date:%Y%m%d}_DSHIP_seapath_1Hz.dat"
 else:
@@ -40,14 +44,17 @@ print(f"Done reading in Seapath data in {time.time() - start}")
 ########################################################################################################################
 t1 = time.time()
 print("Calculating Heave Rate...")
-heave_rate = np.ediff1d(rv_meteor["Heave [m]"]) / np.ediff1d(rv_meteor.index).astype('float64') * 1e9
+# sum up heave, pitch induced and roll induced heave
+pitch = np.deg2rad(rv_meteor["Pitch [°]"])
+roll = np.deg2rad(rv_meteor["Roll [°]"])
+pitch_heave = x_radar * np.tan(pitch)
+roll_heave = y_radar * np.tan(roll)
+rv_meteor["radar_heave"] = rv_meteor["Heave [m]"] + pitch_heave + roll_heave
+# ediff1d calculates the difference between consecutive elements of an array
+# heave difference / time difference
+heave_rate = np.ediff1d(rv_meteor["radar_heave"]) / np.ediff1d(rv_meteor.index).astype('float64') * 1e9
+# the first calculated heave rate corresponds to the second time step
 heave_rate = pd.DataFrame({'Heave Rate [m/s]': heave_rate}, index=rv_meteor.index[1:])
 rv_meteor = rv_meteor.join(heave_rate)
+
 print(f"Done with heave rate calculation in {time.time() - t1}")
-
-# calculate average heave rate for chirp time length 500 ms
-rv_meteor_500ms = rv_meteor.resample('0.5S').mean()
-
-########################################################################################################################
-# Calculating Pitch induced heave
-########################################################################################################################
