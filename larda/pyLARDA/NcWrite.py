@@ -79,6 +79,10 @@ def generate_cloudnet_input_LIMRAD94(data, path, **kwargs):
                     long_name='Hydrometeor layer bases (-1) and hydrometeor layer tops (1)',
                     unit='[-]')
 
+    nc_add_variable(ds, val=data['Vel_cor']['var'], dimension=('time', 'range',),
+                    var_name='vm_cor', type=np.float32, long_name='Mean Doppler velocity corrected for heave motion',
+                    unit='m/s')
+
     # 1D variables
     nc_add_variable(ds, val=data['bt']['var'], dimension=('time',),
                     var_name='bt', type=np.float32, long_name='Direct detection brightness temperature', unit='K')
