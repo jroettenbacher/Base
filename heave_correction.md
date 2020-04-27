@@ -23,4 +23,13 @@ Three components:
 
 ### 2. Correct Each Chirp's Mean Doppler Velocity
 
-* create dataframe with velocities, each range bin = 1 column, index = time -> 
+note: the radar timestamp corresponds to the end of the chirp sequence  
+Duration of each chirp in seconds by chirp table:  
+
+| Chirp Table | 1. Chirp duration | 2. Chirp duration | 3. Chirp duration |
+| --- | --- | --- | --- |
+| tradewindCU (P09) | 1.022 | 0.947 | 0.966 |
+| Cu_small_Tint2 (P07) | 0.563 | 0.573 | 0.453 |
+ 
+ tradewind_cumuli (P09): 
+* create dataframe with velocities, each range bin = 1 column, index = time 
