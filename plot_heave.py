@@ -19,9 +19,8 @@ import matplotlib.dates as mdates
 ########################################################################################################################
 start = time.time()
 input_path = "/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP"
-plot_path = "/projekt1/remsens/work/jroettenbacher/plots/heavae_correction"
+plot_path = "/projekt1/remsens/work/jroettenbacher/plots/heave_correction"
 # begin and end date
-# TODO: get begin and end dt from LIMRAD94_to_Cloudnet_v2.py
 begin_dt = dt.datetime(2020, 1, 17)
 end_dt = dt.datetime(2020, 1, 17)
 ########################################################################################################################
