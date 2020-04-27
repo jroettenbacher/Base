@@ -31,5 +31,5 @@ Duration of each chirp in seconds by chirp table:
 | tradewindCU (P09) | 1.022 | 0.947 | 0.966 |
 | Cu_small_Tint2 (P07) | 0.563 | 0.573 | 0.453 |
  
- tradewind_cumuli (P09): 
-* create dataframe with velocities, each range bin = 1 column, index = time 
+* calculate timestamp for each chirp
+*  
