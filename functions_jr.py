@@ -154,20 +154,30 @@ def heave_correction(moments, date):
     new_vel = np.empty_like(moments['VEL']['var'])
     seapath_chirptimes = pd.DataFrame()
     for i in range(len(chirp_dur)):
+        t1 = time.time()
         range_bins = range_bins + moments[f'C{i+1}Range']['var'].shape[1]  # get number of range bins
         var = moments['VEL']['var'][:, :range_bins]  # select only velocities from one chirp
         # convert timestamps of moments to datetime objects
         ts = pd.Series([dt.datetime.utcfromtimestamp(ts) for ts in chirp_timestamps[f"chirp_{i+1}"].values])
         # calculate the absolute difference between all seapath time steps and each radar time step
-        abs_diff = [np.abs(seapath.index - t) for t in ts]
+        # list of differences for each radar time step, converts DateTimeIndex to np.float for faster computation
+        # result in seconds since 1970-01-01
+        abs_diff = [np.abs(seapath.index.values.astype(np.float64) - t.value) for t in ts]
+        # list of minimum difference for each time step
+        min_diff = [np.min(abs_d) for abs_d in abs_diff]
+        # list of lists each holding a numpy array with the index of the time step with minimum difference
+        id_diff_min = [np.where(abs_d == min_d) for abs_d, min_d in zip(abs_diff, min_diff)]
+        # flatten the list of lists to a list of numpy arrays, concat the arrays into one array
+        id_diff_min = np.concatenate([idx for lst in id_diff_min for idx in lst])
         # select the rows which are closest to the radar time steps
-        seapath_closest = seapath.iloc[np.where(abs_diff == np.min(abs_diff))]
+        seapath_closest = seapath.iloc[id_diff_min]
         # create array with same dimensions as velocity (time, range)
         heave_cor = np.expand_dims(seapath_closest["Heave Rate [m/s]"].values, axis=1)
         # duplicate the heave correction over the range dimension to add it to all range bins
         new_vel[:, :range_bins] = var + heave_cor.repeat(var.shape[1], axis=1)
         # save chirptimes of seapath for quality control, as seconds since 1970-01-01 00:00 UTC
         seapath_chirptimes[f"Chirp_{i+1}"] = seapath_closest.index.values.astype(np.int64) / 10 ** 9
+        print(f"Corrected Doppler velocities in Chirp {i+1} in {time.time() - t1}")
 
     return new_vel, seapath_chirptimes
 

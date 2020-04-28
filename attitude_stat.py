@@ -52,7 +52,7 @@ end_dt = datetime.datetime(2020, 2, 10, 23, 59, 59)
 # Data Read In
 ########################################################################################################################
 # RV-Meteor
-# list all files in directory, read them in and concat them, then select the date range
+# list all files in directory, select the date range, then read them in and concat them
 all_files = sorted(glob.glob(os.path.join(input_path + "/RV-METEOR_DSHIP/*_10Hz.dat")))
 file_list = []
 for f in all_files:
