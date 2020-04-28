@@ -25,7 +25,7 @@ log.setLevel(logging.WARNING)
 log.addHandler(logging.StreamHandler())
 
 # define plot path
-plot_path = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/quicklooks/3km_MDV"
+plot_path = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/quicklooks/MDV_cor"
 # Load LARDA
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 
@@ -42,7 +42,7 @@ if 'date_end' in kwargs:
     date_end = str(kwargs['date_end'])
     end_dt = datetime.datetime.strptime(date_end + ' 23:59:55', '%Y%m%d %H:%M:%S')
 else:
-    end_dt = datetime.datetime(2020, 1, 17, 23, 59, 55)
+    end_dt = datetime.datetime(2020, 1, 17, 5, 59, 55)
 
 if 'plot_range' in kwargs:
     plot_range = [0, int(kwargs['plot_range'])]
@@ -60,12 +60,12 @@ radar_Z["mask"] = radar_Z["var"].mask
 radar_MDV = larda.read(system, "Vel", [begin_dt, end_dt], plot_range)
 # overwrite mask in larda container
 radar_MDV["mask"] = radar_Z["var"].mask
-radar_MDV["var_lims"] = [-7, 7]
+# radar_MDV["var_lims"] = [-7, 7]
 
 radar_MDV_cor = larda.read(system, "Vel_cor", [begin_dt, end_dt], plot_range)
 # overwrite mask in larda container
 radar_MDV_cor["mask"] = radar_Z["var"].mask
-radar_MDV_cor["var_lims"] = [-7, 7]
+# radar_MDV_cor["var_lims"] = [-7, 7]
 
 # radar_sw = larda.read(system, "sw", [begin_dt, end_dt], plot_range)
 # # overwrite mask in larda container
