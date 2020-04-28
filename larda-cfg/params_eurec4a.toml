@@ -322,6 +322,11 @@
     colormap = 'jet'
     var_unit = 'm/s'
     var_lims = [-4, 3]
+  [LIMRAD94_cn_input.params.Vel_cor]
+    variable_name = 'vm_cor'
+    colormap = 'jet'
+    var_unit = 'm/s'
+    var_lims = [-4, 3]
   [LIMRAD94_cn_input.params.sw]
     variable_name = 'sigma'
     colormap = 'jet'
