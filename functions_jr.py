@@ -166,7 +166,8 @@ def heave_correction(moments, date):
         # list of minimum difference for each time step
         min_diff = [np.min(abs_d) for abs_d in abs_diff]
         # list of lists each holding a numpy array with the index of the time step with minimum difference
-        id_diff_min = [np.where(abs_d == min_d) for abs_d, min_d in zip(abs_diff, min_diff)]
+        # use argmax to return only the first index where condition is true
+        id_diff_min = [np.argmax(abs_d == min_d) for abs_d, min_d in zip(abs_diff, min_diff)]
         # flatten the list of lists to a list of numpy arrays, concat the arrays into one array
         id_diff_min = np.concatenate([idx for lst in id_diff_min for idx in lst])
         # select the rows which are closest to the radar time steps
