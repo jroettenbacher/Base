@@ -189,5 +189,21 @@ def heave_correction(moments, date):
 
 
 if __name__ == '__main__':
-    r2 = polyfit(np.linspace(0, 100), np.arange(50, 100), 1)
-    print(r2)
+    import sys, time
+    import datetime as dt
+    sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
+    sys.path.append('.')
+    import pyLARDA
+    import pyLARDA.helpers as h
+    import logging
+    import numpy as np
+
+    begin_dt = dt.datetime(2020, 1, 17, 0, 0, 5)
+    end_dt = dt.datetime(2020, 1, 17, 23, 59, 55)
+    plot_range = [0, 'max']
+    mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
+    moments = {"VEL": mdv}
+    for var in ['MaxVel', 'DoppLen', 'C1Range', 'C2Range', 'C3Range']:
+        print('loading variable from LV1 :: ' + var)
+        moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
+    new_vel, heave_corr, seapath_chirptimes = heave_correction(moments, begin_dt)
