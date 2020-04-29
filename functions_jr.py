@@ -198,6 +198,7 @@ if __name__ == '__main__':
     import logging
     import numpy as np
 
+    larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
     begin_dt = dt.datetime(2020, 1, 17, 0, 0, 5)
     end_dt = dt.datetime(2020, 1, 17, 23, 59, 55)
     plot_range = [0, 'max']
