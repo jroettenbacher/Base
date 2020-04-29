@@ -83,6 +83,11 @@ def generate_cloudnet_input_LIMRAD94(data, path, **kwargs):
                     var_name='vm_cor', type=np.float32, long_name='Mean Doppler velocity corrected for heave motion',
                     unit='m/s')
 
+    nc_add_variable(ds, val=data['heave_corr']['var'], dimension=('time', 'range',),
+                    var_name='heave_corr', type=np.float32,
+                    long_name='Heave rate for correcting the mean Doppler velocity',
+                    unit='m/s')
+
     # 1D variables
     nc_add_variable(ds, val=data['bt']['var'], dimension=('time',),
                     var_name='bt', type=np.float32, long_name='Direct detection brightness temperature', unit='K')

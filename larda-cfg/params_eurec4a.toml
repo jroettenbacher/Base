@@ -327,6 +327,11 @@
     colormap = 'jet'
     var_unit = 'm/s'
     var_lims = [-4, 3]
+  [LIMRAD94_cn_input.params.heave_corr]
+    variable_name = 'heave_corr'
+    colormap = 'jet'
+    var_unit = 'm/s'
+    var_lims = [-4, 3]
   [LIMRAD94_cn_input.params.sw]
     variable_name = 'sigma'
     colormap = 'jet'

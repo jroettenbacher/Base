@@ -67,6 +67,8 @@ radar_MDV_cor = larda.read(system, "Vel_cor", [begin_dt, end_dt], plot_range)
 radar_MDV_cor["mask"] = radar_Z["var"].mask
 # radar_MDV_cor["var_lims"] = [-7, 7]
 
+heave_corr = larda.read(system, "heave_corr", [begin_dt, end_dt], plot_range)
+
 # radar_sw = larda.read(system, "sw", [begin_dt, end_dt], plot_range)
 # # overwrite mask in larda container
 # radar_sw["mask"] = radar_Z["var"].mask
@@ -118,7 +120,20 @@ print(f'figure saved :: {name}_MDV.png')
 fig, ax = pyLARDA.Transformations.plot_timeheight(radar_MDV_cor, rg_converter=False, title=True)
 fig.savefig(name + '_MDV_cor.png', dpi=250)
 plt.close()
-print(f'figure saved :: {name}_MDV.png')
+print(f'figure saved :: {name}_MDV_cor.png')
+
+# plot difference between corrected and uncorrected Doppler velocity
+radar_MDV_cor['var'] = radar_MDV_cor['var'] - radar_MDV['var']
+fig, ax = pyLARDA.Transformations.plot_timeheight(radar_MDV_cor, rg_converter=False, title=True)
+fig.savefig(name + '_MDV_cor-MDV.png', dpi=250)
+plt.close()
+print(f'figure saved :: {name}_MDV_cor-MDV.png')
+
+# plot heave rate for correcting mean Doppler velocity
+fig, ax = pyLARDA.Transformations.plot_timeheight(heave_corr, rg_converter=False, title=True)
+fig.savefig(name + '_heave_corr.png', dpi=250)
+plt.close()
+print(f'figure saved :: {name}_heave_corr.png')
 # #
 # fig, _ = pyLARDA.Transformations.plot_timeheight(radar_sw, rg_converter=True, title=True)
 # fig.savefig(name + '_width.png', dpi=250)
