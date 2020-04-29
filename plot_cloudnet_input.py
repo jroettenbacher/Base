@@ -124,6 +124,7 @@ print(f'figure saved :: {name}_MDV_cor.png')
 
 # plot difference between corrected and uncorrected Doppler velocity
 radar_MDV_cor['var'] = radar_MDV_cor['var'] - radar_MDV['var']
+radar_MDV_cor['var_lims'] = [-1.5, 1.5]
 fig, ax = pyLARDA.Transformations.plot_timeheight(radar_MDV_cor, rg_converter=False, title=True)
 fig.savefig(name + '_MDV_cor-MDV.png', dpi=250)
 plt.close()

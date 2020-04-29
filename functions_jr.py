@@ -130,7 +130,7 @@ def heave_correction(moments, date):
     # the first calculated heave rate corresponds to the second time step
     heave_rate = pd.DataFrame({'Heave Rate [m/s]': heave_rate}, index=seapath.index[1:])
     seapath = seapath.join(heave_rate)
-    print(f"Done with heave rate calculation in {time.time() - t1}")
+    print(f"Done with heave rate calculation in {time.time() - t1:.2f} seconds")
 
     ####################################################################################################################
     # Calculating Timestamps for each chirp and add closest heave rate to corresponding Doppler velocity
@@ -183,7 +183,7 @@ def heave_correction(moments, date):
         new_vel[:, range_bins[i]+1:range_bins[i+1]] = var + heave_corr[:, range_bins[i]+1:range_bins[i+1]]
         # save chirptimes of seapath for quality control, as seconds since 1970-01-01 00:00 UTC
         seapath_chirptimes[f"Chirp_{i+1}"] = seapath_closest.index.values.astype(np.int64) / 10 ** 9
-        print(f"Corrected Doppler velocities in Chirp {i+1} in {time.time() - t1}")
+        print(f"Corrected Doppler velocities in Chirp {i+1} in {time.time() - t1:.2f} seconds")
 
     return new_vel, heave_corr, seapath_chirptimes
 

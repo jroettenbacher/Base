@@ -94,12 +94,14 @@ if __name__ == '__main__':
                                                         LIMRAD94_moments['ldr']['var'])
     # find cloud bases and tops and add variable to larda container
     print(f"Creating cloud mask")
+    t1 = time.time()
     cloud_prop, cloud_mask = jr.find_bases_tops(LIMRAD94_moments['Ze']['mask'], LIMRAD94_moments['Ze']['rg'])
     LIMRAD94_moments.update({"cloud_mask": cloud_mask})
     # fill values = 0 with -999
     LIMRAD94_moments['cloud_mask'] = h.fill_with(LIMRAD94_moments['cloud_mask'],
                                                  LIMRAD94_moments['cloud_mask'] == 0, -999)
-    #
+    print(f"Done with cloud mask in {time.time() - t1:.2f} seconds")
+
     print("Make heave correction")
     t1 = time.time()
     new_vel, heave_corr, seapath_chirptimes = jr.heave_correction(LIMRAD94_moments, begin_dt)
@@ -108,8 +110,7 @@ if __name__ == '__main__':
     # overwrite var with corrected mean Doppler velocities and heave correction
     LIMRAD94_moments['Vel_cor']['var'] = np.ma.masked_where(LIMRAD94_moments['Ze']['mask'], new_vel)
     LIMRAD94_moments['heave_corr']['var'] = np.ma.masked_where(LIMRAD94_moments['Ze']['mask'], heave_corr)
-
-    print(f"Done with heave correction in {time.time() - t1}")
+    print(f"Done with heave correction in {time.time() - t1:.2f} seconds")
 
     cloudnet_remsens_lim_path = '/media/sdig/LACROS/cloudnet/data/'
 
