@@ -86,6 +86,8 @@ def heave_correction(moments, date):
 
     Returns:
         new_vel: ndarray with corrected Doppler velocities, same shape as moments["VEL"]["var"]
+        heave_corr: ndarray with heave rate closest to each radar timestep and for each height bin,
+                    same shape as moments["VEL"]["var"]
         seapath_chirptimes: pandas DataFrame with a column for each Chirp,
                             containing the timestamps of the corresponding heave rate
 
@@ -150,13 +152,17 @@ def heave_correction(moments, date):
     chirp_timestamps["chirp_3"] = moments['VEL']["ts"] - (chirp_dur[2] / 2)
 
     # create new Doppler velocity by adding the heave rate of the closest time step
-    range_bins = 0
-    new_vel = np.empty_like(moments['VEL']['var'])
+    # list with number of range bins in each chirp
+    range_bins = [moments[f'C{i+1}Range']['var'].shape[1] for i in range(len(chirp_dur))]
+    range_bins.insert(0, -1)  # add -1 as first range bin before 0th index
+    # initialize output variables
+    new_vel = np.empty_like(moments['VEL']['var'])  # dimensions (time, range)
+    heave_corr = np.empty_like(moments['VEL']['var'])
     seapath_chirptimes = pd.DataFrame()
     for i in range(len(chirp_dur)):
         t1 = time.time()
-        range_bins = range_bins + moments[f'C{i+1}Range']['var'].shape[1]  # get number of range bins
-        var = moments['VEL']['var'][:, :range_bins]  # select only velocities from one chirp
+        # select only velocities from one chirp, +1 to avoid selecting the last bin of the former chirp as first bin
+        var = moments['VEL']['var'][:, range_bins[i]+1:range_bins[i+1]]
         # convert timestamps of moments to datetime objects
         ts = pd.Series([dt.datetime.utcfromtimestamp(ts) for ts in chirp_timestamps[f"chirp_{i+1}"].values])
         # calculate the absolute difference between all seapath time steps and each radar time step
@@ -171,14 +177,15 @@ def heave_correction(moments, date):
         # select the rows which are closest to the radar time steps
         seapath_closest = seapath.iloc[id_diff_min]
         # create array with same dimensions as velocity (time, range)
-        heave_cor = np.expand_dims(seapath_closest["Heave Rate [m/s]"].values, axis=1)
-        # duplicate the heave correction over the range dimension to add it to all range bins
-        new_vel[:, :range_bins] = var + heave_cor.repeat(var.shape[1], axis=1)
+        heave_rate = np.expand_dims(seapath_closest["Heave Rate [m/s]"].values, axis=1)
+        # duplicate the heave correction over the range dimension to add it to all range bins of the chirp
+        heave_corr[:, range_bins[i]+1:range_bins[i+1]] = heave_rate.repeat(var.shape[1], axis=1)
+        new_vel[:, range_bins[i]+1:range_bins[i+1]] = var + heave_corr[:, range_bins[i]+1:range_bins[i+1]]
         # save chirptimes of seapath for quality control, as seconds since 1970-01-01 00:00 UTC
         seapath_chirptimes[f"Chirp_{i+1}"] = seapath_closest.index.values.astype(np.int64) / 10 ** 9
         print(f"Corrected Doppler velocities in Chirp {i+1} in {time.time() - t1}")
 
-    return new_vel, seapath_chirptimes
+    return new_vel, heave_corr, seapath_chirptimes
 
 
 if __name__ == '__main__':
