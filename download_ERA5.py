@@ -26,7 +26,7 @@ for year in years:
     path = f"/poorgafile2/remsens/data/era5/leipzig/{year}"  # set output directory
     # create output directory if it doesn't exist yet
     if not os.path.isdir(path):
-        os.mkdir(path)
+        os.makedirs(path)
     for month in months:
         t2 = time.time()
         dates = days_of_month(year, month)
