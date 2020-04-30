@@ -30,22 +30,23 @@ for year in years:
     for month in months:
         t2 = time.time()
         dates = days_of_month(year, month)
-        filename = f"{path}/era5_{year}_{month}_pl.nc"
-        c.retrieve(
-            'reanalysis-era5-pressure-levels',
-            {
-                'product_type': 'reanalysis',
-                'format': 'netcdf',
-                'variable': ['fraction_of_cloud_cover', 'relative_humidity', 'specific_cloud_ice_water_content',
-                             'specific_cloud_liquid_water_content', 'specific_humidity', 'temperature',
-                             'u_component_of_wind', 'v_component_of_wind', 'vertical_velocity'
-                             ],
-                'pressure_level': p_levels,
-                'date': dates,
-                'time': times,
-                'area': area,
-            },
-            f'{filename}')
+        for date in dates:
+            filename = f"{path}/era5_pl_{date}.nc"
+            c.retrieve(
+                'reanalysis-era5-pressure-levels',
+                {
+                    'product_type': 'reanalysis',
+                    'format': 'netcdf',
+                    'variable': ['fraction_of_cloud_cover', 'relative_humidity', 'specific_cloud_ice_water_content',
+                                 'specific_cloud_liquid_water_content', 'specific_humidity', 'temperature',
+                                 'u_component_of_wind', 'v_component_of_wind', 'vertical_velocity'
+                                 ],
+                    'pressure_level': p_levels,
+                    'date': date,
+                    'time': times,
+                    'area': area,
+                },
+                f'{filename}')
         print(f"Downloaded month {month} in {time.time() - t2:.2f} seconds")
     print(f"Done with year {year} in {time.time() - t1:.2f} seconds")
 print("##################\nDone with ERA5 download\n##################")
