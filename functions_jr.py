@@ -6,6 +6,7 @@ import time
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import datetime as dt
+from dateutil.relativedelta import relativedelta
 
 
 def set_presentation_plot_style():
@@ -15,6 +16,17 @@ def set_presentation_plot_style():
     plt.rc('font', **font)
     plt.rc('figure', **figure)
 
+
+# from https://confluence.ecmwf.int/display/COPSRV/CDS+web+API+%28cdsapi%29+training#
+def days_of_month(y, m):
+    """create a list of days in a month"""
+    d0 = dt.datetime(y, m, 1)
+    d1 = d0 + relativedelta(months=1)
+    out = list()
+    while d0 < d1:
+        out.append(d0.strftime('%Y-%m-%d'))
+        d0 += dt.timedelta(days=1)
+    return out
 
 
 # from https://stackoverflow.com/questions/893657/how-do-i-calculate-r-squared-using-python-and-numpy
