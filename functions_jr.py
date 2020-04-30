@@ -186,8 +186,8 @@ def heave_correction(moments, date):
         # create array with same dimensions as velocity (time, range)
         heave_rate = np.expand_dims(seapath_closest["Heave Rate [m/s]"].values, axis=1)
         # duplicate the heave correction over the range dimension to add it to all range bins of the chirp
-        heave_corr[:, range_bins[i]+1:range_bins[i+1]] = heave_rate.repeat(var.shape[1], axis=1)
-        new_vel[:, range_bins[i]+1:range_bins[i+1]] = var + heave_corr[:, range_bins[i]+1:range_bins[i+1]]
+        heave_corr[:, range_bins[i]:range_bins[i+1]] = heave_rate.repeat(var.shape[1], axis=1)
+        new_vel[:, range_bins[i]:range_bins[i+1]] = var + heave_corr[:, range_bins[i]:range_bins[i+1]]
         # save chirptimes of seapath for quality control, as seconds since 1970-01-01 00:00 UTC
         seapath_chirptimes[f"Chirp_{i+1}"] = seapath_closest.index.values.astype(np.int64) / 10 ** 9
         print(f"Corrected Doppler velocities in Chirp {i+1} in {time.time() - t1:.2f} seconds")
