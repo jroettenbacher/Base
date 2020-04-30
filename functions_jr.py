@@ -162,7 +162,6 @@ def heave_correction(moments, date):
             # in case only one file is read in data["C1Range"]["var"] has only one dimension
             range_bins[i + 1] = range_bins[i] + moments[f'C{i + 1}Range']['var'].shape
 
-    range_bins[0] = -1  # set first range bin to -1
     # initialize output variables
     new_vel = np.empty_like(moments['VEL']['var'])  # dimensions (time, range)
     heave_corr = np.empty_like(moments['VEL']['var'])
@@ -170,7 +169,7 @@ def heave_correction(moments, date):
     for i in range(no_chirps):
         t1 = time.time()
         # select only velocities from one chirp, +1 to avoid selecting the last bin of the former chirp as first bin
-        var = moments['VEL']['var'][:, range_bins[i]+1:range_bins[i+1]]
+        var = moments['VEL']['var'][:, range_bins[i]:range_bins[i+1]]
         # convert timestamps of moments to array
         ts = chirp_timestamps[f"chirp_{i+1}"].values
         # calculate the absolute difference between all seapath time steps and each radar time step
