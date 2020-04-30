@@ -153,22 +153,30 @@ def heave_correction(moments, date):
 
     # create new Doppler velocity by adding the heave rate of the closest time step
     # list with number of range bins in each chirp
-    range_bins = [moments[f'C{i+1}Range']['var'].shape[1] for i in range(len(chirp_dur))]
-    range_bins.insert(0, -1)  # add -1 as first range bin before 0th index
+    no_chirps = len(chirp_dur)
+    range_bins = np.zeros(no_chirps, dtype=np.uint32)
+    for i in range(no_chirps):
+        try:
+            range_bins[i + 1] = range_bins[i] + moments[f'C{i + 1}Range']['var'][0].shape
+        except ValueError:
+            # in case only one file is read in data["C1Range"]["var"] has only one dimension
+            range_bins[i + 1] = range_bins[i] + moments[f'C{i + 1}Range']['var'].shape
+
+    range_bins[0] = -1  # set first range bin to -1
     # initialize output variables
     new_vel = np.empty_like(moments['VEL']['var'])  # dimensions (time, range)
     heave_corr = np.empty_like(moments['VEL']['var'])
     seapath_chirptimes = pd.DataFrame()
-    for i in range(len(chirp_dur)):
+    for i in range(no_chirps):
         t1 = time.time()
         # select only velocities from one chirp, +1 to avoid selecting the last bin of the former chirp as first bin
         var = moments['VEL']['var'][:, range_bins[i]+1:range_bins[i+1]]
-        # convert timestamps of moments to datetime objects
-        ts = pd.Series([dt.datetime.utcfromtimestamp(ts) for ts in chirp_timestamps[f"chirp_{i+1}"].values])
+        # convert timestamps of moments to array
+        ts = chirp_timestamps[f"chirp_{i+1}"].values
         # calculate the absolute difference between all seapath time steps and each radar time step
         # list of differences for each radar time step, converts DateTimeIndex to np.float for faster computation
         # result in seconds since 1970-01-01
-        abs_diff = [np.abs(seapath.index.values.astype(np.float64) - t.value) for t in ts]
+        abs_diff = [np.abs(seapath.index.values.astype(np.float64) - t) for t in ts]
         # list of minimum difference for each time step
         min_diff = [np.min(abs_d) for abs_d in abs_diff]
         # list with the indices of the time steps with minimum difference
