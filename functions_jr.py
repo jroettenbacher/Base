@@ -94,14 +94,15 @@ def heave_correction(moments, date):
 
     Args:
         moments: LIMRAD94 moments container as returned by spectra2moments in spec2mom_limrad94.py
-        date: datetime object with date of current file
+        date (datetime.datetime): object with date of current file
 
     Returns:
-        new_vel: ndarray with corrected Doppler velocities, same shape as moments["VEL"]["var"]
-        heave_corr: ndarray with heave rate closest to each radar timestep and for each height bin,
-                    same shape as moments["VEL"]["var"]
-        seapath_chirptimes: pandas DataFrame with a column for each Chirp,
-                            containing the timestamps of the corresponding heave rate
+        new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"]
+        heave_corr (ndarray): heave rate closest to each radar timestep for each height bin, same shape as
+        moments["VEL"]["var"]
+        seapath_chirptimes (pd.DataFrame): data frame with a column for each Chirp, containing the timestamps of the
+        corresponding heave rate
+        seapath_out (pd.DataFrame): data frame with all heave information from the closest time steps to the chirps
 
     """
     # position of radar in relation to Measurement Reference Unit (Seapath) of RV-Meteor in meters
@@ -136,6 +137,9 @@ def heave_correction(moments, date):
     pitch_heave = x_radar * np.tan(pitch)
     roll_heave = y_radar * np.tan(roll)
     seapath["radar_heave"] = seapath["Heave [m]"] + pitch_heave + roll_heave
+    # add pitch and roll induced heave to data frame to include in output for quality checking
+    seapath["pitch_heave"] = pitch_heave
+    seapath["roll_heave"] = roll_heave
     # ediff1d calculates the difference between consecutive elements of an array
     # heave difference / time difference = heave rate
     heave_rate = np.ediff1d(seapath["radar_heave"]) / np.ediff1d(seapath.index).astype('float64') * 1e9
@@ -178,6 +182,7 @@ def heave_correction(moments, date):
     new_vel = np.empty_like(moments['VEL']['var'])  # dimensions (time, range)
     heave_corr = np.empty_like(moments['VEL']['var'])
     seapath_chirptimes = pd.DataFrame()
+    seapath_out = pd.DataFrame()
     for i in range(no_chirps):
         t1 = time.time()
         # select only velocities from one chirp, +1 to avoid selecting the last bin of the former chirp as first bin
@@ -195,6 +200,8 @@ def heave_correction(moments, date):
         id_diff_min = [np.argmax(abs_d == min_d) for abs_d, min_d in zip(abs_diff, min_diff)]
         # select the rows which are closest to the radar time steps
         seapath_closest = seapath.iloc[id_diff_min]
+        # add column with chirp number to distinguish in quality control
+        seapath_closest["Chirp_no"] = np.repeat(i + 1, len(seapath_closest.index))
         # create array with same dimensions as velocity (time, range)
         heave_rate = np.expand_dims(seapath_closest["Heave Rate [m/s]"].values, axis=1)
         # duplicate the heave correction over the range dimension to add it to all range bins of the chirp
@@ -202,9 +209,10 @@ def heave_correction(moments, date):
         new_vel[:, range_bins[i]:range_bins[i+1]] = var + heave_corr[:, range_bins[i]:range_bins[i+1]]
         # save chirptimes of seapath for quality control, as seconds since 1970-01-01 00:00 UTC
         seapath_chirptimes[f"Chirp_{i+1}"] = seapath_closest.index.values.astype(np.int64) / 10 ** 9
+        seapath_out = seapath_out.append(seapath_closest, ignore_index=True)
         print(f"Corrected Doppler velocities in Chirp {i+1} in {time.time() - t1:.2f} seconds")
 
-    return new_vel, heave_corr, seapath_chirptimes
+    return new_vel, heave_corr, seapath_chirptimes, seapath_out
 
 
 if __name__ == '__main__':
@@ -226,5 +234,5 @@ if __name__ == '__main__':
     for var in ['MaxVel', 'DoppLen', 'C1Range', 'C2Range', 'C3Range']:
         print('loading variable from LV1 :: ' + var)
         moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
-    new_vel, heave_corr, seapath_chirptimes = heave_correction(moments, begin_dt)
+    new_vel, heave_corr, seapath_chirptimes, seapath_out = heave_correction(moments, begin_dt)
     print("Done Testing heave_correction...")
