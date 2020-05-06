@@ -186,14 +186,14 @@ def heave_correction(moments, date):
     seapath_out = pd.DataFrame()
     for i in range(no_chirps):
         t1 = time.time()
-        # select only velocities from one chirp, +1 to avoid selecting the last bin of the former chirp as first bin
+        # select only velocities from one chirp
         var = moments['VEL']['var'][:, range_bins[i]:range_bins[i+1]]
         # convert timestamps of moments to array
         ts = chirp_timestamps[f"chirp_{i+1}"].values
         # calculate the absolute difference between all seapath time steps and each radar time step
         # list of differences for each radar time step, converts DateTimeIndex to np.float for faster computation
-        # result in seconds since 1970-01-01
-        abs_diff = [np.abs(seapath.index.values.astype(np.float64) - t) for t in ts]
+        # result in seconds since 1970-01-01, seapath index values need to be transformed from ns to s
+        abs_diff = [np.abs(seapath.index.values.astype(np.float64)/10**9 - t) for t in ts]
         # list of minimum difference for each time step
         min_diff = [np.min(abs_d) for abs_d in abs_diff]
         # list with the indices of the time steps with minimum difference
