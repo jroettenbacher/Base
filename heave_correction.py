@@ -105,5 +105,6 @@ plt.close()
 print(f'figure saved :: {fig_name}')
 
 # comparison of heave, pitch_heave and roll_heave
-seapath_out["time"] =
-sns.relplot(x="Heave [m]", )
+fig, ax = plt.subplots()
+sns.relplot(x="time", y="Heave [m]", ax=ax, hue="Chirp_no", data=seapath_out, legend='Full')
+plt.savefig(f"{plot_path}/tmp.png")
