@@ -228,8 +228,8 @@ if __name__ == '__main__':
     import numpy as np
 
     larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
-    begin_dt = dt.datetime(2020, 1, 17, 0, 0, 5)
-    end_dt = dt.datetime(2020, 1, 17, 23, 59, 55)
+    begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
+    end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
     plot_range = [0, 'max']
     mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
     moments = {"VEL": mdv}
