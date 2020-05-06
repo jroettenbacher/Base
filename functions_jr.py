@@ -197,6 +197,7 @@ def heave_correction(moments, date):
             abs_diff = np.abs(seapath_ts - t)
             # minimum difference
             min_diff = np.min(abs_diff)
+            # find index of minimum difference
             # use argmax to return only the first index where condition is true
             id_diff_min.append(np.argmax(abs_diff == min_diff))
         # select the rows which are closest to the radar time steps
@@ -227,8 +228,8 @@ if __name__ == '__main__':
     import numpy as np
 
     larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
-    begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
-    end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
+    begin_dt = dt.datetime(2020, 1, 17, 0, 0, 5)
+    end_dt = dt.datetime(2020, 1, 17, 23, 59, 55)
     plot_range = [0, 'max']
     mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
     moments = {"VEL": mdv}
