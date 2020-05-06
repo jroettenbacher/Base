@@ -200,7 +200,7 @@ def heave_correction(moments, date):
         # use argmax to return only the first index where condition is true
         id_diff_min = [np.argmax(abs_d == min_d) for abs_d, min_d in zip(abs_diff, min_diff)]
         # select the rows which are closest to the radar time steps
-        seapath_closest = seapath.iloc[id_diff_min]
+        seapath_closest = seapath.iloc[id_diff_min].copy()
         # add column with chirp number to distinguish in quality control
         seapath_closest["Chirp_no"] = np.repeat(i + 1, len(seapath_closest.index))
         # create array with same dimensions as velocity (time, range)
