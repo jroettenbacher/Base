@@ -110,6 +110,8 @@ if __name__ == '__main__':
     # overwrite var with corrected mean Doppler velocities and heave correction
     LIMRAD94_moments['Vel_cor']['var'] = np.ma.masked_where(LIMRAD94_moments['Ze']['mask'], new_vel)
     LIMRAD94_moments['heave_corr']['var'] = np.ma.masked_where(LIMRAD94_moments['Ze']['mask'], heave_corr)
+    LIMRAD94_moments['Vel_cor']['name'] = "Vel_cor"
+    LIMRAD94_moments['heave_corr']['name'] = "heave_corr"
     print(f"Done with heave correction in {time.time() - t1:.2f} seconds")
 
     cloudnet_remsens_lim_path = '/media/sdig/LACROS/cloudnet/data/'
