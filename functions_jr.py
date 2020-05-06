@@ -191,15 +191,14 @@ def heave_correction(moments, date):
         var = moments['VEL']['var'][:, range_bins[i]:range_bins[i+1]]
         # convert timestamps of moments to array
         ts = chirp_timestamps[f"chirp_{i+1}"].values
-        # calculate the absolute difference between all seapath time steps and each radar time step
-        # list of differences for each radar time step, converts DateTimeIndex to np.float for faster computation
-        # result in seconds since 1970-01-01, seapath index values need to be transformed from ns to s
-        abs_diff = [np.abs(seapath_ts - t) for t in ts]
-        # list of minimum difference for each time step
-        min_diff = [np.min(abs_d) for abs_d in abs_diff]
-        # list with the indices of the time steps with minimum difference
-        # use argmax to return only the first index where condition is true
-        id_diff_min = [np.argmax(abs_d == min_d) for abs_d, min_d in zip(abs_diff, min_diff)]
+        id_diff_min = []  # initialize list for indices of the time steps with minumum difference
+        for t in ts:
+            # calculate the absolute difference between all seapath time steps and the radar time step
+            abs_diff = np.abs(seapath_ts - t)
+            # minimum difference
+            min_diff = np.min(abs_diff)
+            # use argmax to return only the first index where condition is true
+            id_diff_min.append(np.argmax(abs_diff == min_diff))
         # select the rows which are closest to the radar time steps
         seapath_closest = seapath.iloc[id_diff_min].copy()
         # add column with chirp number to distinguish in quality control

@@ -38,10 +38,10 @@ var = np.ma.masked_where(var < 100, var)
 # var = np.ma.masked_values(var, -1)
 dt_list = np.asarray([datetime.datetime.utcfromtimestamp(time) for time in time_list])
 switch_dt = datetime.datetime(2020, 1, 25, 18, 47)
-# if begin_dt < switch_dt:
-#     dt_list = np.asarray([dt + datetime.timedelta(0, 360) for dt in dt_list if (dt < switch_dt)])
-#     # set a marker for the plot name
-#     time_cor = True
+if begin_dt < switch_dt:
+    dt_list = np.asarray([dt + datetime.timedelta(0, 360) for dt in dt_list if (dt < switch_dt)])
+    # set a marker for the plot name
+    time_cor = True
 
 fig, ax = pyLARDA.Transformations.plot_timeheight(Ze_LIMRAD, z_converter='lin2z', range_interval=[0, plot_range],
                                                   title=True)
