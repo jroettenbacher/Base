@@ -112,6 +112,7 @@ def heave_correction(moments, date):
     # Data Read in
     ####################################################################################################################
     start = time.time()
+    print(f"Starting heave correction for {date:%Y-%m-%d}")
     input_path = "/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP"
     ####################################################################################################################
     # Seapath attitude and heave data 1 or 10 Hz, choose file depending on date
