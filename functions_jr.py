@@ -204,6 +204,8 @@ def heave_correction(moments, date):
         seapath_closest = seapath.iloc[id_diff_min].copy()
         # add column with chirp number to distinguish in quality control
         seapath_closest["Chirp_no"] = np.repeat(i + 1, len(seapath_closest.index))
+        # add column with time, formatted as datetime
+        seapath_closest["time"] = pd.to_datetime(ts*10**9)
         # create array with same dimensions as velocity (time, range)
         heave_rate = np.expand_dims(seapath_closest["Heave Rate [m/s]"].values, axis=1)
         # duplicate the heave correction over the range dimension to add it to all range bins of the chirp
@@ -229,8 +231,8 @@ if __name__ == '__main__':
     import numpy as np
 
     larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
-    begin_dt = dt.datetime(2020, 1, 17, 0, 0, 5)
-    end_dt = dt.datetime(2020, 1, 17, 23, 59, 55)
+    begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
+    end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
     plot_range = [0, 'max']
     mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
     moments = {"VEL": mdv}
