@@ -179,6 +179,7 @@ def heave_correction(moments, date):
             # in case only one file is read in data["C1Range"]["var"] has only one dimension
             range_bins[i + 1] = range_bins[i] + moments[f'C{i + 1}Range']['var'].shape
 
+    seapath_ts = seapath.index.values.astype(np.float64) / 10 ** 9  # convert datetime index to seconds since 1970-01-01
     # initialize output variables
     new_vel = np.empty_like(moments['VEL']['var'])  # dimensions (time, range)
     heave_corr = np.empty_like(moments['VEL']['var'])
@@ -193,7 +194,7 @@ def heave_correction(moments, date):
         # calculate the absolute difference between all seapath time steps and each radar time step
         # list of differences for each radar time step, converts DateTimeIndex to np.float for faster computation
         # result in seconds since 1970-01-01, seapath index values need to be transformed from ns to s
-        abs_diff = [np.abs(seapath.index.values.astype(np.float64)/10**9 - t) for t in ts]
+        abs_diff = [np.abs(seapath_ts - t) for t in ts]
         # list of minimum difference for each time step
         min_diff = [np.min(abs_d) for abs_d in abs_diff]
         # list with the indices of the time steps with minimum difference
