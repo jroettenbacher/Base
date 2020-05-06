@@ -168,7 +168,7 @@ def heave_correction(moments, date):
     chirp_timestamps["chirp_3"] = moments['VEL']["ts"] - (chirp_dur[2] / 2)
 
     # create new Doppler velocity by adding the heave rate of the closest time step
-    # list with number of range bins in each chirp
+    # list with range bin numbers of chirp borders
     no_chirps = len(chirp_dur)
     range_bins = np.zeros(no_chirps + 1, dtype=np.int)  # needs to be length 4 to include all +1 chirp borders
     for i in range(no_chirps):
