@@ -42,7 +42,8 @@ for file in all_files:
 
 os.chdir(inpath)
 # read in all nc files in date range
-ds = xr.open_mfdataset(infiles, parallel=True, combine='nested', concat_dim='time')
+ds = xr.open_mfdataset(infiles, parallel=True, combine='nested', concat_dim='time', engine='netcdf4',
+                       decode_times=False)
 # search for maximum difference between consecutive time steps
 ix = np.asarray(np.where(ds.time.diff('time') == ds.time.diff('time').max())).flatten()
 time_res = ds.time.diff('time').median().values  # median time resolution of measurement
@@ -65,6 +66,9 @@ ds = ds.assign_attrs(comment="This file was corrected for a time lag. It was lag
 days, dss = zip(*ds.groupby("time.day"))
 paths = [f"202001{d}_FSMETEOR_CHM170158.nc" for d in days]
 os.chdir(outpath)
-for ds in dss:
-    ds.to_netcdf(format="NETCDF4_CLASSIC",
-                 encoding={'time': {'units': "seconds since 1904-01-01 00:00:00.000 00:00", 'calendar': "standard"}})
+# xr.save_mfdataset(dss, paths)
+dss[0].to_netcdf('tmp.nc', format="NETCDF4", engine='netcdf4')
+
+tmp = xr.open_dataset("tmp.nc", decode_times=False)
+
+# TODO: run everything in a loop to format the time correctly
