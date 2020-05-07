@@ -66,5 +66,5 @@ days, dss = zip(*ds.groupby("time.day"))
 paths = [f"202001{d}_FSMETEOR_CHM170158.nc" for d in days]
 os.chdir(outpath)
 for ds in dss:
-    ds.to_netcdf(format="NETCDF3_CLASSIC",
+    ds.to_netcdf(format="NETCDF4_CLASSIC",
                  encoding={'time': {'units': "seconds since 1904-01-01 00:00:00.000 00:00", 'calendar': "standard"}})
