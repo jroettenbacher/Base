@@ -27,13 +27,14 @@ for var in ['MaxVel', 'DoppLen', 'C1Range', 'C2Range', 'C3Range']:
     print('loading variable from LV1 :: ' + var)
     moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
 new_vel, heave_corr, seapath_chirptimes, seapath_out = jr.heave_correction(moments, begin_dt)
-moments.update({'Vel_cor': moments['VEL'], 'heave_corr': moments['VEL']})
+moments.update({'Vel_cor': moments['VEL'], 'heave_corr': moments['VEL'], 'Vel_cor-Vel': moments['VEL']})
 # overwrite var with corrected mean Doppler velocities and heave correction
 moments['Vel_cor']['var'] = np.ma.masked_where(moments['VEL']['mask'], new_vel)
 moments['heave_corr']['var'] = np.ma.masked_where(moments['VEL']['mask'], heave_corr)
+moments['Vel_cor-Vel']['var'] = np.ma.masked_where(moments['VEL']['mask'], new_vel - moments['VEL']['var'])
 moments['Vel_cor']['name'] = "Vel_cor"
 moments['heave_corr']['name'] = "heave_corr"
-
+moments['Vel_cor-Vel']['name'] = "Vel_cor-Vel"
 print("Done with heave correction")
 
 ########################################################################################################################
@@ -80,6 +81,28 @@ fig, _ = pyLARDA.Transformations.plot_timeheight(Vel_cor, rg_converter=False, ti
                                                  time_interval=[begin_dt, end_dt])
 name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
 fig_name = name + '_MDV_corrected.png'
+fig.savefig(fig_name, dpi=250)
+plt.close()
+print(f'figure saved :: {fig_name}')
+
+cor_meas = moments['Vel_cor-Vel']
+# corrected MDV - measured MDV
+begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
+end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
+fig, _ = pyLARDA.Transformations.plot_timeheight(cor_meas, rg_converter=False, title=True, range_interval=plot_range)
+name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
+fig_name = name + '_MDV_corrected-measured.png'
+fig.savefig(fig_name, dpi=250)
+plt.close()
+print(f'figure saved :: {fig_name}')
+
+# corrected MDV - measured MDV zoom
+begin_dt = dt.datetime(2020, 2, 5, 9, 0, 0)
+end_dt = dt.datetime(2020, 2, 5, 11, 0, 0)
+fig, _ = pyLARDA.Transformations.plot_timeheight(cor_meas, rg_converter=False, title=True, range_interval=plot_range,
+                                                 time_interval=[begin_dt, end_dt])
+name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
+fig_name = name + '_MDV_corrected-measured.png'
 fig.savefig(fig_name, dpi=250)
 plt.close()
 print(f'figure saved :: {fig_name}')
