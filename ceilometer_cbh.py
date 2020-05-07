@@ -17,12 +17,11 @@ log = logging.getLogger('pyLARDA')
 log.setLevel(logging.WARNING)
 log.addHandler(logging.StreamHandler())
 
-begin_dt = datetime.datetime(2020, 2, 5, 0, 0, 5)
-end_dt = datetime.datetime(2020, 2, 6, 23, 59, 30)
+begin_dt = datetime.datetime(2020, 1, 25, 0, 0, 5)
+end_dt = datetime.datetime(2020, 1, 26, 23, 59, 30)
 plot_range = 3000
 
 plot_path = "/projekt1/remsens/work/jroettenbacher/Base/plots"
-
 
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 t1 = time.time()
@@ -37,11 +36,11 @@ var = np.ma.masked_where(var < 100, var)
 
 # var = np.ma.masked_values(var, -1)
 dt_list = np.asarray([datetime.datetime.utcfromtimestamp(time) for time in time_list])
-switch_dt = datetime.datetime(2020, 1, 25, 18, 47)
-if begin_dt < switch_dt:
-    dt_list = np.asarray([dt + datetime.timedelta(0, 360) for dt in dt_list if (dt < switch_dt)])
-    # set a marker for the plot name
-    time_cor = True
+# switch_dt = datetime.datetime(2020, 1, 25, 18, 47)
+# if begin_dt < switch_dt:
+#     dt_list = np.asarray([dt + datetime.timedelta(0, 360) for dt in dt_list if (dt < switch_dt)])
+#     # set a marker for the plot name
+#     time_cor = True
 
 fig, ax = pyLARDA.Transformations.plot_timeheight(Ze_LIMRAD, z_converter='lin2z', range_interval=[0, plot_range],
                                                   title=True)
