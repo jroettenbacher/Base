@@ -8,7 +8,7 @@ PC. Thus the time correction was not immediately applied but it took some time f
 ceilometer.
 A close to 6 minute time skip can be observed from Jan 26 4:56:46 UTC to 5:02:44 UTC. Since the ceilometer measures
 about every 10 seconds, the real time difference was:
-5:48 minutes
+5:48 minutes or 348 seconds
 Each measurement before the time skip can thus be adjusted by that.
 input: ceilometer nc files
 output: ceilometer nc files time corrected
@@ -41,9 +41,26 @@ for file in all_files:
         infiles.append(file)
 
 os.chdir(inpath)
+# read in all nc files in date range
 ds = xr.open_mfdataset(infiles, parallel=True, combine='nested', concat_dim='time')
-time = ds.time.values.copy()
-ids = np.asarray(np.where(ds.time.diff('time') == ds.time.diff('time').max())).flatten()
-indices = sorted(np.concatenate((ids-1, ids, ids+1)))
-time_sub = pd.Series(time[indices])
-time_sub = pd.Series(time[time > np.datetime64(dt.datetime(2020,1,25,18,28,0))])
+# search for maximum difference between consecutive time steps
+ix = np.asarray(np.where(ds.time.diff('time') == ds.time.diff('time').max())).flatten()
+time_res = ds.time.diff('time').median().values  # median time resolution of measurement
+# retrieve indices before and after biggest time skip
+indices = sorted(np.concatenate((ix-1, ix, ix+1)))
+time_sub = ds.time[indices].values.copy()  # extract times at time skip
+correction = time_sub[2] - time_sub[1] - time_res  # calculate time shift for correction
+
+time = ds.time.values.copy()  # extract time variable from data set
+time[0:indices[2]] = time[0:indices[2]] + correction  # move time skip to beginning of Jan 16
+ds = ds.assign_coords(time=time)
+ds = ds.assign_attrs(comment="This file was corrected for a time lag. It was lagging behind 348 seconds. "
+                             "That error was corrected on Jan 26 04:56:46 UTC, which introduced a time skip. "
+                             "This time skip was moved to the beginning of Jan 16. For further information contact: "
+                             "johannes.roettenbacher@web.de, Uni Leipzig")
+days, dss = zip(*ds.groupby("time.day"))
+paths = [f"202001{d}_FSMETEOR_CHM170158.nc" for d in days]
+os.chdir(outpath)
+xr.save_mfdataset(dss, paths)
+ds.close()
+dss.close()
