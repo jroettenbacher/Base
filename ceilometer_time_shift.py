@@ -56,13 +56,13 @@ time[0:indices[2]] = time[0:indices[2]] + correction  # move time skip to beginn
 # correct dataset, add new attributes
 ds.assign_coords(time=time)
 ds.time.assign_attrs({'long_name': "time UTC",
-                                   'axis': "T"})
+                      'axis': "T"})
 ds["time"].encoding = {'units': "seconds since 1904-01-01 00:00:00.000 00:00", 'calendar': "standard",
                        'dtype': 'i4'}
 ds = ds.assign_attrs(comment="This file was corrected for a time lag. It was lagging behind 348 seconds. "
-                        "That error was corrected on Jan 26 04:56:46 UTC, which introduced a time skip. "
-                        "This time skip was moved to the beginning of Jan 16. For further information contact: "
-                        "johannes.roettenbacher@web.de, Uni Leipzig")
+                             "That error was corrected on Jan 26 04:56:46 UTC, which introduced a time skip. "
+                             "This time skip was moved to the beginning of Jan 16. For further information contact: "
+                             "johannes.roettenbacher@web.de, Uni Leipzig")
 ds = ds.assign_attrs(day="removed")
 
 # group by day and write to outfiles
@@ -70,4 +70,3 @@ days, dss = zip(*ds.groupby("time.day"))
 paths = [f"202001{d}_FSMETEOR_CHM170158.nc" for d in days]
 os.chdir(outpath)
 xr.save_mfdataset(dss, paths, format='NETCDF3_CLASSIC')
-
