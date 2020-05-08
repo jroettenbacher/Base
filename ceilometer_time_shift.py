@@ -21,7 +21,7 @@ import pandas as pd
 import xarray as xr
 import numpy as np
 
-inpath = "/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_CEILOMETER/CHM170158/2020/01"
+inpath = "/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_CEILOMETER/before_time_correction"
 outpath = "/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_CEILOMETER/time_corrected"
 # date range for which time needs to be shifted
 begin_dt = dt.datetime(2020, 1, 16, 0, 0, 0)
@@ -54,7 +54,7 @@ time = ds.time.values.copy()  # extract time variable from data set
 time[0:indices[2]] = time[0:indices[2]] + correction  # move time skip to beginning of Jan 16
 
 # correct dataset, add new attributes
-ds.assign_coords(time=time)
+ds.assign_coords(time=time.astype('<M8[s]'))
 ds.time.assign_attrs({'long_name': "time UTC",
                       'axis': "T"})
 ds["time"].encoding = {'units': "seconds since 1904-01-01 00:00:00.000 00:00", 'calendar': "standard",
