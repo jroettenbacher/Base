@@ -49,4 +49,28 @@ Duration of each chirp in seconds by chirp table:
 
 ### Quality control
 
-[original_MDV]: 
+![uncorrected MDV](C:\Users\Johannes\Documents\Studium\Hiwi_Kalesse\heave_correction\plots\quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_uncorrected.png)   
+Uncorrected Doppler Velocity  
+
+![uncorrected MDV zoom](C:\Users\Johannes\Documents\Studium\Hiwi_Kalesse\heave_correction\plots\quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_uncorrected.png)  
+Zoom in of uncorrected Doppler Velocity
+
+![heave correction](C:\Users\Johannes\Documents\Studium\Hiwi_Kalesse\heave_correction\plots\quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_heave_correction.png)  
+Heave correction as calculated by function  
+
+![corrected MDV](C:\Users\Johannes\Documents\Studium\Hiwi_Kalesse\heave_correction\plots\quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_corrected.png)  
+Corrected Doppler Velocity 
+
+![corrected MDV zoom](C:\Users\Johannes\Documents\Studium\Hiwi_Kalesse\heave_correction\plots\quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_corrected.png)  
+Zoom in of corrected Doppler Velocity
+
+![difference between corrected and uncorrected](C:\Users\Johannes\Documents\Studium\Hiwi_Kalesse\heave_correction\plots\quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_corrected-measured.png)    
+Difference between corrected and uncorrected Doppler Velocity
+
+![difference between corrected and uncorrected zoom](C:\Users\Johannes\Documents\Studium\Hiwi_Kalesse\heave_correction\plots\quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_corrected-measured.png)      
+Zoom in on difference between corrected and uncorrected Doppler Velocity  
+
+![heave components unnormalized](C:\Users\Johannes\Documents\Studium\Hiwi_Kalesse\heave_correction\plots\quality_control\tmp.png)
+TODO:
+- plot with all three components of heave, normalized by the combined heave for each chirp
+- plot with time series of heave rate for each chirp
