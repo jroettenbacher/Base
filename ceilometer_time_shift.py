@@ -19,7 +19,6 @@ import re
 import datetime as dt
 import pandas as pd
 import xarray as xr
-import dask
 import numpy as np
 
 inpath = "/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_CEILOMETER/CHM170158/2020/01"
@@ -43,32 +42,30 @@ for file in all_files:
 os.chdir(inpath)
 # read in all nc files in date range
 ds = xr.open_mfdataset(infiles, parallel=True, combine='nested', concat_dim='time', engine='netcdf4',
-                       decode_times=False)
+                       decode_times=True)
 # search for maximum difference between consecutive time steps
 ix = np.asarray(np.where(ds.time.diff('time') == ds.time.diff('time').max())).flatten()
-time_res = ds.time.diff('time').median().values  # median time resolution of measurement
+time_res = np.asarray(ds.time.diff('time').median())  # median time resolution of measurement
 # retrieve indices before and after biggest time skip
 indices = sorted(np.concatenate((ix - 1, ix, ix + 1)))
 time_sub = ds.time[indices].values.copy()  # extract times at time skip
 correction = time_sub[2] - time_sub[1] - time_res  # calculate time shift for correction
-
 time = ds.time.values.copy()  # extract time variable from data set
 time[0:indices[2]] = time[0:indices[2]] + correction  # move time skip to beginning of Jan 16
-ds = ds.assign_coords(time=time)
-ds["time"] = ds.time.assign_attrs({'long_name': "time UTC",
+# correct dataset, add new attributes
+ds.assign_coords(time=time)
+ds.time.assign_attrs({'long_name': "time UTC",
                                    'axis': "T"})
-ds["time"].encoding = {'units': "seconds since 1904-01-01 00:00:00.000 00:00", 'calendar': "standard"}
-ds = ds.assign_attrs(comment="This file was corrected for a time lag. It was lagging behind 348 seconds. "
-                             "That error was corrected on Jan 26 04:56:46 UTC, which introduced a time skip. "
-                             "This time skip was moved to the beginning of Jan 16. For further information contact: "
-                             "johannes.roettenbacher@web.de, Uni Leipzig")
+ds["time"].encoding = {'units': "seconds since 1904-01-01 00:00:00.000 00:00", 'calendar': "standard",
+                       'dtype': 'i4'}
+ds.assign_attrs(comment="This file was corrected for a time lag. It was lagging behind 348 seconds. "
+                        "That error was corrected on Jan 26 04:56:46 UTC, which introduced a time skip. "
+                        "This time skip was moved to the beginning of Jan 16. For further information contact: "
+                        "johannes.roettenbacher@web.de, Uni Leipzig")
+ds.assign_attrs(day="removed")
 
 days, dss = zip(*ds.groupby("time.day"))
 paths = [f"202001{d}_FSMETEOR_CHM170158.nc" for d in days]
 os.chdir(outpath)
-# xr.save_mfdataset(dss, paths)
-dss[0].to_netcdf('tmp.nc', format="NETCDF4", engine='netcdf4')
+xr.save_mfdataset(dss, paths, format='NETCDF3_CLASSIC')
 
-tmp = xr.open_dataset("tmp.nc", decode_times=False)
-
-# TODO: run everything in a loop to format the time correctly
