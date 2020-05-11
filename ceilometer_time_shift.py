@@ -54,9 +54,8 @@ time = ds.time.values.copy()  # extract time variable from data set
 time[0:indices[2]] = time[0:indices[2]] + correction  # move time skip to beginning of Jan 16
 
 # correct dataset, add new attributes
-ds.assign_coords(time=time.astype('<M8[s]'))
-ds.time.assign_attrs({'long_name': "time UTC",
-                      'axis': "T"})
+ds = ds.assign_coords(time=time)
+ds.time.assign_attrs({'long_name': "time UTC", 'axis': "T"})
 ds["time"].encoding = {'units': "seconds since 1904-01-01 00:00:00.000 00:00", 'calendar': "standard"}
 ds = ds.assign_attrs(comment="This file was corrected for a time lag. It was lagging behind 348 seconds. "
                              "That error was corrected on Jan 26 04:56:46 UTC, which introduced a time skip. "
