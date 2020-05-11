@@ -14,6 +14,7 @@ Some information, especially coming from outside, is shared via our mailing list
 
 ### Software
 [PyCharm](https://www.jetbrains.com/pycharm/): Python developement environment, free professional edition for students  
+[Typora](https://typora.io/): Simple Markdown Editor  
 
 *Windows*
 
