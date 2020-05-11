@@ -2,7 +2,7 @@
 
 Here are a few helpful links for joining our group. 
 
-### Mattermost and Mailing List
+## Mattermost and Mailing List
 
 We mainly communicate over mattermost, where we have discussions in channels and keep some important information for easier refindability.
 You can download the app here: [Mattermost Website](https://mattermost.com/)  
@@ -12,9 +12,11 @@ Once you are on mattermost you can join channels (click on more under the channe
 Some information, especially coming from outside, is shared via our mailing list, for which you can sign up here:  
 [Mailing List](https://lists.uni-leipzig.de/mailman/listinfo/remsensarctic)  
 
-### Software
-[PyCharm](https://www.jetbrains.com/pycharm/): Python developement environment, free professional edition for students  
+## Software
+
+[PyCharm](https://www.jetbrains.com/pycharm/): Python development environment, free professional edition for students  
 [Typora](https://typora.io/): Simple Markdown Editor  
+[Sublime](https://www.sublimetext.com/): Sophisticated Text Editor
 
 *Windows*
 
@@ -23,9 +25,10 @@ Some information, especially coming from outside, is shared via our mailing list
 * [MobaXterm](https://mobaxterm.mobatek.net/): Linux terminal for windows, good for ssh connection to servers  
 
 *Linux*    
+
 * [FileZilla](https://filezilla-project.org/): File Explorer for servers, good for file transfer
 
-### Server Addresses
+## Server Addresses
 
 | Name | IP Address |
 | --- | --- |
@@ -33,3 +36,4 @@ Some information, especially coming from outside, is shared via our mailing list
 | monsun | 192.168.154.11 |
 | poorga2 | 192.168.155.2 |
 | rsd | mira@rsd.tropos.de |
+|  |  |
