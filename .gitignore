@@ -11,3 +11,5 @@ Thumbs.db
 /larda-connectordump/
 /log/
 /__pycache__/
+/.ipynb_checkpoints/
+/quality_control/
