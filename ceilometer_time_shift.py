@@ -32,7 +32,7 @@ all_files = sorted([f for f in os.listdir(inpath) if f.endswith(".nc")])
 infiles = []
 for file in all_files:
     # extract date from filename
-    pattern = r"(?P<date>\d{8})_FSMETEOR_CHM170158.nc"
+    pattern = re.compile(r"(?P<date>\d{8})_FSMETEOR_CHM170158.nc")
     m = re.search(pattern, file)
     date_from_file = dt.datetime.strptime(m.group('date'), "%Y%m%d")
     # list only file names which fall within date range to be time shifted
@@ -57,8 +57,7 @@ time[0:indices[2]] = time[0:indices[2]] + correction  # move time skip to beginn
 ds.assign_coords(time=time.astype('<M8[s]'))
 ds.time.assign_attrs({'long_name': "time UTC",
                       'axis': "T"})
-ds["time"].encoding = {'units': "seconds since 1904-01-01 00:00:00.000 00:00", 'calendar': "standard",
-                       'dtype': 'i4'}
+ds["time"].encoding = {'units': "seconds since 1904-01-01 00:00:00.000 00:00", 'calendar': "standard"}
 ds = ds.assign_attrs(comment="This file was corrected for a time lag. It was lagging behind 348 seconds. "
                              "That error was corrected on Jan 26 04:56:46 UTC, which introduced a time skip. "
                              "This time skip was moved to the beginning of Jan 16. For further information contact: "
@@ -69,4 +68,4 @@ ds = ds.assign_attrs(day="removed")
 days, dss = zip(*ds.groupby("time.day"))
 paths = [f"202001{d}_FSMETEOR_CHM170158.nc" for d in days]
 os.chdir(outpath)
-xr.save_mfdataset(dss, paths, format='NETCDF3_CLASSIC')
+xr.save_mfdataset(dss, paths, format='NETCDF4')
