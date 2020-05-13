@@ -56,7 +56,7 @@ for date in pd.date_range(dt.datetime(2020, 1, 17), dt.datetime(2020, 2, 19), fr
     ax.plot(dt_list, cbh_var, '.', ms=1.5, color='purple', alpha=0.7)
     dot = mlines.Line2D([], [], ls='None', marker='o', color='purple', label='cloud base height ceilometer')
     ax.legend(handles=[dot], loc='upper right')
-    fig_name = f'{name}_beta_raw+cbh.png'
+    fig_name = f'{name}'
     fig.savefig(fig_name, dpi=250)
     plt.close()
     print(f'figure saved :: {fig_name}')
