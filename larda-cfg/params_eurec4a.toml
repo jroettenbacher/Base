@@ -505,7 +505,7 @@
   [CEILO.generic]
     time_variable = 'time'
     range_variable = 'range'
-    colormap = "gist_rainbow"
+    colormap = "jet"
     which_path = 'nc'
     # define how the values from the nc file have to
     # be converted (strings defined in pyLARDA.helpers)
