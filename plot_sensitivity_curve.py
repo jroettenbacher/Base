@@ -38,9 +38,9 @@ slv = larda.read(system, "SLv", [begin_dt, end_dt], plot_range)
 slh = larda.read(system, "SLh", [begin_dt, end_dt], plot_range)
 
 chirptables = ("tradewndCU (P09)", "Cu_small_Tint (P06)", "Cu_small_Tint2 (P07)")
-if begin_dt in pd.daterange(dt.datetime(2020, 1, 16), dt.datetime(2020, 1, 30, 15, 8)):
+if begin_dt in pd.date_range(dt.datetime(2020, 1, 16), dt.datetime(2020, 1, 30, 15, 8)):
     chirptable = chirptables[1]
-elif begin_dt in pd.daterange(dt.datetime(2020, 1, 30, 15, 8), dt.datetime(2020, 1, 31, 22, 27)):
+elif begin_dt in pd.date_range(dt.datetime(2020, 1, 30, 15, 8), dt.datetime(2020, 1, 31, 22, 27)):
     chirptable = chirptables[2]
 else:
     chirptable = chirptables[3]
