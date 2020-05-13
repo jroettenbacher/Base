@@ -504,7 +504,7 @@
   # this general settings need to be handed down to the params
   [CEILO.generic]
     time_variable = 'time'
-    range_variable = 'layer'
+    range_variable = 'range'
     colormap = "gist_rainbow"
     which_path = 'nc'
     # define how the values from the nc file have to
@@ -528,7 +528,7 @@
     variable_name = 'cbh'
     var_unit = 'm'
     var_lims = [0, 15000]
-    rg_unit = 'm'
+    rg_unit = ''
    # Punta Arenas variables:
    # variable_name = 'att_beta_1064'
    # var_unit = 'm'
