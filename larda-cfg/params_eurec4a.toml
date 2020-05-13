@@ -65,6 +65,10 @@
     variable_name = 'SLv'
     colormap = 'jet'
     var_lims = [-40, 20]
+  [LIMRAD94.params.SLh]
+    variable_name = 'SLh'
+    colormap = 'jet'
+    var_lims = [-40, 20]
   [LIMRAD94.params.DiffAtt]
     variable_name = 'DiffAtt'
     colormap = 'jet'
