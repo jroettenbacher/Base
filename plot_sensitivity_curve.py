@@ -37,13 +37,14 @@ plot_range = [0, 'max']
 slv = larda.read(system, "SLv", [begin_dt, end_dt], plot_range)
 slh = larda.read(system, "SLh", [begin_dt, end_dt], plot_range)
 
+# decide which chirptable to add to plot title
 chirptables = ("tradewndCU (P09)", "Cu_small_Tint (P06)", "Cu_small_Tint2 (P07)")
 if begin_dt in pd.date_range(dt.datetime(2020, 1, 16), dt.datetime(2020, 1, 30, 15, 8)):
-    chirptable = chirptables[1]
+    chirptable = chirptables[0]
 elif begin_dt in pd.date_range(dt.datetime(2020, 1, 30, 15, 8), dt.datetime(2020, 1, 31, 22, 27)):
-    chirptable = chirptables[2]
+    chirptable = chirptables[1]
 else:
-    chirptable = chirptables[3]
+    chirptable = chirptables[2]
 
 # get range bins at chirp borders
 ranges = {}
@@ -74,12 +75,35 @@ slh_c3 = np.mean(slh["var"][:, range_bins[2]:range_bins[3]], axis=0)
 heights = {}
 for i in range(len(ranges)):
     heights[f"C{i+1}Range"] = ranges[f"C{i+1}Range"]["var"][1, :]
+plt.style.use('default')
+plt.rcParams.update({'figure.figsize': (16, 9)})
 
+# plot with all chirps and both polarizations
+fig, axs = plt.subplots(ncols=no_chirps)
+for ax, slv, slh, i in zip(axs, [slv_c1, slv_c2, slv_c3], [slh_c1, slh_c2, slh_c3], [1, 2, 3]):
+    ax.plot(h.lin2z(slv), heights[f"C{i}Range"], label='vertical')
+    ax.plot(h.lin2z(slh), heights[f"C{i}Range"], label='horizontal')
+    ax.set_title(f"Chirp {i}")
+    ax.set_ylabel("Height [m]")
+    ax.set_xlabel("Sensitivity Limit [dBZ]")
+    ax.xaxis.set_minor_locator(AutoMinorLocator(n=2))
+    ax.yaxis.set_minor_locator(AutoMinorLocator(n=2))
+    ax.grid(True, which='both', axis='both', color="grey", linestyle='-', linewidth=1)
+    ax.legend(title="Polarization")
+fig.suptitle(f"Mean Sensitivity limit for LIMRAD94 \n"
+             f"Eurec4a - {begin_dt:%Y-%m-%d %H:%M} to {end_dt:%Y-%m-%d %H:%M} UTC\n"
+             f"Chirp Table: {chirptable}", fontsize=16)
+fig.savefig(f'{name}_curves.png', dpi=250)
+# fig.subplots_adjust(top=0.7, wspace=0.6)
+fig.tight_layout(pad=5)
+print(f'figure saved :: {name}_curves_.png')
+plt.close()
+
+# one plot for each curve
 for var, i in zip([slv_c1, slv_c2, slv_c3], (1, 2, 3)):
     plt.plot(h.lin2z(var), heights[f"C{i}Range"])
     plt.title(f"Mean Sensitivity limit for LIMRAD94 \n- Chirp {i} vertical polarization -\n"
-              f"Eurec4a - {begin_dt:%Y-%m-%d %H:%M} to {end_dt:%Y-%m-%d %H:%M} UTC\n"
-              f"Chirp Table: {chirptable}")
+              f"Eurec4a - {begin_dt:%Y-%m-%d %H:%M} to {end_dt:%Y-%m-%d %H:%M} UTC")
     plt.ylabel("Height [m]")
     plt.xlabel("Sensitivity Limit [dBZ]")
     plt.minorticks_on()
@@ -87,6 +111,7 @@ for var, i in zip([slv_c1, slv_c2, slv_c3], (1, 2, 3)):
     plt.axes().yaxis.set_minor_locator(AutoMinorLocator(n=2))
     plt.grid(True, which='both', axis='both', color="grey", linestyle='-', linewidth=1)
     plt.savefig(f'{name}_Chirp{i}_curve_vertical.png', dpi=250)
+    print(f'figure saved :: {name}_Chirp{i}_curve_vertical.png')
     plt.close()
 
 for var, i in zip([slh_c1, slh_c2, slh_c3], (1, 2, 3)):
@@ -99,5 +124,6 @@ for var, i in zip([slh_c1, slh_c2, slh_c3], (1, 2, 3)):
     plt.axes().xaxis.set_minor_locator(AutoMinorLocator(n=2))
     plt.axes().yaxis.set_minor_locator(AutoMinorLocator(n=2))
     plt.grid(True, which='both', axis='both', color="grey", linestyle='-', linewidth=1)
-    plt.savefig(f'{name}_Chirp{i}_curve_vertical.png', dpi=250)
+    plt.savefig(f'{name}_Chirp{i}_curve_horizontal.png', dpi=250)
+    print(f'figure saved :: {name}_Chirp{i}_curve_horizontal.png')
     plt.close()
