@@ -17,6 +17,7 @@ import pyLARDA
 import pyLARDA.helpers as h
 import datetime as dt
 import numpy as np
+import pandas as pd
 import logging
 
 log = logging.getLogger('pyLARDA')
@@ -35,6 +36,14 @@ plot_range = [0, 'max']
 # read in sensitivity variables over whole range (all chirps)
 slv = larda.read(system, "SLv", [begin_dt, end_dt], plot_range)
 slh = larda.read(system, "SLh", [begin_dt, end_dt], plot_range)
+
+chirptables = ("tradewndCU (P09)", "Cu_small_Tint (P06)", "Cu_small_Tint2 (P07)")
+if begin_dt in pd.daterange(dt.datetime(2020, 1, 16), dt.datetime(2020, 1, 30, 15, 8)):
+    chirptable = chirptables[1]
+elif begin_dt in pd.daterange(dt.datetime(2020, 1, 30, 15, 8), dt.datetime(2020, 1, 31, 22, 27)):
+    chirptable = chirptables[2]
+else:
+    chirptable = chirptables[3]
 
 # get range bins at chirp borders
 ranges = {}
@@ -69,7 +78,8 @@ for i in range(len(ranges)):
 for var, i in zip([slv_c1, slv_c2, slv_c3], (1, 2, 3)):
     plt.plot(h.lin2z(var), heights[f"C{i}Range"])
     plt.title(f"Mean Sensitivity limit for LIMRAD94 \n- Chirp {i} vertical polarization -\n"
-              f"Eurec4a - {begin_dt:%Y-%m-%d %H:%M} to {end_dt:%Y-%m-%d %H:%M} UTC")
+              f"Eurec4a - {begin_dt:%Y-%m-%d %H:%M} to {end_dt:%Y-%m-%d %H:%M} UTC\n"
+              f"Chirp Table: {chirptable}")
     plt.ylabel("Height [m]")
     plt.xlabel("Sensitivity Limit [dBZ]")
     plt.minorticks_on()
