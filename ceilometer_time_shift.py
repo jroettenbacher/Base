@@ -9,9 +9,12 @@ ceilometer.
 A close to 6 minute time skip can be observed from Jan 26 4:56:46 UTC to 5:02:44 UTC. Since the ceilometer measures
 about every 10 seconds, the real time difference was:
 5:48 minutes or 348 seconds
-Each measurement before the time skip can thus be adjusted by that.
+Each measurement before the time skip can thus be adjusted by that. The time skip is moved to the beginning of Jan 16th,
+to have a good data set for the campaign (17.1 -19.2.2020).
 input: ceilometer nc files
 output: ceilometer nc files time corrected
+author: Johannes Roettenbacher, Institute for Meteorology - Uni Leipzig
+contact: johannes.roettenbacher@web.de
 """
 
 import os
@@ -30,9 +33,9 @@ date_range = pd.date_range(begin_dt, end_dt)
 
 all_files = sorted([f for f in os.listdir(inpath) if f.endswith(".nc")])
 infiles = []
+pattern = re.compile(r"(?P<date>\d{8})_FSMETEOR_CHM170158.nc")
 for file in all_files:
     # extract date from filename
-    pattern = re.compile(r"(?P<date>\d{8})_FSMETEOR_CHM170158.nc")
     m = re.search(pattern, file)
     date_from_file = dt.datetime.strptime(m.group('date'), "%Y%m%d")
     # list only file names which fall within date range to be time shifted
@@ -41,8 +44,7 @@ for file in all_files:
 
 os.chdir(inpath)
 # read in all nc files in date range
-ds = xr.open_mfdataset(infiles, parallel=True, combine='nested', concat_dim='time', engine='netcdf4',
-                       decode_times=True)
+ds = xr.open_mfdataset(infiles, parallel=True, combine='nested', concat_dim='time', engine='netcdf4', decode_times=True)
 # search for maximum difference between consecutive time steps
 ix = np.asarray(np.where(ds.time.diff('time') == ds.time.diff('time').max())).flatten()
 time_res = np.asarray(ds.time.diff('time').median())  # median time resolution of measurement
