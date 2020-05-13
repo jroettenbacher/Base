@@ -523,12 +523,7 @@
     var_unit = ''
     var_lims = [-6e7,2e8]
     rg_unit = 'm'
-   # Punta Arenas variables:
-   # [CEILO.params.beta]
-   # variable_name = 'beta'
-   # var_unit = 'sr^-1^ m^-2'
-   # var_lims = [0, 1e-2]
-   # rg_unit = 'm'
+    ncreader = 'timeheight'
   [CEILO.params.cbh]
     variable_name = 'cbh'
     var_unit = 'm'
