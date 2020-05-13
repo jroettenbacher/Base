@@ -12,6 +12,7 @@ sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import AutoMinorLocator
 import pyLARDA
 import pyLARDA.helpers as h
 import datetime as dt
@@ -52,5 +53,41 @@ name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_sensitivity'
 fig, _ = pyLARDA.Transformations.plot_timeheight(slv, rg_converter=False, title=True, z_converter='lin2z')
 fig.savefig(name + '_allChirps.png', dpi=250)
 print(f'figure saved :: {name}_allChirps.png')
+plt.close()
 
+# plotting a sensitivity curve = mean sensitivity during measurement interval
+slv_c1 = np.mean(slv["var"][:, range_bins[0]:range_bins[1]], axis=0)
+slv_c2 = np.mean(slv["var"][:, range_bins[1]:range_bins[2]], axis=0)
+slv_c3 = np.mean(slv["var"][:, range_bins[2]:range_bins[3]], axis=0)
+slh_c1 = np.mean(slh["var"][:, range_bins[0]:range_bins[1]], axis=0)
+slh_c2 = np.mean(slh["var"][:, range_bins[1]:range_bins[2]], axis=0)
+slh_c3 = np.mean(slh["var"][:, range_bins[2]:range_bins[3]], axis=0)
+heights = {}
+for i in range(len(ranges)):
+    heights[f"C{i+1}Range"] = ranges[f"C{i+1}Range"]["var"][1, :]
 
+for var, i in zip([slv_c1, slv_c2, slv_c3], (1, 2, 3)):
+    plt.plot(h.lin2z(var), heights[f"C{i}Range"])
+    plt.title(f"Mean Sensitivity limit for LIMRAD94 \n- Chirp {i} vertical polarization -\n"
+              f"Eurec4a - {begin_dt:%Y-%m-%d %H:%M} to {end_dt:%Y-%m-%d %H:%M} UTC")
+    plt.ylabel("Height [m]")
+    plt.xlabel("Sensitivity Limit [dBZ]")
+    plt.minorticks_on()
+    plt.axes().xaxis.set_minor_locator(AutoMinorLocator(n=2))
+    plt.axes().yaxis.set_minor_locator(AutoMinorLocator(n=2))
+    plt.grid(True, which='both', axis='both', color="grey", linestyle='-', linewidth=1)
+    plt.savefig(f'{name}_Chirp{i}_curve_vertical.png', dpi=250)
+    plt.close()
+
+for var, i in zip([slh_c1, slh_c2, slh_c3], (1, 2, 3)):
+    plt.plot(h.lin2z(var), heights[f"C{i}Range"])
+    plt.title(f"Mean Sensitivity limit for LIMRAD94 \n- Chirp {i} horizontal polarization -\n"
+              f"Eurec4a - {begin_dt:%Y-%m-%d %H:%M} to {end_dt:%Y-%m-%d %H:%M} UTC")
+    plt.ylabel("Height [m]")
+    plt.xlabel("Sensitivity Limit [dBZ]")
+    plt.minorticks_on()
+    plt.axes().xaxis.set_minor_locator(AutoMinorLocator(n=2))
+    plt.axes().yaxis.set_minor_locator(AutoMinorLocator(n=2))
+    plt.grid(True, which='both', axis='both', color="grey", linestyle='-', linewidth=1)
+    plt.savefig(f'{name}_Chirp{i}_curve_vertical.png', dpi=250)
+    plt.close()
