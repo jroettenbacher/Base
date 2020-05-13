@@ -45,10 +45,10 @@ for date in pd.date_range(dt.datetime(2020, 1, 17), dt.datetime(2020, 2, 19), fr
 
     if plot_range[1] == 'max':
         # name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_ceilo'
-        name = f"{plot_path}(RV-Meteor_ceilometer_beta-raw+cbh_{begin_dt:%Y%m%d_%H%M}-{end_dt:%Y%m%d_%H%M}.png"
+        name = f"{plot_path}/RV-Meteor_ceilometer_beta-raw+cbh_{begin_dt:%Y%m%d_%H%M}-{end_dt:%Y%m%d_%H%M}.png"
     else:
         # name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_ceilo'
-        name = f"{plot_path}(RV-Meteor_ceilometer_beta-raw+cbh" \
+        name = f"{plot_path}/RV-Meteor_ceilometer_beta-raw+cbh" \
                f"_{plot_range[1] / 1000:.0f}km_{begin_dt:%Y%m%d_%H%M}-{end_dt:%Y%m%d_%H%M}.png"
 
     beta_raw['name'] = 'beta raw'
