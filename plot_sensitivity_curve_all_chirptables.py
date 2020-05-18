@@ -99,7 +99,7 @@ for ax, program, i in zip(axs, programs, range(len(chirptables))):
     ax.yaxis.set_minor_locator(AutoMinorLocator(n=2))
     ax.grid(True, which='both', axis='both', color="grey", linestyle='-', linewidth=1)
     ax.legend(title="Polarization")
-fig.suptitle(f"Unfiltered Mean Sensitivity limit for LIMRAD94 \n"
+fig.suptitle(f"Unfiltered Mean Sensitivity Limit for LIMRAD94 \n"
              f"Eurec4a - whole duration of chirptable use", fontsize=16)
 fig_name = name.replace(".png", "_unfiltered.png")
 fig.savefig(f'{fig_name}', dpi=250)
@@ -117,7 +117,7 @@ for ax, program, i in zip(axs, programs, range(len(chirptables))):
     ax.yaxis.set_minor_locator(AutoMinorLocator(n=2))
     ax.grid(True, which='both', axis='both', color="grey", linestyle='-', linewidth=1)
     ax.legend(title="Polarization")
-fig.suptitle(f"Rain Filtered Mean Sensitivity limit for LIMRAD94 \n"
+fig.suptitle(f"Rain Filtered Mean Sensitivity Limit for LIMRAD94 \n"
              f"Eurec4a - whole duration of chirptable use", fontsize=16)
 fig_name = name.replace(".png", "_filtered.png")
 fig.savefig(f'{fig_name}', dpi=250)
