@@ -29,8 +29,8 @@ plot_path = "/projekt1/remsens/work/jroettenbacher/plots/sensitivity"
 # Load LARDA
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 system = "LIMRAD94"
-begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
-end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
+begin_dt = dt.datetime(2020, 1, 20, 0, 0, 5)
+end_dt = dt.datetime(2020, 1, 20, 23, 59, 55)
 plot_range = [0, 'max']
 
 # read in sensitivity variables over whole range (all chirps)
