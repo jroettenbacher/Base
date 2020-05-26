@@ -27,17 +27,20 @@ for var in ['MaxVel', 'DoppLen', 'C1Range', 'C2Range', 'C3Range']:
     print('loading variable from LV1 :: ' + var)
     moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
 new_vel, heave_corr, seapath_chirptimes, seapath_out = jr.heave_correction(moments, begin_dt)
+# set masked values back to -999
+new_vel[mdv['mask']] = -999
 moments.update({'Vel_cor': moments['VEL'], 'heave_corr': moments['VEL'], 'Vel_cor-Vel': moments['VEL'],
                 'Vel-Vel_cor': moments['VEL']})
 # overwrite var with corrected mean Doppler velocities and heave correction
-moments['Vel_cor']['var'] = np.ma.masked_where(moments['VEL']['mask'], new_vel)
-moments['heave_corr']['var'] = np.ma.masked_where(moments['VEL']['mask'], heave_corr)
-moments['Vel_cor-Vel']['var'] = np.ma.masked_where(moments['VEL']['mask'], new_vel - moments['VEL']['var'])
-moments['Vel-Vel_cor']['var'] = np.ma.masked_where(moments['VEL']['mask'], moments['VEL']['var'] - new_vel)
+moments['Vel_cor'] = h.put_in_container(new_vel, moments['Vel_cor'])
+moments['heave_corr'] = h.put_in_container(heave_corr, moments['heave_corr'])
+moments['Vel_cor-Vel'] = h.put_in_container(new_vel - moments['VEL']['var'], moments['Vel_cor-Vel'])
+moments['Vel-Vel_cor'] = h.put_in_container(moments['VEL']['var'] - new_vel, moments['Vel-Vel_cor'])
 moments['Vel_cor']['name'] = "Vel_cor"
 moments['heave_corr']['name'] = "heave_corr"
 moments['Vel_cor-Vel']['name'] = "Vel_cor-Vel"
 moments['Vel-Vel_cor']['name'] = "Vel-Vel_cor"
+
 print("Done with heave correction")
 
 ########################################################################################################################
