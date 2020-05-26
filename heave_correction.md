@@ -15,7 +15,7 @@ chirp, the function is called in LIMRAD94_to_Cloudnet_v2.py which calculates the
 spectra.  
 Correction:
 
-| MDV [m/s] | Heave Rate [m/s] | Measured MDV [m/s] | Correction |
+| Real MDV [m/s] | Heave Rate [m/s] | Measured MDV [m/s] | Corrected MDV [m/s] |
 | --- | --- | --- | --- |
 | +3 | +1 | +3 - (+)1 = +2 | +2 + (+)1 = 3 |
 | +3 | -1 | +3 - (-)1 = +4 | +4 + (-)1 = 3 |
@@ -32,13 +32,15 @@ Three components:
 
 ### 2. Correct Each Chirp's Mean Doppler Velocity
 
-note: the radar timestamp corresponds to the end of the chirp sequence with 0.1s accuracy  
+**Note**: the radar timestamp corresponds to the end of the chirp sequence with 0.1s accuracy  
 
 Duration of each chirp in seconds by chirp table:  
 
 | Chirp Table | 1. Chirp duration [s] | 2. Chirp duration [s] | 3. Chirp duration [s] |
 | --- | --- | --- | --- |
 | tradewindCU (P09) | 1.022 | 0.947 | 0.966 |
+| Doppler1s (P02)      | 0.239                 | 0.342                 | 0.480                 |
+| Cu_small_Tint (P06) | 0.225 | 0.135 | 0.181 |
 | Cu_small_Tint2 (P07) | 0.563 | 0.573 | 0.453 |
 
 * calculate timestamp for each chirp

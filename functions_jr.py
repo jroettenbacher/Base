@@ -155,12 +155,17 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     # timestamp in radar file corresponds to end of chirp sequence with an accuracy of 0.1s
     # make lookup table for chirp durations for each chirptable (see projekt1/remsens/hardware/LIMRAD94/chirptables)
     chirp_durations = pd.DataFrame({"Chirp_No": (1, 2, 3), "tradewindCU": (1.022, 0.947, 0.966),
+                                    "Doppler1s": (0.239, 0.342, 0.480), "Cu_small_Tint": (0.225, 0.135, 0.181),
                                     "Cu_small_Tint2": (0.563, 0.573, 0.453)})
     # calculate end of each chirp by subtracting the duration of the later chirp(s) + half the time of the chirp itself
     # the timestamp then corresponds to the middle of the chirp
     # select chirp durations according to date
-    if date < dt.datetime(2020, 2, 1):
+    if date < dt.datetime(2020, 1, 29, 18, 0, 0):
         chirp_dur = chirp_durations["tradewindCU"]
+    elif date < dt.datetime(2020, 1, 30, 15, 3, 0):
+        chirp_dur = chirp_durations["Doppler1s"]
+    elif date < dt.datetime(2020, 1, 31, 22, 28, 0):
+        chirp_dur = chirp_durations["Cu_small_Tint"]
     else:
         chirp_dur = chirp_durations["Cu_small_Tint2"]
     chirp_timestamps = pd.DataFrame()
