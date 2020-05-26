@@ -214,6 +214,8 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
         seapath_out = seapath_out.append(seapath_closest)
         print(f"Corrected Doppler velocities in Chirp {i+1} in {time.time() - t1:.2f} seconds")
 
+    # set masked values back to -999 because they also get corrected
+    new_vel[moments['VEL']['mask']] = -999
     print(f"Done with heave corrections in {time.time() - start:.2f} seconds")
     return new_vel, heave_corr, seapath_chirptimes, seapath_out
 
