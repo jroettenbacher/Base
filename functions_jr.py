@@ -89,12 +89,13 @@ def find_bases_tops(mask, rg_list):
     return cloud_prop, cloud_mask
 
 
-def heave_correction(moments, date):
+def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP"):
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
 
     Args:
         moments: LIMRAD94 moments container as returned by spectra2moments in spec2mom_limrad94.py
         date (datetime.datetime): object with date of current file
+        path_to_seapath: path where seapath measurement files (daily dat files) are stored
 
     Returns:
         new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"]
@@ -113,14 +114,13 @@ def heave_correction(moments, date):
     ####################################################################################################################
     start = time.time()
     print(f"Starting heave correction for {date:%Y-%m-%d}")
-    input_path = "/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP"
     ####################################################################################################################
     # Seapath attitude and heave data 1 or 10 Hz, choose file depending on date
     if date < dt.datetime(2020, 1, 27):
         file = f"{date:%Y%m%d}_DSHIP_seapath_1Hz.dat"
     else:
         file = f"{date:%Y%m%d}_DSHIP_seapath_10Hz.dat"
-    seapath = pd.read_csv(f"{input_path}/{file}", encoding='windows-1252', sep="\t", skiprows=(1, 2),
+    seapath = pd.read_csv(f"{path_to_seapath}/{file}", encoding='windows-1252', sep="\t", skiprows=(1, 2),
                           index_col='date time')
     seapath.index = pd.to_datetime(seapath.index, infer_datetime_format=True)
     seapath.index.name = 'datetime'
