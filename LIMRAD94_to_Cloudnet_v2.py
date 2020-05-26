@@ -59,7 +59,7 @@ if __name__ == '__main__':
         begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
         end_dt = datetime.datetime.strptime(date + ' 23:59:55', '%Y%m%d %H:%M:%S')
     else:
-        date = '20200117'
+        date = '20200205'
         begin_dt = datetime.datetime.strptime(date + ' 00:00:01', '%Y%m%d %H:%M:%S')
         end_dt = datetime.datetime.strptime(date + ' 23:59:59', '%Y%m%d %H:%M:%S')
 
