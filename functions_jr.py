@@ -173,7 +173,6 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     chirp_timestamps["chirp_2"] = moments['VEL']["ts"] - (chirp_dur[1] / 2) - chirp_dur[2]
     chirp_timestamps["chirp_3"] = moments['VEL']["ts"] - (chirp_dur[2] / 2)
 
-    # create new Doppler velocity by adding the heave rate of the closest time step
     # list with range bin numbers of chirp borders
     no_chirps = len(chirp_dur)
     range_bins = np.zeros(no_chirps + 1, dtype=np.int)  # needs to be length 4 to include all +1 chirp borders
@@ -213,9 +212,11 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
         heave_rate = np.expand_dims(seapath_closest["Heave Rate [m/s]"].values, axis=1)
         # duplicate the heave correction over the range dimension to add it to all range bins of the chirp
         heave_corr[:, range_bins[i]:range_bins[i+1]] = heave_rate.repeat(var.shape[1], axis=1)
+        # create new Doppler velocity by adding the heave rate of the closest time step
         new_vel[:, range_bins[i]:range_bins[i+1]] = var + heave_corr[:, range_bins[i]:range_bins[i+1]]
         # save chirptimes of seapath for quality control, as seconds since 1970-01-01 00:00 UTC
         seapath_chirptimes[f"Chirp_{i+1}"] = seapath_closest.index.values.astype(np.float64) / 10 ** 9
+        # make data frame with used heave rates
         seapath_out = seapath_out.append(seapath_closest)
         print(f"Corrected Doppler velocities in Chirp {i+1} in {time.time() - t1:.2f} seconds")
 
@@ -231,8 +232,6 @@ if __name__ == '__main__':
     sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
     sys.path.append('.')
     import pyLARDA
-    import pyLARDA.helpers as h
-    import logging
     import numpy as np
 
     larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
