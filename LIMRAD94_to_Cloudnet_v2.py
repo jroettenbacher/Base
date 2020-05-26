@@ -92,6 +92,7 @@ if __name__ == '__main__':
                                                             LIMRAD94_moments['DiffAtt']['var'])
     LIMRAD94_moments['ldr']['var'] = np.ma.masked_where(LIMRAD94_moments['Ze']['mask'] == True,
                                                         LIMRAD94_moments['ldr']['var'])
+
     # find cloud bases and tops and add variable to larda container
     print(f"Creating cloud mask")
     t1 = time.time()
@@ -104,12 +105,12 @@ if __name__ == '__main__':
 
     print("Make heave correction")
     t1 = time.time()
-    new_vel, heave_corr, seapath_chirptimes = jr.heave_correction(LIMRAD94_moments, begin_dt)
+    new_vel, heave_corr, seapath_chirptimes, seapath_out = jr.heave_correction(LIMRAD94_moments, begin_dt)
     # add corrected Doppler velocities and heave correction to container with same attributes as VEL
     LIMRAD94_moments.update({'Vel_cor': LIMRAD94_moments['VEL'], 'heave_corr': LIMRAD94_moments['VEL']})
     # overwrite var with corrected mean Doppler velocities and heave correction
-    LIMRAD94_moments['Vel_cor']['var'] = np.ma.masked_where(LIMRAD94_moments['Ze']['mask'], new_vel)
-    LIMRAD94_moments['heave_corr']['var'] = np.ma.masked_where(LIMRAD94_moments['Ze']['mask'], heave_corr)
+    LIMRAD94_moments['Vel_cor'] = h.put_in_container(new_vel, LIMRAD94_moments['Vel_cor'])
+    LIMRAD94_moments['heave_corr'] = h.put_in_container(heave_corr, LIMRAD94_moments['heave_corr'])
     LIMRAD94_moments['Vel_cor']['name'] = "Vel_cor"
     LIMRAD94_moments['heave_corr']['name'] = "heave_corr"
     print(f"Done with heave correction in {time.time() - t1:.2f} seconds")
