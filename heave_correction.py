@@ -48,7 +48,7 @@ print("Done with heave correction")
 ########################################################################################################################
 plot_path = "/projekt1/remsens/work/jroettenbacher/plots/heave_correction"
 plot_range = [0, 3000]
-# mdv['var_lims'] = [-7, 7]
+mdv['var_lims'] = [-7, 7]
 # uncorrected MDV
 fig, _ = pyLARDA.Transformations.plot_timeheight(mdv, rg_converter=False, title=True, range_interval=plot_range)
 name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
@@ -59,7 +59,7 @@ print(f'figure saved :: {fig_name}')
 
 # uncorrected MDV zoom
 begin_dt = dt.datetime(2020, 2, 5, 9, 0, 0)
-end_dt = dt.datetime(2020, 2, 5, 11, 0, 0)
+end_dt = dt.datetime(2020, 2, 5, 10, 0, 0)
 fig, _ = pyLARDA.Transformations.plot_timeheight(mdv, rg_converter=False, title=True, time_interval=[begin_dt, end_dt],
                                                  range_interval=plot_range)
 name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
@@ -69,7 +69,7 @@ plt.close()
 print(f'figure saved :: {fig_name}')
 
 Vel_cor = moments['Vel_cor']
-# Vel_cor['var_lims'] = [-7, 7]
+Vel_cor['var_lims'] = [-7, 7]
 # corrected MDV
 begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
 end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
@@ -82,7 +82,7 @@ print(f'figure saved :: {fig_name}')
 
 # corrected MDV zoom
 begin_dt = dt.datetime(2020, 2, 5, 9, 0, 0)
-end_dt = dt.datetime(2020, 2, 5, 11, 0, 0)
+end_dt = dt.datetime(2020, 2, 5, 10, 0, 0)
 fig, _ = pyLARDA.Transformations.plot_timeheight(Vel_cor, rg_converter=False, title=True, range_interval=plot_range,
                                                  time_interval=[begin_dt, end_dt])
 name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
@@ -92,6 +92,7 @@ plt.close()
 print(f'figure saved :: {fig_name}')
 
 cor_meas = moments['Vel_cor-Vel']
+cor_meas['var_lims'] = [-1, 1]
 # corrected MDV - measured MDV
 begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
 end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
@@ -114,7 +115,8 @@ plt.close()
 print(f'figure saved :: {fig_name}')
 
 meas_cor = moments['Vel-Vel_cor']
-# corrected MDV - measured MDV
+meas_cor['var_lims'] = [-1, 1]
+# measured MDV - corrected MDV
 begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
 end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
 fig, _ = pyLARDA.Transformations.plot_timeheight(meas_cor, rg_converter=False, title=True, range_interval=plot_range)
@@ -124,7 +126,7 @@ fig.savefig(fig_name, dpi=250)
 plt.close()
 print(f'figure saved :: {fig_name}')
 
-# corrected MDV - measured MDV zoom
+# measured MDV - corrected MDV zoom
 begin_dt = dt.datetime(2020, 2, 5, 9, 0, 0)
 end_dt = dt.datetime(2020, 2, 5, 11, 0, 0)
 fig, _ = pyLARDA.Transformations.plot_timeheight(meas_cor, rg_converter=False, title=True, range_interval=plot_range,

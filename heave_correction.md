@@ -183,26 +183,17 @@ def heave_correction(moments, date):
 
 ### Quality control
 
-![uncorrected MDV](quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_uncorrected.png)   
-Uncorrected Doppler Velocity  
+| Uncorrected Doppler Velocity                                 | Corrected Doppler Velocity                                   |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![uncorrected MDV](quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_uncorrected.png) | ![corrected MDV](quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_corrected.png) |
+| ![uncorrected MDV zoom](quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_uncorrected.png) | ![corrected MDV zoom](quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_corrected.png) |
 
-![uncorrected MDV zoom](quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_uncorrected.png)  
-Zoom in of uncorrected Doppler Velocity
+  
 
-![heave correction](quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_heave_correction.png)  
-Heave correction as calculated by function  
-
-![corrected MDV](quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_corrected.png)  
-Corrected Doppler Velocity 
-
-![corrected MDV zoom](quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_corrected.png)  
-Zoom in of corrected Doppler Velocity
-
-![difference between corrected and uncorrected](quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_corrected-measured.png)    
-Difference between corrected and uncorrected Doppler Velocity
-
-![difference between corrected and uncorrected zoom](quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_corrected-measured.png)      
-Zoom in on difference between corrected and uncorrected Doppler Velocity  
+| heave correction                                             | corrected - uncorrected                                      |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![heave correction](quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_heave_correction.png) | ![difference between corrected and uncorrected](quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_corrected-measured.png) |
+| ![20200205_0900_20200205_1100_3km_cloudnet_input_heave_correction](quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_heave_correction.png) | ![difference between corrected and uncorrected zoom](quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_corrected-measured.png) |
 
 ![heave components unnormalized](quality_control\tmp.png)  
 Heave components unnormalized, chirp 1,2 and 3 (from top to bottom)
