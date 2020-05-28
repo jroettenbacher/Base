@@ -89,13 +89,15 @@ def find_bases_tops(mask, rg_list):
     return cloud_prop, cloud_mask
 
 
-def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP"):
+def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP",
+                     only_heave=False):
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
 
     Args:
         moments: LIMRAD94 moments container as returned by spectra2moments in spec2mom_limrad94.py
         date (datetime.datetime): object with date of current file
-        path_to_seapath: path where seapath measurement files (daily dat files) are stored
+        path_to_seapath: string, path where seapath measurement files (daily dat files) are stored
+        only_heave: bool, whether to use only heave to calculate the heave rate or include pitch and roll induced heave
 
     Returns:
         new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"]
@@ -135,8 +137,12 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     # sum up heave, pitch induced and roll induced heave
     pitch = np.deg2rad(seapath["Pitch [°]"])
     roll = np.deg2rad(seapath["Roll [°]"])
-    pitch_heave = x_radar * np.tan(pitch)
-    roll_heave = y_radar * np.tan(roll)
+    if not only_heave:
+        pitch_heave = x_radar * np.tan(pitch)
+        roll_heave = y_radar * np.tan(roll)
+    else:
+        pitch_heave = 0
+        roll_heave = 0
     seapath["radar_heave"] = seapath["Heave [m]"] + pitch_heave + roll_heave
     # add pitch and roll induced heave to data frame to include in output for quality checking
     seapath["pitch_heave"] = pitch_heave
