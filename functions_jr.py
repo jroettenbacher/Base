@@ -94,10 +94,10 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
 
     Args:
-        moments: LIMRAD94 moments container as returned by spectra2moments in spec2mom_limrad94.py
+        moments: LIMRAD94 moments container as returned by spectra2moments in spec2mom_limrad94.py, C1/2/3_Range
         date (datetime.datetime): object with date of current file
-        path_to_seapath: string, path where seapath measurement files (daily dat files) are stored
-        only_heave: bool, whether to use only heave to calculate the heave rate or include pitch and roll induced heave
+        path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
+        only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
 
     Returns:
         new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"]
@@ -201,7 +201,8 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
         var = moments['VEL']['var'][:, range_bins[i]:range_bins[i+1]]
         # convert timestamps of moments to array
         ts = chirp_timestamps[f"chirp_{i+1}"].values
-        id_diff_min = []  # initialize list for indices of the time steps with minumum difference
+        id_diff_min = []  # initialize list for indices of the time steps with minimum difference
+        # TODO: Parallelize this for loop if possible, this takes the most time
         for t in ts:
             # calculate the absolute difference between all seapath time steps and the radar time step
             abs_diff = np.abs(seapath_ts - t)
@@ -212,6 +213,14 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
             id_diff_min.append(np.argmax(abs_diff == min_diff))
         # select the rows which are closest to the radar time steps
         seapath_closest = seapath.iloc[id_diff_min].copy()
+
+        # check if heave rate is greater than 5 m/s and filter those values by averaging the step before and after
+        id_max = np.asarray(np.abs(seapath_closest["Heave Rate [m/s]"]) > 5).nonzero()[0]
+        for j in range(len(id_max)):
+            idc = id_max[j]
+            avg_hrate = (seapath_closest["Heave Rate [m/s]"][idc - 1] + seapath_closest["Heave Rate [m/s]"][idc + 1]) / 2
+            seapath_closest["Heave Rate [m/s]"][idc] = avg_hrate
+
         # add column with chirp number to distinguish in quality control
         seapath_closest["Chirp_no"] = np.repeat(i + 1, len(seapath_closest.index))
         # create array with same dimensions as velocity (time, range)
