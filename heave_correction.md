@@ -42,18 +42,21 @@ Duration of each chirp in seconds by chirp table:
 * calculate range bins which define the chirp borders
 * calculate the absolute difference between all seapath time steps and each radar time step
 * select rows which have the minimum difference to the radar time steps
+* filter heave rates greater +- 5 m/s and replace by average of time step before and after
 * add heave rate to mean doppler velocity
 
 ## Code
 
 ```python
-def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP"):
+def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP",
+                     only_heave=False):
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
 
     Args:
-        moments: LIMRAD94 moments container as returned by spectra2moments in spec2mom_limrad94.py
+        moments: LIMRAD94 moments container as returned by spectra2moments in spec2mom_limrad94.py, C1/2/3_Range
         date (datetime.datetime): object with date of current file
-        path_to_seapath: path where seapath measurement files (daily dat files) are stored
+        path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
+        only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
 
     Returns:
         new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"]
@@ -93,8 +96,12 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     # sum up heave, pitch induced and roll induced heave
     pitch = np.deg2rad(seapath["Pitch [°]"])
     roll = np.deg2rad(seapath["Roll [°]"])
-    pitch_heave = x_radar * np.tan(pitch)
-    roll_heave = y_radar * np.tan(roll)
+    if not only_heave:
+        pitch_heave = x_radar * np.tan(pitch)
+        roll_heave = y_radar * np.tan(roll)
+    else:
+        pitch_heave = 0
+        roll_heave = 0
     seapath["radar_heave"] = seapath["Heave [m]"] + pitch_heave + roll_heave
     # add pitch and roll induced heave to data frame to include in output for quality checking
     seapath["pitch_heave"] = pitch_heave
@@ -153,7 +160,8 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
         var = moments['VEL']['var'][:, range_bins[i]:range_bins[i+1]]
         # convert timestamps of moments to array
         ts = chirp_timestamps[f"chirp_{i+1}"].values
-        id_diff_min = []  # initialize list for indices of the time steps with minumum difference
+        id_diff_min = []  # initialize list for indices of the time steps with minimum difference
+        # TODO: Parallelize this for loop if possible, this takes the most time
         for t in ts:
             # calculate the absolute difference between all seapath time steps and the radar time step
             abs_diff = np.abs(seapath_ts - t)
@@ -164,6 +172,14 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
             id_diff_min.append(np.argmax(abs_diff == min_diff))
         # select the rows which are closest to the radar time steps
         seapath_closest = seapath.iloc[id_diff_min].copy()
+
+        # check if heave rate is greater than 5 m/s and filter those values by averaging the step before and after
+        id_max = np.asarray(np.abs(seapath_closest["Heave Rate [m/s]"]) > 5).nonzero()[0]
+        for j in range(len(id_max)):
+            idc = id_max[j]
+            avg_hrate = (seapath_closest["Heave Rate [m/s]"][idc - 1] + seapath_closest["Heave Rate [m/s]"][idc + 1]) / 2
+            seapath_closest["Heave Rate [m/s]"][idc] = avg_hrate
+
         # add column with chirp number to distinguish in quality control
         seapath_closest["Chirp_no"] = np.repeat(i + 1, len(seapath_closest.index))
         # create array with same dimensions as velocity (time, range)
@@ -190,8 +206,8 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
 
 | Uncorrected Doppler Velocity                                 | Corrected Doppler Velocity                                   |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![uncorrected MDV](quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_uncorrected.png) | ![corrected MDV](quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_corrected.png) |
-| ![uncorrected MDV zoom](quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_uncorrected.png) | ![corrected MDV zoom](quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_corrected.png) |
+| <img src="quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_uncorrected.png" alt="uncorrected MDV"  /> | <img src="quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_corrected.png" alt="corrected MDV"  /> |
+| <img src="quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_uncorrected.png" alt="uncorrected MDV zoom"  /> | <img src="quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_corrected.png" alt="corrected MDV zoom"  /> |
 
   
 
