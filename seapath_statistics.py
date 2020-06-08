@@ -20,7 +20,7 @@ output_path = "/projekt1/remsens/work/jroettenbacher/plots/heave_correction"
 # define date range
 # if you choose dates before 27.01.2020 Seapath resolution was only 1Hz, adjust filename, expect errors when trying
 # to read in files from both resolutions
-begin_dt = datetime.datetime(2020, 1, 27, 0, 0, 0)
+begin_dt = datetime.datetime(2020, 1, 17, 0, 0, 0)
 end_dt = datetime.datetime(2020, 2, 19, 23, 59, 59)
 
 ########################################################################################################################
@@ -29,7 +29,7 @@ end_dt = datetime.datetime(2020, 2, 19, 23, 59, 59)
 # RV-Meteor - Seapath
 # list all files in directory, select the date range, then read them in and concat them
 t1 = time.time()
-all_files = sorted(glob.glob(os.path.join(input_path + "/*_10Hz.dat")))
+all_files = sorted(glob.glob(os.path.join(input_path + "/*seapath_*Hz.dat")))
 file_list = []
 for f in all_files:
     # match anything (.*) and the date group (?P<date>) consisting of 8 digits (\d{8})
@@ -98,11 +98,11 @@ for var in variables:
 ########################################################################################################################
 # Heave Rate
 
-# RV-Meteor heave and Radar Heave
+# RV-Meteor heave rate and radar heave rate
 # plot PDF, 40 bins
 plt.hist([seapath["Heave Rate [m/s]"], seapath["Radar Heave Rate [m/s]"]],
          bins=40, density=True, histtype='bar', log=True, label=["Seapath Heave Rate", "Radar Heave Rate"])
-plt.legend(title="Sampling Frequency")
+plt.legend()
 plt.xlabel(f"Heave Rate [m/s]")
 plt.ylabel("Probability Density")
 plt.title(f"Probability Density Function of Heave Rate - DSHIP\n"
@@ -113,3 +113,30 @@ filename = f"{output_path}/RV-Meteor_Seapath_Heave_Rate_PDF_{begin_dt:%Y%m%d}-{e
 plt.savefig(filename, dpi=300)
 plt.close()
 print(f"Figure saved to {filename}")
+
+########################################################################################################################
+# Heave Rate + Heave
+
+# RV-Meteor heave + heave rate and Radar Heave + radar heave rate
+variables = ([seapath["Heave [m]"], seapath["Heave Rate [m/s]"]],
+             [seapath["Radar Heave [m]"],  seapath["Radar Heave Rate [m/s]"]])
+labels = (["Heave [m]", "Heave Rate [m/s]"], ["Radar Heave [m]", "Radar Heave Rate [m/s]"])
+titles = ("RV-Meteor", "Radar")
+# plot PDF, 40 bins
+for var, label, title in zip(variables, labels, titles):
+    plt.hist(var, bins=40, density=True, histtype='bar', log=True, label=label)
+    plt.legend()
+    plt.xlabel(f"Heave [m] / Heave Rate [m/s]")
+    plt.ylabel("Probability Density")
+    plt.title(f"Probability Density Function of {title} Heave and Heave Rate - DSHIP\n"
+              f" EUREC4A RV-Meteor {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d}")
+    plt.tight_layout()
+    # plt.show()
+    filename = f"{output_path}/RV-Meteor_Seapath_{title}_Heave_Rate_PDF_{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}_log.png"
+    plt.savefig(filename, dpi=300)
+    plt.close()
+    print(f"Figure saved to {filename}")
+
+# check out maximum values, they are real
+seapath.iloc[np.where(np.abs(seapath["Heave Rate [m/s]"]) > 5)]
+tmp = seapath["2020-02-19 23:30":"2020-02-19 23:45"]
