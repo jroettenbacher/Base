@@ -216,9 +216,11 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
 | ![heave correction](quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_heave_correction.png) | ![difference between corrected and uncorrected](quality_control\20200205_0000_20200205_2359_3km_cloudnet_input_MDV_corrected-measured.png) |
 | ![20200205_0900_20200205_1100_3km_cloudnet_input_heave_correction](quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_heave_correction.png) | ![difference between corrected and uncorrected zoom](quality_control\20200205_0900_20200205_1100_3km_cloudnet_input_MDV_corrected-measured.png) |
 
-![heave components unnormalized](quality_control\tmp.png)  
-Heave components unnormalized, chirp 1,2 and 3 (from top to bottom)
 
-TODO:
-- plot with all three components of heave, normalized by the combined heave for each chirp
-- plot with time series of heave rate for each chirp
+
+![heave components unnormalized](C:\Users\Johannes\PycharmProjects\Base\quality_control\heave_elements.png)  
+Heave components unnormalized
+
+![heave_rate_by_chirp](C:\Users\Johannes\PycharmProjects\Base\quality_control\heave_rate_by_chirp.png)
+
+Heave Rate by chirp

@@ -198,4 +198,6 @@ print(f'figure saved :: {fig_name}')
 # plt.close()
 
 # save seapath_out to csv for plotting with R
+seapath_out.columns = ("heading", "heave", "pitch", "roll", "radar_heave", "pitch_heave", "roll_heave", "heave_rate",
+                       "chirp_no")
 seapath_out.to_csv(f"{plot_path}/seapath_out.csv", encoding="1252", index_label="datetime")
