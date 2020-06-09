@@ -16,17 +16,19 @@ Some information, especially coming from outside, is shared via our mailing list
 
 [PyCharm](https://www.jetbrains.com/pycharm/): Python development environment, free professional edition for students  
 [Typora](https://typora.io/): Simple Markdown Editor  
-[Sublime](https://www.sublimetext.com/): Sophisticated Text Editor
+[Sublime](https://www.sublimetext.com/): Sophisticated Text Editor  
+[RStudio](https://rstudio.com/): R development environment, requires installation of R  
+[Matlab](https://de.mathworks.com/academia/tah-portal/universitat-leipzig-40758592.html): Use MatLab with the university license   
 
 *Windows*
 
 * [WinSCP](https://winscp.net/eng/index.php): File Explorer for servers, good for file transfer  
-
 * [MobaXterm](https://mobaxterm.mobatek.net/): Linux terminal for windows, good for ssh connection to servers  
+* [Linux Subsystem](https://docs.microsoft.com/en-us/windows/wsl/install-win10): Run a Linux shell on windows. You can decide which Linux distribution you want to use.  
 
 *Linux*    
 
-* [FileZilla](https://filezilla-project.org/): File Explorer for servers, good for file transfer
+* [FileZilla](https://filezilla-project.org/): File Explorer for servers, good for file transfer  
 
 ## Server Addresses
 
