@@ -133,7 +133,7 @@ if __name__ == '__main__':
             print('Error: No other sites implemented jet!')
             sys.exit(-42)
 
-    flag = nc.generate_cloudnet_input_LIMRAD94(LIMRAD94_moments, path)
+    flag = nc.rpg_radar2nc(LIMRAD94_moments, path)
 
     ####################################################################################################################
 
