@@ -7,6 +7,8 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import datetime as dt
 from dateutil.relativedelta import relativedelta
+import warnings
+import logging
 
 
 def set_presentation_plot_style():
@@ -214,12 +216,25 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
         # select the rows which are closest to the radar time steps
         seapath_closest = seapath.iloc[id_diff_min].copy()
 
-        # check if heave rate is greater than 5 m/s and filter those values by averaging the step before and after
-        id_max = np.asarray(np.abs(seapath_closest["Heave Rate [m/s]"]) > 5).nonzero()[0]
-        for j in range(len(id_max)):
-            idc = id_max[j]
-            avg_hrate = (seapath_closest["Heave Rate [m/s]"][idc - 1] + seapath_closest["Heave Rate [m/s]"][idc + 1]) / 2
-            seapath_closest["Heave Rate [m/s]"][idc] = avg_hrate
+        # check if heave rate is greater than 5 standard deviations away from the daily mean and filter those values
+        # by averaging the step before and after
+        std = np.nanstd(seapath_closest["Heave Rate [m/s]"])
+        # try to get indices from values which do not pass the filter. If that doesn't work, then there are no values
+        # which don't pass the filter and a ValueError is raised. Write this to a logger
+        try:
+            id_max = np.asarray(np.abs(seapath_closest["Heave Rate [m/s]"]) > 5 * std).nonzero()[0]
+            for j in range(len(id_max)):
+                idc = id_max[j]
+                warnings.warn(f"Heave rate greater 5 * std encountered ({seapath_closest['Heave Rate [m/s]'][idc]}! \n "
+                              f"Using average of step before and after. Index: {idc}", UserWarning)
+                avg_hrate = (seapath_closest["Heave Rate [m/s]"][idc - 1] + seapath_closest["Heave Rate [m/s]"][idc + 1]) / 2
+                if avg_hrate > 5 * std:
+                    warnings.warn(f"Heave Rate value greater than 5 * std encountered ({avg_hrate})! "
+                                  f"Even after averaging step before and after too high value! Index: {idc}",
+                                  UserWarning)
+                seapath_closest["Heave Rate [m/s]"][idc] = avg_hrate
+        except ValueError:
+            logging.info(f"All heave rate values are within 5 standard deviation of the daily mean!")
 
         # add column with chirp number to distinguish in quality control
         seapath_closest["Chirp_no"] = np.repeat(i + 1, len(seapath_closest.index))
@@ -255,7 +270,7 @@ if __name__ == '__main__':
     plot_range = [0, 'max']
     mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
     moments = {"VEL": mdv}
-    for var in ['MaxVel', 'DoppLen', 'C1Range', 'C2Range', 'C3Range']:
+    for var in ['C1Range', 'C2Range', 'C3Range']:
         print('loading variable from LV1 :: ' + var)
         moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
     new_vel, heave_corr, seapath_chirptimes, seapath_out = heave_correction(moments, begin_dt)
