@@ -3,10 +3,10 @@
 **Problem:**  
 A Doppler cloud radar measures vertical fall velocities of hydrometeors. Due to the up and down movement of the RV-Meteor (the so called heave), those fall velocities have a systematic error corresponding to the heave rate.  
 The heave rate or heave velocity is heave per second and thus has a unit of m/s. Another component is the roll and pitch induced heave. Since the radar was placed off center of the ship, the roll and pitch movements of the ship also induce a heave motion on the radar.  
-**Note:** LIMRAD94 convention: MDV < 0 -> particle falling towards the radar; MDV > 0 -> particle moving away from radar
+**Note:** LIMRAD94 convention: MDV < 0 $\rightarrow$ particle falling towards the radar; MDV > 0 $\rightarrow$ particle moving away from radar
 
 **Solution:**  
-Correct the mean Doppler velocity of each chirp by the heave rate, calculated from measurements of the heave by the RV-Meteor. To do this a python function called `heave_correction` is written. Because the correction is applied to each chirp, the function is called in LIMRAD94_to_Cloudnet_v2.py which calculates the radar moments from the measured Doppler spectra.  
+Correct the mean Doppler velocity of each chirp by the heave rate, calculated from measurements of the heave by the RV-Meteor. To do this a python function called `heave_correction` is written. By using the chirp table times for each chirp, the correction can be applied to each chirp.  
 
 **Correction:** 
 
@@ -42,7 +42,7 @@ Duration of each chirp in seconds by chirp table:
 * calculate range bins which define the chirp borders
 * calculate the absolute difference between all seapath time steps and each radar time step
 * select rows which have the minimum difference to the radar time steps
-* filter heave rates greater +- 5 m/s and replace by average of time step before and after
+* filter heave rates greater 5 standard deviations away from the daily mean and replace by average of time step before and after
 * add heave rate to mean doppler velocity
 
 ## Code
@@ -173,12 +173,25 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
         # select the rows which are closest to the radar time steps
         seapath_closest = seapath.iloc[id_diff_min].copy()
 
-        # check if heave rate is greater than 5 m/s and filter those values by averaging the step before and after
-        id_max = np.asarray(np.abs(seapath_closest["Heave Rate [m/s]"]) > 5).nonzero()[0]
-        for j in range(len(id_max)):
-            idc = id_max[j]
-            avg_hrate = (seapath_closest["Heave Rate [m/s]"][idc - 1] + seapath_closest["Heave Rate [m/s]"][idc + 1]) / 2
-            seapath_closest["Heave Rate [m/s]"][idc] = avg_hrate
+        # check if heave rate is greater than 5 standard deviations away from the daily mean and filter those values
+        # by averaging the step before and after
+        std = np.nanstd(seapath_closest["Heave Rate [m/s]"])
+        # try to get indices from values which do not pass the filter. If that doesn't work, then there are no values
+        # which don't pass the filter and a ValueError is raised. Write this to a logger
+        try:
+            id_max = np.asarray(np.abs(seapath_closest["Heave Rate [m/s]"]) > 5 * std).nonzero()[0]
+            for j in range(len(id_max)):
+                idc = id_max[j]
+                warnings.warn(f"Heave rate greater 5 * std encountered ({seapath_closest['Heave Rate [m/s]'][idc]}! \n "
+                              f"Using average of step before and after. Index: {idc}", UserWarning)
+                avg_hrate = (seapath_closest["Heave Rate [m/s]"][idc - 1] + seapath_closest["Heave Rate [m/s]"][idc + 1]) / 2
+                if avg_hrate > 5 * std:
+                    warnings.warn(f"Heave Rate value greater than 5 * std encountered ({avg_hrate})! "
+                                  f"Even after averaging step before and after too high value! Index: {idc}",
+                                  UserWarning)
+                seapath_closest["Heave Rate [m/s]"][idc] = avg_hrate
+        except ValueError:
+            logging.info(f"All heave rate values are within 5 standard deviation of the daily mean!")
 
         # add column with chirp number to distinguish in quality control
         seapath_closest["Chirp_no"] = np.repeat(i + 1, len(seapath_closest.index))
@@ -198,6 +211,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     new_vel[moments['VEL']['mask']] = -999
     print(f"Done with heave corrections in {time.time() - start:.2f} seconds")
     return new_vel, heave_corr, seapath_chirptimes, seapath_out
+
 ```
 
 
