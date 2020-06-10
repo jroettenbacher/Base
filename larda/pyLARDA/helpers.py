@@ -7,6 +7,14 @@ import pprint as pp
 import re
 import errno
 import ast
+import traceback
+
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+
 
 def ident(x):
     return x
@@ -69,14 +77,18 @@ def get_converter_array(string, **kwargs):
         return transpose_and_invert, transpose_and_invert
     elif string == 'divideby2':
         return divide_by(2.), ident
+    elif string == 'keepNyquist':
+        return ident, ident
     elif string == 'raw2Z':
         return raw2Z(**kwargs), ident
     elif string == "extract_level0":
-        return lambda x: x[:,0], ident
+        return lambda x: x[:, 0], ident
     elif string == "extract_level1":
-        return lambda x: x[:,1], ident
+        return lambda x: x[:, 1], ident
     elif string == "extract_level2":
-        return lambda x: x[:,2], ident
+        return lambda x: x[:, 2], ident
+    elif string == 'extract_1st':
+        return lambda x: np.array(x[0])[np.newaxis,], ident
     elif string == "none":
         return ident, ident
     else:
@@ -126,15 +138,18 @@ def argnearest(array, value):
     for example time or range axis
 
     Args:
-        array (np.array): sorted array with values
+        array (np.array): sorted array with values, list will be converted to 1D array
         value: value to find
     Returns:
         index  
     """
+    if type(array) == list:
+        array = np.array(array)
     i = np.searchsorted(array, value) - 1
-    if not i == array.shape[0] - 1 \
-            and np.abs(array[i] - value) > np.abs(array[i + 1] - value):
-        i = i + 1
+
+    if not i == array.shape[0] - 1:
+            if np.abs(array[i] - value) > np.abs(array[i + 1] - value):
+                i = i + 1
     return i
 
 
@@ -474,6 +489,8 @@ def change_dir(folder_path, **kwargs):
         folder_path (string): path of folder to switch into
     """
 
+    folder_path = folder_path.replace('//', '/', 1)
+
     if not os.path.exists(os.path.dirname(folder_path)):
         try:
             os.makedirs(os.path.dirname(folder_path))
@@ -482,8 +499,32 @@ def change_dir(folder_path, **kwargs):
                 raise
 
     os.chdir(folder_path)
-    print('\ncd to: ', folder_path)
+    logger.debug(f'\ncd to: {folder_path}')
 
+def make_dir(folder_path):
+    """
+    This routine changes to a folder or creates it (including subfolders) if it does not exist already.
+
+    Args:
+        folder_path (string): path of folder to switch into
+    """
+
+    if not os.path.exists(os.path.dirname(folder_path)):
+        try:
+            os.makedirs(os.path.dirname(folder_path))
+        except OSError as exc:  # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+
+def print_traceback(txt):
+    """
+    Print the traceback to an error to screen.
+    Args:
+        - txt (string): error msg
+    """
+    print(txt)
+    track = traceback.format_exc()
+    print(track)
 
 def smooth(y, box_pts):
     """Smooth a one dimensional array using a rectangular window of box_pts points
