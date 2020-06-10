@@ -161,15 +161,8 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
         # convert timestamps of moments to array
         ts = chirp_timestamps[f"chirp_{i+1}"].values
         id_diff_min = []  # initialize list for indices of the time steps with minimum difference
-        # TODO: Parallelize this for loop if possible, this takes the most time
         for t in ts:
-            # calculate the absolute difference between all seapath time steps and the radar time step
-            abs_diff = np.abs(seapath_ts - t)
-            # minimum difference
-            min_diff = np.min(abs_diff)
-            # find index of minimum difference
-            # use argmax to return only the first index where condition is true
-            id_diff_min.append(np.argmax(abs_diff == min_diff))
+            id_diff_min.append(h.argnearest(seapath_ts, t))
         # select the rows which are closest to the radar time steps
         seapath_closest = seapath.iloc[id_diff_min].copy()
 
@@ -182,7 +175,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
             id_max = np.asarray(np.abs(seapath_closest["Heave Rate [m/s]"]) > 5 * std).nonzero()[0]
             for j in range(len(id_max)):
                 idc = id_max[j]
-                warnings.warn(f"Heave rate greater 5 * std encountered ({seapath_closest['Heave Rate [m/s]'][idc]}! \n "
+                warnings.warn(f"Heave rate greater 5 * std encountered ({seapath_closest['Heave Rate [m/s]'][idc]})! \n "
                               f"Using average of step before and after. Index: {idc}", UserWarning)
                 avg_hrate = (seapath_closest["Heave Rate [m/s]"][idc - 1] + seapath_closest["Heave Rate [m/s]"][idc + 1]) / 2
                 if avg_hrate > 5 * std:
@@ -211,7 +204,6 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     new_vel[moments['VEL']['mask']] = -999
     print(f"Done with heave corrections in {time.time() - start:.2f} seconds")
     return new_vel, heave_corr, seapath_chirptimes, seapath_out
-
 ```
 
 
