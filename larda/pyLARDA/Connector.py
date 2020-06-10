@@ -89,6 +89,8 @@ def setupreader(paraminfo):
     elif paraminfo["ncreader"] == 'mrrpro_spec':
         paraminfo.update({"ncreader": "spec", "compute_velbins":"mrrpro"})
         reader = NcReader.reader(paraminfo)
+    elif paraminfo["ncreader"] == "wyoming_sounding_txt":
+        reader = NcReader.reader_wyoming_sounding(paraminfo)
     else:
         reader = NcReader.reader(paraminfo)
 
@@ -205,7 +207,8 @@ class Connector:
             for root, dirs, files in os.walk(pathinfo['base_dir']):
                 #print(root, dirs, len(files), files[:5], files[-5:] )
                 current_regex = pathinfo['matching_subdirs']
-                abs_filepaths = [root +'/'+ f for f in files if re.search(current_regex, root +'/'+ f)]
+                abs_filepaths = [root + f if (root[-1] == '/') else root + '/' + f for f in files if
+                                 re.search(current_regex, root + '/' + f)]
                 logger.debug("valid_files {} {}".format(root, [f for f in files if re.search(current_regex, root + "/" + f)]))
                 #print("skipped_files {} {}".format(root, [f for f in files if not re.search(current_regex, root + "/" + f)]))
     
@@ -307,6 +310,7 @@ class Connector:
         # [print(e.keys) if e != None else print("NONE!") for e in datalist]
         # reader returns none, if it detects no data prior to begin
         # now these none values are filtered from the list
+        assert len(datalist) > 0, 'No data found for parameter: {}'.format(param)
         datalist = list(filter(lambda x: x != None, datalist))
         #Transf.join(datalist[0], datalist[1])
         data = functools.reduce(Transf.join, datalist)
