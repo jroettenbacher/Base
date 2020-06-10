@@ -24,6 +24,98 @@ import pyLARDA.helpers as h
 from datetime import timedelta
 
 
+
+import numpy as np
+
+@jit(nopython=True, fastmath=True)
+def estimate_noise_hs74_fast(spectrum, navg=1, std_div=6.0, nnoise_min=1):
+    """REFERENCE TO ARM PYART GITHUB REPO: https://github.com/ARM-DOE/pyart/blob/master/pyart/util/hildebrand_sekhon.py
+
+    Estimate noise parameters of a Doppler spectrum.
+    Use the method of estimating the noise level in Doppler spectra outlined
+    by Hildebrand and Sehkon, 1974.
+    Args:
+        spectrum (array): Doppler spectrum in linear units.
+        navg (int, optional):  The number of spectral bins over which a moving average has been
+            taken. Corresponds to the **p** variable from equation 9 of the
+            article. The default value of 1 is appropriate when no moving
+            average has been applied to the spectrum.
+        std_div (float, optional): Number of standard deviations above mean noise floor to specify the
+            signal threshold, default: threshold=mean_noise + 6*std(mean_noise)
+        nnoise_min (int, optional): Minimum number of noise samples to consider the estimation valid.
+
+    Returns:
+        mean (float): Mean of points in the spectrum identified as noise.
+        threshold (float): Threshold separating noise from signal. The point in the spectrum with
+            this value or below should be considered as noise, above this value
+            signal. It is possible that all points in the spectrum are identified
+            as noise. If a peak is required for moment calculation then the point
+            with this value should be considered as signal.
+        var (float): Variance of the points in the spectrum identified as noise.
+        nnoise (int): Number of noise points in the spectrum.
+        signal_flag (bool): True if spectrum contains a signal
+        left_intersec (int): index of intersection of signal and threshold (left side)
+        left_intersec (int): index of intersection of signal and threshold (right side)
+    References
+    ----------
+    P. H. Hildebrand and R. S. Sekhon, Objective Determination of the Noise
+    Level in Doppler Spectra. Journal of Applied Meteorology, 1974, 13,
+    808-811.
+    """
+    sorted_spectrum = np.sort(spectrum)
+    nnoise = len(spectrum)  # default to all points in the spectrum as noise
+    n_spec = nnoise
+
+    rtest = 1+1/navg
+    sum1 = 0.
+    sum2 = 0.
+    for i, pwr in enumerate(sorted_spectrum):
+        npts = i+1
+        if npts < nnoise_min:
+            continue
+
+        sum1 += pwr
+        sum2 += pwr*pwr
+
+        if npts*sum2 < sum1*sum1*rtest:
+            nnoise = npts
+        else:
+            # partial spectrum no longer has characteristics of white noise.
+            sum1 -= pwr
+            sum2 -= pwr*pwr
+            break
+
+    mean = sum1/nnoise
+    var = sum2/nnoise-mean*mean
+
+    threshold = mean + np.sqrt(var) * std_div
+
+    #threshold = sorted_spectrum[nnoise-1]
+
+    # boundaries of major peak only
+    left_intersec = -111
+    right_intersec = -111
+
+    # save only signal if it as more than 2 points above the noise threshold
+    idxMaxSignal = np.argmax(spectrum)
+    signal_flag = True
+
+    for ispec in range(idxMaxSignal, n_spec):
+        if spectrum[ispec] <= threshold:
+            right_intersec = ispec
+            break
+        else:
+            right_intersec = -222  # strong signal till max Nyquist Velocity, maybe folding?
+
+    for ispec in range(idxMaxSignal, -1, -1):
+        if spectrum[ispec] <= threshold:
+            left_intersec = ispec
+            break
+        else:
+            left_intersec = -222  # strong signal till min Nyquist Velocity, maybe folding?
+
+    return mean, threshold, var, nnoise, signal_flag, left_intersec, right_intersec
+
 @jit(nopython=True, fastmath=True)
 def estimate_noise_hs74(spectrum, navg=1.0, std_div=-1.0):
     """
@@ -182,12 +274,13 @@ def noise_estimation(data, **kwargs):
                               'bounds': np.full((n_t, n_r, 2), fill_value=None)})
 
             # gather noise level etc. for all chirps, range gates and times
-            for iR in range(n_r):
-                for iT in range(n_t):
-                    nonoise = any(np.isnan(data[ic]['var'][iT, iR, :]))
+            for iT in range(n_t):
+                # it is ok to check only the first range gate here, because every signal contains at least one value below the noise floor
+                nonoise = any(np.isnan(data[ic]['var'][iT, 0, :]))
+                for iR in range(n_r):
                     if not nonoise:
                         mean, thresh, var, nnoise, signal, left, right = \
-                            estimate_noise_hs74(data[ic]['var'][iT, iR, :], navg=data[ic]['no_av'], std_div=n_std)
+                            estimate_noise_hs74_fast(data[ic]['var'][iT, iR, :], navg=data[ic]['no_av'], std_div=n_std)
 
                         noise_est[ic]['mean'][iT, iR] = mean
                         noise_est[ic]['variance'][iT, iR] = var
@@ -195,6 +288,8 @@ def noise_estimation(data, **kwargs):
                         noise_est[ic]['threshold'][iT, iR] = thresh
                         noise_est[ic]['signal'][iT, iR] = signal
                         noise_est[ic]['bounds'][iT, iR, :] = [left, right]
+                        #data[ic]['var'][iT, iR, data[ic]['var'][iT, iR, :] < thresh] = -999.0
+
 
                     elif main_peak and not nonoise:
 
@@ -311,11 +406,11 @@ def spectra_to_moments_rpgfmcw94(spectrum_container, **kwargs):
     for imom in ['Ze', 'VEL', 'sw', 'skew', 'kurt']:
         moments[imom] = np.ma.masked_invalid(moments[imom])
 
-    # create the mask where invalid values have been encountered
-    moments['mask'][np.where(moments['Ze'] > 0.0)] = False
-
     # mask values <= 0.0
     moments['Ze'] = np.ma.masked_less_equal(moments['Ze'], 0.0)
+
+    # create the mask where invalid values have been encountered
+    moments['mask'][np.where(moments['Ze'] > 0.0)] = False
 
     return moments
 
@@ -379,9 +474,11 @@ def moment_calculation(signal, vel_bins, DoppRes):
     if not signal_sum == 0.0:
         VEL = np.nansum(vel_bins * pwr_nrm)
         vel_diff = vel_bins - VEL
-        sw = np.sqrt(np.abs(np.nansum(pwr_nrm * vel_diff ** 2.0)))
-        skew = np.nansum(pwr_nrm * vel_diff ** 3.0 / sw ** 3.0)
-        kurt = np.nansum(pwr_nrm * vel_diff ** 4.0 / sw ** 4.0)
+        vel_diff2 = vel_diff*vel_diff
+        sw = np.sqrt(np.abs(np.nansum(pwr_nrm * vel_diff2)))
+        sw2 = sw*sw
+        skew = np.nansum(pwr_nrm * vel_diff  * vel_diff2 / (sw * sw2))
+        kurt = np.nansum(pwr_nrm * vel_diff2 * vel_diff2 / (sw2 * sw2))
         VEL = VEL - DoppRes / 2.0
 
     return Ze_lin, VEL, sw, skew, kurt
@@ -505,49 +602,30 @@ def filter_ghost_echos_RPG94GHz_FMCW(data, **kwargs):
 @jit(nopython=True, fastmath=True)
 def despeckle(mask, min_percentage):
     """
-    SPECKLEFILTER
-
-    last modification: Heike Kalesse, April 26, 2017; kalesse@tropos.de
-
-    TBD:
-    - define percentage of neighboring points that have to be 1 in order to keep pxl value as 1 (instead of "hard" number)
-    - what is "C" (in output?)
-
-    functionality:
-        remove small patches (speckle) from any given mask by checking 5x5 box
+    SPECKLEFILTER:
+        Remove small patches (speckle) from any given mask by checking 5x5 box
         around each pixel, more than half of the points in the box need to be 1
         to keep the 1 at current pixel
 
     Args:
-        mask         ... mask where 1 = an invalid/fill value and 0 = a data point [height x time]
-        min_percentage ... number of neighbors of pixel that have to be 1 in order to keep pixel value as 1
-
+        mask (numpy.array, integer): mask where 1 = an invalid/fill value and 0 = a data point [height x time]
+        min_percentage (float): minimum percentage of neighbours that need to be signal above noise
 
     Return:
-        mask2 ... speckle-filtered matrix of 0 and 1 that represents (cloud) mask [height x time]
+        mask ... speckle-filtered matrix of 0 and 1 that represents (cloud) mask [height x time]
 
-    example of a proggi using this function:
-    % % % filter out speckles of liq (this is done later in the Shupe 2007 algorithm)
-    % % nr_neighbors = 15;  % number of neighbors of pixel (in a 5x5 matrix; i.e., 25pxl) that have to be 1 in order to keep pixel value as 1 in "speckleFilter.m" (orig=12)
-    % % [liq_mask,C] = speckleFilter(liq_mask, nr_neighbors);
-    20 neighbors in 5x5 matrix means 80%
     """
 
-    window_size = 5  # 5x5 window
-    n_bins = window_size*window_size
+    WSIZE = 5  # 5x5 window
+    n_bins = WSIZE*WSIZE
     min_bins = int(min_percentage/100 * n_bins)
-    shift = int(window_size / 2)
+    shift = int(WSIZE / 2)
     n_rg, n_ts = mask.shape
 
-    for iR in range(n_rg - window_size):
-        for iT in range(n_ts - window_size):
-            if mask[iR, iT] == 1:
-                # selecting window of 5x5 pixels
-                window = mask[iR:iR + window_size, iT:iT + window_size]
-
-                # if more than n_neighbours pixel in the window are fill values, remove the pixel in the middle
-                if np.sum(window) > min_bins:
-                    mask[iR + shift, iT + shift] = 1
+    for iR in range(n_rg - WSIZE):
+        for iT in range(n_ts - WSIZE):
+            if mask[iR, iT] == 1 and np.sum(mask[iR:iR + WSIZE, iT:iT + WSIZE]) > min_bins:
+                mask[iR + shift, iT + shift] = 1
 
     return mask
 
@@ -628,7 +706,7 @@ def make_container_from_spectra(spectra_all_chirps, values, paraminfo, invalid_m
     return container
 
 
-def build_extended_container(larda, spectra_ch, begin_dt, end_dt, **kwargs):
+def build_extended_container(larda, spectra_ch, time_span, **kwargs):
     """
     This routine will generate a list of larda containers including spectra of the RPG-FMCW 94GHz radar.
     The list-container at return will contain the additional information, for each chirp:
@@ -641,8 +719,7 @@ def build_extended_container(larda, spectra_ch, begin_dt, end_dt, **kwargs):
     Args:
         larda (class larda): Initialized pyLARDA, already connected to a specific campaign
         spectra_ch (string): variable name of the spectra to load (in general either "VSpec" or "HSpec")
-        begin_dt (datetime): Starting time point.
-        end_dt (datetime): End time point.
+        time_span (list): Starting and ending time point in datetime format.
 
     Kwargs:
         **noise_factor (float): Noise factor, number of standard deviations from mean noise floor
@@ -665,14 +742,14 @@ def build_extended_container(larda, spectra_ch, begin_dt, end_dt, **kwargs):
     despeckle3d_perc     = kwargs['do_despeckle3d']      if 'do_despeckle3d'  in kwargs else 80.
     estimate_noise       = kwargs['estimate_noise']      if 'estimate_noise'  in kwargs else False
 
-    AvgNum_in  = larda.read("LIMRAD94", "AvgNum", [begin_dt, end_dt])
-    DoppLen_in = larda.read("LIMRAD94", "DoppLen", [begin_dt, end_dt])
-    MaxVel_in  = larda.read("LIMRAD94", "MaxVel", [begin_dt, end_dt])
+    AvgNum_in  = larda.read("LIMRAD94", "AvgNum", time_span)
+    DoppLen_in = larda.read("LIMRAD94", "DoppLen", time_span)
+    MaxVel_in  = larda.read("LIMRAD94", "MaxVel", time_span)
 
     if spectra_ch[0] == 'H':
-        SensitivityLimit = larda.read("LIMRAD94", "SLh", [begin_dt, end_dt], [0, 'max'])
+        SensitivityLimit = larda.read("LIMRAD94", "SLh", time_span, [0, 'max'])
     else:
-        SensitivityLimit = larda.read("LIMRAD94", "SLv", [begin_dt, end_dt], [0, 'max'])
+        SensitivityLimit = larda.read("LIMRAD94", "SLv", time_span, [0, 'max'])
 
     # depending on how much files are loaded, AvgNum and DoppLen are multidimensional list
     if len(AvgNum_in['var'].shape) > 1:
@@ -694,14 +771,14 @@ def build_extended_container(larda, spectra_ch, begin_dt, end_dt, **kwargs):
     for ic in range(len(AvgNum)):
         tstart = time.time()
         var_string = f'C{ic + 1}{spectra_ch}'
-        spec.append(larda.read("LIMRAD94", var_string, [begin_dt, end_dt], [0, 'max']))
+        spec.append(larda.read("LIMRAD94", var_string, time_span, [0, 'max']))
         ic_n_ts, ic_n_rg, ic_n_nfft = spec[ic]['var'].shape
         rg_offsets.append(rg_offsets[ic] + ic_n_rg)
         spec[ic].update({'no_av': np.divide(AvgNum[ic], DoppLen[ic]),
                          'DoppRes': DoppRes[ic],
                          'SL': SensitivityLimit['var'][:, rg_offsets[ic]:rg_offsets[ic + 1]],
                          'NF': std_above_mean_noise})
-        print(f'reading C{ic+1}{spectra_ch}, elapsed time = {time.time() - tstart:.3f} sec.')
+        print(f'reading C{ic+1}{spectra_ch}, elapsed time = {timedelta(seconds=int(time.time() - tstart))} [hrs:min:sec].')
 
     for ic in range(len(AvgNum)):
         spec[ic]['rg_offsets'] = rg_offsets
@@ -746,14 +823,11 @@ def build_extended_container(larda, spectra_ch, begin_dt, end_dt, **kwargs):
         #       -   noise_est[ichirp]['numnoise']    [Nchirps][ntime, nrange]
         #       -   noise_est[ichirp]['signal']      [Nchirps][ntime, nrange]
         #       -   noise_est[ichirp]['bounds']      [Nchirps][ntime, nrange, 2]
-        noise_est = noise_estimation(spec, n_std_deviations=spec[0]['NF'],
-                                     include_noise=include_noise,
-                                     main_peak=main_peak)
+        noise_est = noise_estimation(spec, n_std_deviations=spec[0]['NF'], include_noise=include_noise, main_peak=main_peak)
 
         # save noise estimation (mean noise, noise threshold to spectra dict
         for iC in range(len(spec)):
-            for key in noise_est[iC].keys():
-                spec[iC].update({key: noise_est[iC][key].copy()})
+            spec[iC].update({key: noise_est[iC][key].copy() for key in noise_est[iC].keys()})
 
     return spec
 
@@ -803,17 +877,14 @@ def spectra2moments(Z_spec, paraminfo, **kwargs):
         new_mask = despeckle(invalid_mask.copy() * 1, 80.)
         invalid_mask[new_mask == 1] = True
 
-        for mom in ['Ze', 'VEL', 'sw', 'skew', 'kurt']:
-            moments[mom][invalid_mask] = -999.0
+    for mom in ['Ze', 'VEL', 'sw', 'skew', 'kurt']:
+        moments[mom][invalid_mask] = -999.0
 
         print('despeckle done, elapsed time = {:.3f} sec.'.format(time.time() - tstart))
 
     ####################################################################################################################
     #
     # build larda containers from calculated moments
-    container_dict = {}
-    for mom in ['Ze', 'VEL', 'sw', 'skew', 'kurt']:
-        container_dict.update({mom: make_container_from_spectra(Z_spec, moments[mom].T,
-                                                                paraminfo[mom], invalid_mask.T)})
+    container_dict = {mom: make_container_from_spectra(Z_spec, moments[mom].T, paraminfo[mom], invalid_mask.T) for mom in ['Ze', 'VEL', 'sw', 'skew', 'kurt']}
 
     return container_dict
