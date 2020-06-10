@@ -28,18 +28,21 @@ def get_time_slicer(ts, f, time_interval):
     # setup slice to load base on time_interval
     # it_b = h.argnearest(ts, h.dt_to_ts(time_interval[0]))
     # select first timestamp right of begin (not left if nearer as above)
-    it_b = np.searchsorted(ts, h.dt_to_ts(time_interval[0]), side='right')
+    it_b = 0 if ts.shape[0] == 1 else np.searchsorted(ts, h.dt_to_ts(time_interval[0]), side='right')
     if len(time_interval) == 2:
         it_e = h.argnearest(ts, h.dt_to_ts(time_interval[1]))
+
         if it_b == ts.shape[0]: it_b = it_b - 1
-        if ts[it_e] < h.dt_to_ts(time_interval[0]) - 3 * np.median(np.diff(ts)) \
+        valid_step =  3 * np.median(np.diff(ts))
+        if ts[it_e] < h.dt_to_ts(time_interval[0]) - valid_step \
                 or ts[it_b] < h.dt_to_ts(time_interval[0]):
             # second condition is to ensure that no timestamp before
             # the selected interval is choosen
             # (problem with limrad after change of sampling frequency)
-            logger.warning(
-                'found last profile of file {}\n at ts[it_e] {} too far from {}'.format(
-                    f, h.ts_to_dt(ts[it_e]), time_interval[0]))
+            str = 'found last profile of file {}\n at ts[it_e] {} too far ({}s) from {}\n'.format(
+                    f, h.ts_to_dt(ts[it_e]), valid_step, time_interval[0]) \
+                 + 'or begin too early {} < {}\n returning None'.format(h.ts_to_dt(ts[it_b]), time_interval[0])
+            logger.warning(str)
             return None
 
         it_e = it_e + 1 if not it_e == ts.shape[0] - 1 else None
@@ -64,6 +67,7 @@ def get_var_attr_from_nc(name, paraminfo, variable):
             attr = variable.getncattr(paraminfo[name])
         except Exception as e:
             print('Error extracting paraminfo of variable ' + str(name))
+            print('Check spelling in .toml file or remove from .toml')
             print('Exception :: ', e)
     else:
         attr = paraminfo[name.replace("identifier_", "")]
@@ -245,6 +249,18 @@ def reader(paraminfo):
                 data['var'] = varconverter(var[tuple(slicer)].data)
                 #if paraminfo['compute_velbins'] == "mrrpro":
                 #    data['var'] = data['var'] * wl** 4 / (np.pi** 5) / 0.93 * 10**6
+
+            if "identifier_fill_value" in paraminfo.keys() and not "fill_value" in paraminfo.keys():
+                fill_value = var.getncattr(paraminfo['identifier_fill_value'])
+                mask = (data['var'] == fill_value)
+            elif "fill_value" in paraminfo.keys():
+                fill_value = paraminfo['fill_value']
+                mask = np.isclose(data['var'], fill_value)
+            else:
+                mask = ~np.isfinite(data['var'])
+
+            data['mask'] = mask
+
 
             if paraminfo['ncreader'] == "pollynet_profile":
                 data['var'] = data['var'][np.newaxis, :]
@@ -569,11 +585,24 @@ def specreader_rpgfmcw(paraminfo):
             else:
                 raise NotImplemented("other means of getting the var dimension are not implemented yet")
             data['vel'] = vel_per_chirp[0]
-            # interpolate the variables here
 
-            vars_interp = [vars_per_chirp[0]] + \
-                          [interp_only_3rd_dim(var, vel, vel_per_chirp[0]) \
-                           for var, vel in zip(vars_per_chirp[1:], vel_per_chirp[1:])]
+            # interpolate the variables here
+            if 'var_conversion' in paraminfo and paraminfo['var_conversion'] == 'keepNyquist':
+                # the interpolation is only done for the number of spectral lines, not the velocity itself
+                quot = [i/vel_dim_per_chirp[0] for i in vel_dim_per_chirp[1:]]
+                vars_interp = [vars_per_chirp[0]]
+                ich = 1
+                for var, vel in zip(vars_per_chirp[1:], vel_per_chirp[1:]):
+                    data[f'vel_ch{ich+1}'] = vel_per_chirp[ich]
+                    new_vel = np.linspace(vel[0], vel[-1], vel_dim_per_chirp[0])
+                    vars_interp.append(interp_only_3rd_dim(var[:] * quot[ich-1], vel, new_vel, kind='nearest'))
+                    ich += 1
+            else:
+                vars_interp = [vars_per_chirp[0]] + \
+                              [interp_only_3rd_dim(var, vel, vel_per_chirp[0]) \
+                               for var, vel in zip(vars_per_chirp[1:], vel_per_chirp[1:])]
+
+
             var = np.hstack([v[:] for v in vars_interp])
             logger.debug('interpolated spectra from\n{}\n{} to\n{}'.format(
                 [v[:].shape for v in vars_per_chirp],
@@ -719,16 +748,19 @@ def scanreader_mira(paraminfo):
     return retfunc
 
 
-def interp_only_3rd_dim(arr, old, new):
+def interp_only_3rd_dim(arr, old, new, **kwargs):
     """function to interpolate only the velocity (3rd) axis"""
 
     from scipy import interpolate
 
+    kind_ = kwargs['kind'] if 'kind' in kwargs else 'linear'
+
     f = interpolate.interp1d(old, arr, axis=2,
-                             bounds_error=False, fill_value=-999.)
+                             bounds_error=False, fill_value=-999., kind=kind_)
     new_arr = f(new)
 
     return new_arr
+
 
 def specreader_kazr(paraminfo):
     """build a function for reading in spectral data
@@ -954,6 +986,63 @@ def reader_pollyraw(paraminfo):
             data['var'] = varconverter(var[tuple(slicer)].data)
             data['mask'] = maskconverter(mask)
 
+            return data
+
+    return retfunc
+
+
+def reader_wyoming_sounding(paraminfo):
+    """
+    build a reader to read in Wyoming Upper Air soundings, saved locally as a txt file
+    Args:
+        paraminfo: parameter information from toml file
+
+    Returns:
+        reader function
+
+    """
+    def retfunc(f, time_interval, *further_intervals):
+        """
+        function that converts the txt file to larda data container
+        Args:
+            f:
+            time_interval:
+
+        Returns:
+            larda data container with sounding data
+        """
+        import csv
+        import datetime
+        logger.debug("filename at reader {}".format(f))
+        with open(f) as f:
+            reader = csv.reader(f, delimiter='\t')
+            headers = next(reader, None)
+            var_index = [i for i,j in enumerate(headers) if j == paraminfo['variable_name']]
+            assert(len(var_index) == 1), "mismatch between headers in file and variable name in toml"
+            rg_index = [i for i,j in enumerate(headers) if j == paraminfo['range_variable']]
+            assert(len(rg_index) == 1), "mismatch between headers in file and range variable name in toml"
+            data = {}
+            data['dimlabel'] = ['time', 'range']
+            data['ts'] = np.array([h.dt_to_ts(datetime.datetime.strptime(f.name.split('/')[-1][0:11], '%Y%m%d_%H'))])
+            data['var'] = []
+            data['rg'] = []
+            for row in reader:
+                try:
+                    data['var'].append(float(row[var_index[0]]))
+                except ValueError:  # empty line cannot be converted to float
+                    data['var'].append(np.nan)
+                data['rg'].append(float(row[rg_index[0]]))
+            data['var'] = np.array(data['var'])[np.newaxis,:]
+            data['rg'] = np.array(data['rg'])
+            data['mask'] = np.isnan(data['var'])
+            data['name'] = paraminfo['paramkey']
+            data['system'] = paraminfo['system']
+            data['var_lims'] = paraminfo['var_lims']
+            data['colormap'] = 'jet' if not 'colormap' in paraminfo else paraminfo['colormap']
+            data['rg_unit'] = paraminfo['rg_unit']
+            data['var_unit'] = paraminfo['var_unit']
+            data['paraminfo'] = paraminfo
+            data['filename'] = f.name
             return data
 
     return retfunc
