@@ -358,15 +358,8 @@ def calc_heave_corr(container, date, path_to_seapath="/projekt2/remsens/data/cam
         # convert timestamps of container to array
         ts = chirp_timestamps[f"chirp_{i+1}"].values
         id_diff_min = []  # initialize list for indices of the time steps with minimum difference
-        # TODO: Parallelize this for loop if possible, this takes the most time
         for t in ts:
-            # calculate the absolute difference between all seapath time steps and the radar time step
-            abs_diff = np.abs(seapath_ts - t)
-            # minimum difference
-            min_diff = np.min(abs_diff)
-            # find index of minimum difference
-            # use argmax to return only the first index where condition is true
-            id_diff_min.append(np.argmax(abs_diff == min_diff))
+            id_diff_min.append(h.argnearest(seapath_ts, t))
         # select the rows which are closest to the radar time steps
         seapath_closest = seapath.iloc[id_diff_min].copy()
 
