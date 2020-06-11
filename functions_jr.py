@@ -101,7 +101,8 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
 
     Args:
-        moments: LIMRAD94 moments container as returned by spectra2moments in spec2mom_limrad94.py, C1/2/3_Range
+        moments: LIMRAD94 moments container as returned by spectra2moments in spec2mom_limrad94.py, C1/2/3_Range,
+                 SeqIntTime from LV1 file
         date (datetime.datetime): object with date of current file
         path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
         only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
@@ -170,8 +171,8 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     chirp_durations = pd.DataFrame({"Chirp_No": (1, 2, 3), "tradewindCU": (1.022, 0.947, 0.966),
                                     "Doppler1s": (0.239, 0.342, 0.480), "Cu_small_Tint": (0.225, 0.135, 0.181),
                                     "Cu_small_Tint2": (0.563, 0.573, 0.453)})
-    # calculate end of each chirp by subtracting the duration of the later chirp(s) + half the time of the chirp itself
-    # the timestamp then corresponds to the middle of the chirp
+    # calculate start time of each chirp by subtracting the duration of the later chirp(s) + the chirp itself
+    # the timestamp then corresponds to the start of the chirp
     # select chirp durations according to date
     if date < dt.datetime(2020, 1, 29, 18, 0, 0):
         chirp_dur = chirp_durations["tradewindCU"]
@@ -182,9 +183,9 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     else:
         chirp_dur = chirp_durations["Cu_small_Tint2"]
     chirp_timestamps = pd.DataFrame()
-    chirp_timestamps["chirp_1"] = moments['VEL']["ts"] - (chirp_dur[0] / 2) - chirp_dur[1] - chirp_dur[2]
-    chirp_timestamps["chirp_2"] = moments['VEL']["ts"] - (chirp_dur[1] / 2) - chirp_dur[2]
-    chirp_timestamps["chirp_3"] = moments['VEL']["ts"] - (chirp_dur[2] / 2)
+    chirp_timestamps["chirp_1"] = moments['VEL']["ts"] - chirp_dur[0] - chirp_dur[1] - chirp_dur[2]
+    chirp_timestamps["chirp_2"] = moments['VEL']["ts"] - chirp_dur[1] - chirp_dur[2]
+    chirp_timestamps["chirp_3"] = moments['VEL']["ts"] - chirp_dur[2]
 
     # list with range bin numbers of chirp borders
     no_chirps = len(chirp_dur)
@@ -204,15 +205,26 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     seapath_out = pd.DataFrame()
     for i in range(no_chirps):
         t1 = time.time()
+        # get integration time for chirp
+        int_time = pd.Timedelta(seconds=moments['SeqIntTime']['var'][0][i])
         # select only velocities from one chirp
         var = moments['VEL']['var'][:, range_bins[i]:range_bins[i+1]]
         # convert timestamps of moments to array
         ts = chirp_timestamps[f"chirp_{i+1}"].values
-        id_diff_min = []  # initialize list for indices of the time steps with minimum difference
+        id_diff_mins = []  # initialize list for indices of the time steps with minimum difference
+        dfs = []  # initialize list for means over integration time for each radar time step
         for t in ts:
-            id_diff_min.append(h.argnearest(seapath_ts, t))
-        # select the rows which are closest to the radar time steps
-        seapath_closest = seapath.iloc[id_diff_min].copy()
+            id_diff_min = h.argnearest(seapath_ts, t)  # find index of nearest seapath time step to radar time step
+            id_diff_mins.append(id_diff_min)
+            # get time stamp of closest index
+            ts_diff = seapath.index[id_diff_min]
+            # select rows from closest time stamp to end of integration time and average, append to list
+            dfs.append(seapath[ts_diff:ts_diff+int_time].mean())
+
+        # concatinate all means into one dataframe with the original header (transpose)
+        seapath_closest = pd.concat(dfs, axis=1).T
+        # add index with closest seapath time step to radar time step
+        seapath_closest.index = seapath.index[id_diff_mins]
 
         # check if heave rate is greater than 5 standard deviations away from the daily mean and filter those values
         # by averaging the step before and after
@@ -408,7 +420,7 @@ if __name__ == '__main__':
     plot_range = [0, 'max']
     mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
     moments = {"VEL": mdv}
-    for var in ['C1Range', 'C2Range', 'C3Range']:
+    for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime']:
         print('loading variable from LV1 :: ' + var)
         moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
     new_vel, heave_corr, seapath_chirptimes, seapath_out = heave_correction(moments, begin_dt)
