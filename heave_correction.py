@@ -23,7 +23,7 @@ end_dt = dt.datetime(2020, 1, 28, 23, 59, 55)
 plot_range = [0, 'max']
 mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
 moments = {"VEL": mdv}
-for var in ['C1Range', 'C2Range', 'C3Range']:
+for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime']:
     print('loading variable from LV1 :: ' + var)
     moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
 new_vel, heave_corr, seapath_chirptimes, seapath_out = jr.heave_correction(moments, begin_dt)
