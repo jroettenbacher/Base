@@ -48,10 +48,11 @@ plot_path = "/projekt1/remsens/work/jroettenbacher/plots/heave_correction"
 plot_range = [0, 3000]
 begin_dt_zoom = dt.datetime(2020, 1, 28, 17, 12, 0)
 end_dt_zoom = dt.datetime(2020, 1, 28, 17, 22, 0)
+name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR'
+name_zoom = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR'
 mdv['var_lims'] = [-7, 7]
 # uncorrected MDV
 fig, _ = pyLARDA.Transformations.plot_timeheight(mdv, rg_converter=False, title=True, range_interval=plot_range)
-name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
 fig_name = name + '_MDV_uncorrected.png'
 fig.savefig(fig_name, dpi=250)
 plt.close()
@@ -61,8 +62,7 @@ print(f'figure saved :: {fig_name}')
 fig, _ = pyLARDA.Transformations.plot_timeheight(mdv, rg_converter=False, title=True,
                                                  time_interval=[begin_dt_zoom, end_dt_zoom],
                                                  range_interval=plot_range)
-name = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
-fig_name = name + '_MDV_uncorrected.png'
+fig_name = name_zoom + '_MDV_uncorrected.png'
 fig.savefig(fig_name, dpi=250)
 plt.close()
 print(f'figure saved :: {fig_name}')
@@ -71,7 +71,6 @@ Vel_cor = moments['Vel_cor']
 Vel_cor['var_lims'] = [-7, 7]
 # corrected MDV
 fig, _ = pyLARDA.Transformations.plot_timeheight(Vel_cor, rg_converter=False, title=True, range_interval=plot_range)
-name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
 fig_name = name + '_MDV_corrected.png'
 fig.savefig(fig_name, dpi=250)
 plt.close()
@@ -80,8 +79,7 @@ print(f'figure saved :: {fig_name}')
 # corrected MDV zoom
 fig, _ = pyLARDA.Transformations.plot_timeheight(Vel_cor, rg_converter=False, title=True, range_interval=plot_range,
                                                  time_interval=[begin_dt_zoom, end_dt_zoom])
-name = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
-fig_name = name + '_MDV_corrected.png'
+fig_name = name_zoom + '_MDV_corrected.png'
 fig.savefig(fig_name, dpi=250)
 plt.close()
 print(f'figure saved :: {fig_name}')
@@ -90,7 +88,6 @@ cor_meas = moments['Vel_cor-Vel']
 cor_meas['var_lims'] = [-1, 1]
 # corrected MDV - measured MDV
 fig, _ = pyLARDA.Transformations.plot_timeheight(cor_meas, rg_converter=False, title=True, range_interval=plot_range)
-name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
 fig_name = name + '_MDV_corrected-measured.png'
 fig.savefig(fig_name, dpi=250)
 plt.close()
@@ -99,8 +96,7 @@ print(f'figure saved :: {fig_name}')
 # corrected MDV - measured MDV zoom
 fig, _ = pyLARDA.Transformations.plot_timeheight(cor_meas, rg_converter=False, title=True, range_interval=plot_range,
                                                  time_interval=[begin_dt_zoom, end_dt_zoom])
-name = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
-fig_name = name + '_MDV_corrected-measured.png'
+fig_name = name_zoom + '_MDV_corrected-measured.png'
 fig.savefig(fig_name, dpi=250)
 plt.close()
 print(f'figure saved :: {fig_name}')
@@ -109,7 +105,6 @@ meas_cor = moments['Vel-Vel_cor']
 meas_cor['var_lims'] = [-1, 1]
 # measured MDV - corrected MDV
 fig, _ = pyLARDA.Transformations.plot_timeheight(meas_cor, rg_converter=False, title=True, range_interval=plot_range)
-name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
 fig_name = name + '_MDV_measured-corrected.png'
 fig.savefig(fig_name, dpi=250)
 plt.close()
@@ -118,8 +113,7 @@ print(f'figure saved :: {fig_name}')
 # measured MDV - corrected MDV zoom
 fig, _ = pyLARDA.Transformations.plot_timeheight(meas_cor, rg_converter=False, title=True, range_interval=plot_range,
                                                  time_interval=[begin_dt_zoom, end_dt_zoom])
-name = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
-fig_name = name + '_MDV_measured-corrected.png'
+fig_name = name_zoom + '_MDV_measured-corrected.png'
 fig.savefig(fig_name, dpi=250)
 plt.close()
 print(f'figure saved :: {fig_name}')
@@ -128,7 +122,6 @@ heave_corr = moments["heave_corr"]
 heave_corr['var_lims'] = [-1, 1]
 # heave correction
 fig, _ = pyLARDA.Transformations.plot_timeheight(heave_corr, rg_converter=False, title=True, range_interval=plot_range)
-name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
 fig_name = name + '_heave_correction.png'
 fig.savefig(fig_name, dpi=250)
 plt.close()
@@ -137,8 +130,7 @@ print(f'figure saved :: {fig_name}')
 # heave correction zoom
 fig, _ = pyLARDA.Transformations.plot_timeheight(heave_corr, rg_converter=False, title=True, range_interval=plot_range,
                                                  time_interval=[begin_dt_zoom, end_dt_zoom])
-name = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input'
-fig_name = name + '_heave_correction.png'
+fig_name = name_zoom + '_heave_correction.png'
 fig.savefig(fig_name, dpi=250)
 plt.close()
 print(f'figure saved :: {fig_name}')
