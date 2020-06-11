@@ -18,8 +18,8 @@ import pandas as pd
 
 # run heave correction on cloudnet input file
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
-begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
-end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
+begin_dt = dt.datetime(2020, 1, 28, 0, 0, 5)
+end_dt = dt.datetime(2020, 1, 28, 23, 59, 55)
 plot_range = [0, 'max']
 mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
 moments = {"VEL": mdv}
@@ -46,8 +46,8 @@ print("Done with heave correction")
 ########################################################################################################################
 plot_path = "/projekt1/remsens/work/jroettenbacher/plots/heave_correction"
 plot_range = [0, 3000]
-begin_dt_zoom = dt.datetime(2020, 2, 5, 9, 15, 0)
-end_dt_zoom = dt.datetime(2020, 2, 5, 9, 45, 0)
+begin_dt_zoom = dt.datetime(2020, 1, 28, 17, 12, 0)
+end_dt_zoom = dt.datetime(2020, 1, 28, 17, 22, 0)
 mdv['var_lims'] = [-7, 7]
 # uncorrected MDV
 fig, _ = pyLARDA.Transformations.plot_timeheight(mdv, rg_converter=False, title=True, range_interval=plot_range)
