@@ -96,50 +96,48 @@ def find_bases_tops(mask, rg_list):
     return cloud_prop, cloud_mask
 
 
-def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP",
-                     only_heave=False):
-    """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
-
+def read_seapath(date, path="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP"):
+    """
+    Read in Seapath measurements from RV Meteor from .dat files to a pandas.DataFrame
     Args:
-        moments: LIMRAD94 moments container as returned by spectra2moments in spec2mom_limrad94.py, C1/2/3_Range,
-                 SeqIntTime from LV1 file
         date (datetime.datetime): object with date of current file
-        path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
-        only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
+        path (str): path to seapath files
 
     Returns:
-        new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"]
-        heave_corr (ndarray): heave rate closest to each radar timestep for each height bin, same shape as
-        moments["VEL"]["var"]
-        seapath_chirptimes (pd.DataFrame): data frame with a column for each Chirp, containing the timestamps of the
-        corresponding heave rate
-        seapath_out (pd.DataFrame): data frame with all heave information from the closest time steps to the chirps
+        seapath (DataFrame): DataFrame with Seapath measurements
 
     """
-    # position of radar in relation to Measurement Reference Unit (Seapath) of RV-Meteor in meters
-    x_radar = -11
-    y_radar = 4.07
-    ####################################################################################################################
-    # Data Read in
-    ####################################################################################################################
-    start = time.time()
-    print(f"Starting heave correction for {date:%Y-%m-%d}")
-    ####################################################################################################################
     # Seapath attitude and heave data 1 or 10 Hz, choose file depending on date
+    start = time.time()
     if date < dt.datetime(2020, 1, 27):
         file = f"{date:%Y%m%d}_DSHIP_seapath_1Hz.dat"
     else:
         file = f"{date:%Y%m%d}_DSHIP_seapath_10Hz.dat"
-    seapath = pd.read_csv(f"{path_to_seapath}/{file}", encoding='windows-1252', sep="\t", skiprows=(1, 2),
+    # set encoding and seperator, skip the rows with the unit and type of measurement
+    seapath = pd.read_csv(f"{path}/{file}", encoding='windows-1252', sep="\t", skiprows=(1, 2),
                           index_col='date time')
+    # transform index to datetime
     seapath.index = pd.to_datetime(seapath.index, infer_datetime_format=True)
     seapath.index.name = 'datetime'
-    seapath.columns = ['Heading [°]', 'Heave [m]', 'Pitch [°]', 'Roll [°]']
+    seapath.columns = ['Heading [°]', 'Heave [m]', 'Pitch [°]', 'Roll [°]']  # rename columns
     print(f"Done reading in Seapath data in {time.time() - start:.2f} seconds")
+    return seapath
 
-    ####################################################################################################################
-    # Calculating Heave Rate
-    ####################################################################################################################
+
+def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, only_heave=False):
+    """
+    Calculate heave rate at a certain location of a ship with the measurements of the INS
+    Args:
+        seapath (pd.DataFrame): Data frame with heading, roll, pitch and heave as columns
+        x_radar (float): x position of location with respect to INS in meters
+        y_radar (float): y position of location with respect to INS in meters
+        only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
+
+    Returns:
+        seapath (pd.DataFrame): Data frame as input with additional columns radar_heave, pitch_heave, roll_heave and
+                                "Heave Rate [m/s]"
+
+    """
     t1 = time.time()
     print("Calculating Heave Rate...")
     # sum up heave, pitch induced and roll induced heave
@@ -162,6 +160,40 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     heave_rate = pd.DataFrame({'Heave Rate [m/s]': heave_rate}, index=seapath.index[1:])
     seapath = seapath.join(heave_rate)
     print(f"Done with heave rate calculation in {time.time() - t1:.2f} seconds")
+    return seapath
+
+
+def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP",
+                     only_heave=False):
+    """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
+
+    Args:
+        moments: LIMRAD94 moments container as returned by spectra2moments in spec2mom_limrad94.py, C1/2/3_Range,
+                 SeqIntTime from LV1 file
+        date (datetime.datetime): object with date of current file
+        path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
+        only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
+
+    Returns:
+        new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"]
+        heave_corr (ndarray): heave rate closest to each radar timestep for each height bin, same shape as
+        moments["VEL"]["var"]
+        seapath_chirptimes (pd.DataFrame): data frame with a column for each Chirp, containing the timestamps of the
+        corresponding heave rate
+        seapath_out (pd.DataFrame): data frame with all heave information from the closest time steps to the chirps
+
+    """
+    ####################################################################################################################
+    # Data Read in
+    ####################################################################################################################
+    start = time.time()
+    print(f"Starting heave correction for {date:%Y-%m-%d}")
+    seapath = read_seapath(date, path_to_seapath)
+
+    ####################################################################################################################
+    # Calculating Heave Rate
+    ####################################################################################################################
+    seapath = calc_heave_rate(seapath, only_heave=only_heave)
 
     ####################################################################################################################
     # Calculating Timestamps for each chirp and add closest heave rate to corresponding Doppler velocity
