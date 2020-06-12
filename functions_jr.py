@@ -113,7 +113,7 @@ def read_seapath(date, path="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_
         file = f"{date:%Y%m%d}_DSHIP_seapath_1Hz.dat"
     else:
         file = f"{date:%Y%m%d}_DSHIP_seapath_10Hz.dat"
-    # set encoding and seperator, skip the rows with the unit and type of measurement
+    # set encoding and separator, skip the rows with the unit and type of measurement
     seapath = pd.read_csv(f"{path}/{file}", encoding='windows-1252', sep="\t", skiprows=(1, 2),
                           index_col='date time')
     # transform index to datetime
@@ -124,7 +124,7 @@ def read_seapath(date, path="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_
     return seapath
 
 
-def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, only_heave=False):
+def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, only_heave=False, use_cross_product=False):
     """
     Calculate heave rate at a certain location of a ship with the measurements of the INS
     Args:
@@ -132,6 +132,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, only_heave=False):
         x_radar (float): x position of location with respect to INS in meters
         y_radar (float): y position of location with respect to INS in meters
         only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
+        use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
 
     Returns:
         seapath (pd.DataFrame): Data frame as input with additional columns radar_heave, pitch_heave, roll_heave and
@@ -144,11 +145,16 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, only_heave=False):
     pitch = np.deg2rad(seapath["Pitch [°]"])
     roll = np.deg2rad(seapath["Roll [°]"])
     if not only_heave:
-        pitch_heave = x_radar * np.tan(pitch)
-        roll_heave = y_radar * np.tan(roll)
+        if not use_cross_product:
+            pitch_heave = x_radar * np.tan(pitch)
+            roll_heave = y_radar * np.tan(roll)
+        elif use_cross_product:
+            pitch_heave = pitch * y_radar
+            roll_heave = - roll * x_radar
     else:
         pitch_heave = 0
         roll_heave = 0
+
     seapath["radar_heave"] = seapath["Heave [m]"] + pitch_heave + roll_heave
     # add pitch and roll induced heave to data frame to include in output for quality checking
     seapath["pitch_heave"] = pitch_heave
@@ -164,7 +170,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, only_heave=False):
 
 
 def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP",
-                     only_heave=False):
+                     only_heave=False, use_cross_product=False):
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
 
     Args:
@@ -173,6 +179,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
         date (datetime.datetime): object with date of current file
         path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
         only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
+        use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
 
     Returns:
         new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"]
@@ -193,7 +200,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     ####################################################################################################################
     # Calculating Heave Rate
     ####################################################################################################################
-    seapath = calc_heave_rate(seapath, only_heave=only_heave)
+    seapath = calc_heave_rate(seapath, only_heave=only_heave, use_cross_product=use_cross_product)
 
     ####################################################################################################################
     # Calculating Timestamps for each chirp and add closest heave rate to corresponding Doppler velocity
