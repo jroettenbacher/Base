@@ -312,52 +312,17 @@ def calc_heave_corr(container, date, path_to_seapath="/projekt2/remsens/data/cam
         heave_corr (ndarray): heave rate closest to each radar timestep for each height bin, time x range
 
     """
-    # position of radar in relation to Measurement Reference Unit (Seapath) of RV-Meteor in meters
-    x_radar = -11
-    y_radar = 4.07
     ####################################################################################################################
     # Data Read in
     ####################################################################################################################
     start = time.time()
     print(f"Starting heave correction for {date:%Y-%m-%d}")
-    ####################################################################################################################
-    # Seapath attitude and heave data 1 or 10 Hz, choose file depending on date
-    if date < dt.datetime(2020, 1, 27):
-        file = f"{date:%Y%m%d}_DSHIP_seapath_1Hz.dat"
-    else:
-        file = f"{date:%Y%m%d}_DSHIP_seapath_10Hz.dat"
-    seapath = pd.read_csv(f"{path_to_seapath}/{file}", encoding='windows-1252', sep="\t", skiprows=(1, 2),
-                          index_col='date time')
-    seapath.index = pd.to_datetime(seapath.index, infer_datetime_format=True)
-    seapath.index.name = 'datetime'
-    seapath.columns = ['Heading [°]', 'Heave [m]', 'Pitch [°]', 'Roll [°]']
-    print(f"Done reading in Seapath data in {time.time() - start:.2f} seconds")
+    seapath = read_seapath(date, path_to_seapath)
 
     ####################################################################################################################
     # Calculating Heave Rate
     ####################################################################################################################
-    t1 = time.time()
-    print("Calculating Heave Rate...")
-    # sum up heave, pitch induced and roll induced heave
-    pitch = np.deg2rad(seapath["Pitch [°]"])
-    roll = np.deg2rad(seapath["Roll [°]"])
-    if not only_heave:
-        pitch_heave = x_radar * np.tan(pitch)
-        roll_heave = y_radar * np.tan(roll)
-    else:
-        pitch_heave = 0
-        roll_heave = 0
-    seapath["radar_heave"] = seapath["Heave [m]"] + pitch_heave + roll_heave
-    # add pitch and roll induced heave to data frame to include in output for quality checking
-    seapath["pitch_heave"] = pitch_heave
-    seapath["roll_heave"] = roll_heave
-    # ediff1d calculates the difference between consecutive elements of an array
-    # heave difference / time difference = heave rate
-    heave_rate = np.ediff1d(seapath["radar_heave"]) / np.ediff1d(seapath.index).astype('float64') * 1e9
-    # the first calculated heave rate corresponds to the second time step
-    heave_rate = pd.DataFrame({'Heave Rate [m/s]': heave_rate}, index=seapath.index[1:])
-    seapath = seapath.join(heave_rate)
-    print(f"Done with heave rate calculation in {time.time() - t1:.2f} seconds")
+    seapath = calc_heave_rate(seapath, only_heave=only_heave)
 
     ####################################################################################################################
     # Calculating Timestamps for each chirp and add closest heave rate to corresponding Doppler velocity
