@@ -21,12 +21,15 @@ larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 begin_dt = dt.datetime(2020, 2, 10, 0, 0, 5)
 end_dt = dt.datetime(2020, 2, 10, 23, 59, 55)
 plot_range = [0, 'max']
+only_heave = False
+use_cross_product = True
 mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
 moments = {"VEL": mdv}
 for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime']:
     print('loading variable from LV1 :: ' + var)
     moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
-new_vel, heave_corr, seapath_chirptimes, seapath_out = jr.heave_correction(moments, begin_dt)
+new_vel, heave_corr, seapath_chirptimes, seapath_out = jr.heave_correction(moments, begin_dt, only_heave=only_heave,
+                                                                           use_cross_product=use_cross_product)
 moments.update({'Vel_cor': moments['VEL'], 'heave_corr': moments['VEL'], 'Vel_cor-Vel': moments['VEL'],
                 'Vel-Vel_cor': moments['VEL']})
 # overwrite var with corrected mean Doppler velocities and heave correction
@@ -46,10 +49,13 @@ print("Done with heave correction")
 ########################################################################################################################
 plot_path = "/projekt1/remsens/work/jroettenbacher/plots/heave_correction"
 plot_range = [0, 3000]
-begin_dt_zoom = dt.datetime(2020, 2, 10, 21, 55, 0)
+begin_dt_zoom = dt.datetime(2020, 2, 10, 22, 10, 0)
 end_dt_zoom = dt.datetime(2020, 2, 10, 22, 20, 0)
 name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR'
 name_zoom = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR'
+if use_cross_product:
+    name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR_cross_product'
+    name_zoom = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR_cross_product'
 
 mdv['var_lims'] = [-7, 7]
 # # uncorrected MDV
@@ -178,4 +184,13 @@ print(f'figure saved :: {fig_name}')
 # save seapath_out to csv for plotting with R
 seapath_out.columns = ("heading", "heave", "pitch", "roll", "radar_heave", "pitch_heave", "roll_heave", "heave_rate",
                        "chirp_no")
-seapath_out.to_csv(f"{plot_path}/seapath_out_{begin_dt:%Y%m%d}.csv", encoding="1252", index_label="datetime")
+# decide on csv file name
+if only_heave and use_cross_product:
+    csv_name = f"seapath_out_{begin_dt:%Y%m%d}_only_heave_cross_product.csv"
+elif only_heave and not use_cross_product:
+    csv_name = f"seapath_out_{begin_dt:%Y%m%d}_only_heave.csv"
+elif not only_heave and use_cross_product:
+    csv_name = f"seapath_out_{begin_dt:%Y%m%d}_cross_product.csv"
+else:
+    csv_name = f"seapath_out_{begin_dt:%Y%m%d}.csv"
+seapath_out.to_csv(f"{plot_path}/{csv_name}", encoding="1252", index_label="datetime")
