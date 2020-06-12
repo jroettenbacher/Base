@@ -119,8 +119,8 @@ print(f'figure saved :: {fig_name}')
 # plt.close()
 # print(f'figure saved :: {fig_name}')
 
-# heave_corr = moments["heave_corr"]
-# heave_corr['var_lims'] = [-1, 1]
+heave_corr = moments["heave_corr"]
+heave_corr['var_lims'] = [-1, 1]
 # # heave correction
 # fig, _ = pyLARDA.Transformations.plot_timeheight(heave_corr, rg_converter=False, title=True, range_interval=plot_range)
 # fig_name = name + '_heave_correction.png'
@@ -178,4 +178,4 @@ print(f'figure saved :: {fig_name}')
 # save seapath_out to csv for plotting with R
 seapath_out.columns = ("heading", "heave", "pitch", "roll", "radar_heave", "pitch_heave", "roll_heave", "heave_rate",
                        "chirp_no")
-seapath_out.to_csv(f"{plot_path}/seapath_out_{begin_dt}.csv", encoding="1252", index_label="datetime")
+seapath_out.to_csv(f"{plot_path}/seapath_out_{begin_dt:%Y%m%d}.csv", encoding="1252", index_label="datetime")
