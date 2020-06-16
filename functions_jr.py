@@ -141,30 +141,39 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, only_heave=False, use_cr
     """
     t1 = time.time()
     print("Calculating Heave Rate...")
-    # sum up heave, pitch induced and roll induced heave
+    # angles in radians
     pitch = np.deg2rad(seapath["Pitch [°]"])
     roll = np.deg2rad(seapath["Roll [°]"])
-    if not only_heave:
-        if not use_cross_product:
+    yaw = np.deg2rad(seapath["Heading [m]"])
+    # time delta between two time steps in seconds
+    d_t = np.ediff1d(seapath.index).astype('float64') / 1e9
+    if not use_cross_product:
+        if not only_heave:
             pitch_heave = x_radar * np.tan(pitch)
             roll_heave = y_radar * np.tan(roll)
-        elif use_cross_product:
-            pitch_heave = pitch * y_radar
-            roll_heave = - roll * x_radar
-    else:
-        pitch_heave = 0
-        roll_heave = 0
 
-    seapath["radar_heave"] = seapath["Heave [m]"] + pitch_heave + roll_heave
-    # add pitch and roll induced heave to data frame to include in output for quality checking
-    seapath["pitch_heave"] = pitch_heave
-    seapath["roll_heave"] = roll_heave
-    # ediff1d calculates the difference between consecutive elements of an array
-    # heave difference / time difference = heave rate
-    heave_rate = np.ediff1d(seapath["radar_heave"]) / np.ediff1d(seapath.index).astype('float64') * 1e9
-    # the first calculated heave rate corresponds to the second time step
-    heave_rate = pd.DataFrame({'Heave Rate [m/s]': heave_rate}, index=seapath.index[1:])
-    seapath = seapath.join(heave_rate)
+        elif only_heave:
+            pitch_heave = 0
+            roll_heave = 0
+
+        # sum up heave, pitch induced and roll induced heave
+        seapath["radar_heave"] = seapath["Heave [m]"] + pitch_heave + roll_heave
+        # add pitch and roll induced heave to data frame to include in output for quality checking
+        seapath["pitch_heave"] = pitch_heave
+        seapath["roll_heave"] = roll_heave
+        # ediff1d calculates the difference between consecutive elements of an array
+        # heave difference / time difference = heave rate
+        heave_rate = np.ediff1d(seapath["radar_heave"]) / d_t
+        # the first calculated heave rate corresponds to the second time step
+        heave_rate = pd.DataFrame({'Heave Rate [m/s]': heave_rate}, index=seapath.index[1:])
+        seapath = seapath.join(heave_rate)
+
+    else:
+        # change of angles with time
+        d_pitch = np.ediff1d(pitch) / d_t
+        d_roll = np.ediff1d(roll) / d_t
+        d_yaw = np.ediff1d(yaw) / d_t
+
     print(f"Done with heave rate calculation in {time.time() - t1:.2f} seconds")
     return seapath
 
