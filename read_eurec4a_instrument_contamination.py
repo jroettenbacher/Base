@@ -70,6 +70,17 @@ def read_dwd_instrument_contamination(path, filename, encoding="utf-8"):
 
 
 def write_manual_filter(path, outfile, table):
+    """write a .dat file with manual filter times for HATPRO.
+     Still need to copy and paste it to the actual file!
+     If an error stretches over two days and the next day has another entry, two lines with the same date are written.
+     This might be a problem -> manually correct it in the file.
+
+    Args:
+        path (str): path where file should be written to
+        outfile (str): name of filter file
+        table (pd.DataFrame): table from read_dwd_instrument_contamination
+
+    """
     f = open(f"{path}/{outfile}", "w")
     lines = []
     # set channel flags
@@ -80,7 +91,7 @@ def write_manual_filter(path, outfile, table):
         start_date = table['startdate'][i]
         end_date = table['enddate'][i]
         # check the difference between consecutive start dates,
-        # if there is no difference (same start date) raise counter
+        # if there is no difference (same start date in consecutive rows) raise counter
         diffs = np.diff(table['startdate'][i:]).astype("double")
         try:
             while diffs[nn - 1] == 0:
@@ -154,6 +165,7 @@ def write_manual_filter(path, outfile, table):
 
     f.writelines(lines)
     f.close()
+    print(f"File written to {path}/{outfile}")
 
 
 if __name__ == 'main':
