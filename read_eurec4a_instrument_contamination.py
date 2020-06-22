@@ -174,9 +174,44 @@ def write_manual_filter(path, outfile, table):
     print(f"File written to {path}/{outfile}")
 
 
+def read_wras_contamination(path, file, encoding="utf-8"):
+    """read in WRAS contamination file and process for HATPRO fitler creation
+
+    Args:
+        path (str): path to file
+        file (str): filename
+        encoding (str): optional encoding of input file (="utf-8")
+
+    Returns:
+        df (pd.DataFrame): Data frame with start and end dates and times of errors which mention " k"
+    """
+    df = pd.read_csv(f"{path}/{file}", sep=";", parse_dates=[0], dayfirst=True,
+                     header=0, names=["startdate", "starttime", "endtime", "note"],  # define column names
+                     encoding=encoding)
+
+    # only select rows where comments mentions " k" for kilo, meaning CN is probably over 1000
+    condition = []
+    for i in range(len(df)):
+        condition.append(" k" in df['note'][i])
+
+    # add column end date for further processing
+    df.insert(loc=1, column="enddate", value=df["startdate"])
+    df["starttime"] = [dt.time.fromisoformat(t) for t in df["starttime"]]
+    df["endtime"] = [dt.time.fromisoformat(t) for t in df["endtime"]]
+
+    return df[condition].reset_index(drop=True)
+
+
 if __name__ == '__main__':
     path = "C:/Users/Johannes/Documents/Studium/Hiwi_Kalesse/HATPRO_flag_eurec4a"
-    infile = "20200114_M161_Met-DWD_Instrument_Contamination_jr.txt"
-    table = read_dwd_instrument_contamination(path, infile)
+    file_dwd = "20200114_M161_Met-DWD_Instrument_Contamination_jr.txt"
+    file_wras = "M161_WRAS_Stag_CPC_Jan-Feb2020_jr.csv"
+    table1 = read_dwd_instrument_contamination(path, file_dwd)
+    table2 = read_wras_contamination(path, file_wras)
+    table = table1.append(table2).sort_values(axis=0, by=["startdate", "starttime"]).reset_index(drop=True)
     outfile = "filter_eurec4a.dat"
-    write_manual_filter(path, outfile, table)
+    write_manual_filter(path, outfile, table)  # write with both instrument flags
+    outfile = "filter_eurec4a_dwd.dat"
+    write_manual_filter(path, outfile, table1)  # write with only dwd flag
+    outfile = "filter_eurec4a_wras.dat"
+    write_manual_filter(path, outfile, table2)  # write with only wras flag
