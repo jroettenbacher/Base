@@ -4,6 +4,12 @@
 input: txt file which was converted from rtf to txt by Word
 putput: pd.Dataframe with startdate, enddate, start time, end time, note
 output: txt file like filter_template.dat
+
+Information:
+While reading in the DWD file I noticed that the dates are sometimes not in consecutive order. I concluded that this was
+an error and changed the dates to be in consecutive order. Thus I used ..._jr.txt as a source file. The original .rtf
+file with non consecutive dates is untouched.
+author: Johannes Röttenbacher
 """
 
 import re
@@ -168,7 +174,7 @@ def write_manual_filter(path, outfile, table):
     print(f"File written to {path}/{outfile}")
 
 
-if __name__ == 'main':
+if __name__ == '__main__':
     path = "C:/Users/Johannes/Documents/Studium/Hiwi_Kalesse/HATPRO_flag_eurec4a"
     infile = "20200114_M161_Met-DWD_Instrument_Contamination_jr.txt"
     table = read_dwd_instrument_contamination(path, infile)
