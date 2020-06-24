@@ -1,6 +1,7 @@
 
 from itertools import groupby
 import numpy as np
+from scipy import interpolate
 import pandas as pd
 import time
 import matplotlib as mpl
@@ -417,6 +418,87 @@ def calc_heave_corr(container, date, path_to_seapath="/projekt2/remsens/data/cam
 
     print(f"Done with heave correction calculation in {time.time() - start:.2f} seconds")
     return heave_corr
+
+
+def calc_sensitivity_curve(program):
+    """Calculate mean sensitivity limit over height for specified chirp table (sensitivity curve)
+
+    Implemented chirp tables: "tradewindCU (P09)", "Cu_small_Tint (P06)", "Cu_small_Tint2 (P07)".
+    Dates are only for eurec4a campaign!
+
+    Args:
+        program (list): list of program numbers e.g. 'P07'
+
+    Returns:
+        dictionary of dictionaries with mean sensitivity curve for horizontal and vertical channel,
+        filtered and not filtered with DWD rain flag
+
+    """
+
+    start = time.time()
+    programs = ["P09", "P06", "P07"]  # implemented chirp tables
+    for p in program:
+        assert p in programs, f"Please use program codes like 'P07' to select chirptable! Not {p}!" \
+                              f"Check functions documentation to see which program corresponds to which chirptable"
+    # Load LARDA
+    larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
+    system = "LIMRAD94"
+
+    # define durations of use for each chirp table (program)
+    begin_dts = {'P09': dt.datetime(2020, 1, 17, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 15, 30, 5),
+                 'P07': dt.datetime(2020, 1, 31, 22, 30, 5)}
+    end_dts = {'P09': dt.datetime(2020, 1, 27, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 23, 42, 00),
+               'P07': dt.datetime(2020, 2, 19, 23, 59, 55)}
+    plot_range = [0, 'max']
+
+    # read in sensitivity variables for each chirp table over whole range (all chirps)
+    slv = {}
+    slh = {}
+    rain_flag_dwd = {}
+    rain_flag_dwd_ip = {}
+
+    for p in program:
+        print(f"Working on program {p}")
+        begin_dt = begin_dts[p]
+        end_dt = end_dts[p]
+        t1 = time.time()
+        slv[p] = larda.read(system, "SLv", [begin_dt, end_dt], plot_range)
+        slh[p] = larda.read(system, "SLh", [begin_dt, end_dt], plot_range)
+        print(f"Read in sensitivity limits in {time.time() - t1:.2f} seconds")
+
+        # DWD rain flag
+        # weather data, time res = 1 min, only read in Dauer (duration) column, gives rain duration in seconds
+        t2 = time.time()
+        weather = pd.read_csv("/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DWD/20200114_M161_Nsl.CSV", sep=";",
+                              index_col="Timestamp", usecols=[0, 5], squeeze=True)
+        weather.index = pd.to_datetime(weather.index, format="%d.%m.%Y %H:%M")
+        weather = weather[begin_dt:end_dt]  # select date range
+        rain_flag_dwd[p] = weather > 0  # set rain flag if rain duration is greater 0 seconds
+        # interpolate rainflag to radar time resolution
+        f = interpolate.interp1d(h.dt_to_ts(rain_flag_dwd[p].index), rain_flag_dwd[p], kind='nearest',
+                                 fill_value="extrapolate")
+        rain_flag_dwd_ip[p] = f(np.asarray(slv[p]['ts']))
+        # adjust rainflag to sensitivity limit dimensions
+        rain_flag_dwd_ip[p] = np.tile(rain_flag_dwd_ip[p], (slv[p]['var'].shape[1], 1)).swapaxes(0,1).copy()
+        print(f"Read in and interpolated DWD rainflag in {time.time() - t2:.2f} seconds")
+
+    # take mean of sensitivity limit for whole period of operation
+    t3 = time.time()
+    mean_slv = {}
+    mean_slh = {}
+    mean_slv_f = {}
+    mean_slh_f = {}
+    for p in program:
+        mean_slv[p] = np.mean(slv[p]['var'], axis=0)
+        mean_slh[p] = np.mean(slh[p]['var'], axis=0)
+        # rainflag filtered means
+        mean_slv_f[p] = np.mean(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
+        mean_slh_f[p] = np.mean(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
+
+    print(f"Averaged sensitivity limits for rain filtered and non filtered data in {time.time() - t3:.2f} seconds")
+    print(f"Done with calculate_sensitivity_curve in {time.time() - start:.2f} seconds")
+
+    return {'mean_slv': mean_slv, 'mean_slv_f': mean_slv_f, 'mean_slh': mean_slh, 'mean_slh_f': mean_slh_f}
 
 
 if __name__ == '__main__':
