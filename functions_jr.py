@@ -325,7 +325,7 @@ def calc_heave_corr(container, date, path_to_seapath="/projekt2/remsens/data/cam
         path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
         only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
 
-    Returns:
+    Returns: heave_corr
         heave_corr (ndarray): heave rate closest to each radar timestep for each height bin, time x range
 
     """

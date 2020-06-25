@@ -108,7 +108,7 @@ def plot_frequency_of_occurence_LIMRAD94(program, plot_path, larda_system):
 
         # create an array for the x and y tick labels
         height = radar_ze['rg']
-        ylabels = np.floor(height) // 100 * 100
+        ylabels = np.floor(height) // 100 * 100 / 1000
         xlabels = hist_bins
 
         # create title
@@ -132,7 +132,7 @@ def plot_frequency_of_occurence_LIMRAD94(program, plot_path, larda_system):
         ax.xaxis.grid(True, which='major', color="k", linestyle='-', linewidth=1, alpha=0.5)
         ax.yaxis.grid(True, which='major', color="k", linestyle='-', linewidth=1, alpha=0.5)
         ax.set_xlabel("Reflectivity [dBZ]")
-        ax.set_ylabel("Height [m]")
+        ax.set_ylabel("Height [km]")
         ax.set_title(title)
         fig.tight_layout()
         fig.subplots_adjust(bottom=0.2)
