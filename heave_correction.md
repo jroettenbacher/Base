@@ -47,7 +47,7 @@ $$ heaverate_{radar} = \frac{heave_{radar}(t_{n+1}) - heave_{radar}(t_n)}{t_{n+1
 **What you need:**
 
 * Displacement of radar in reference to Inertial Navigation System
-* Roll, Pitch and Heave from INS
+* Rollrate, Pitchrate and Heaverate from INS
 
 **Math**
 

@@ -315,7 +315,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
         # duplicate the heave correction over the range dimension to add it to all range bins of the chirp
         heave_corr[:, range_bins[i]:range_bins[i+1]] = heave_rate.repeat(var.shape[1], axis=1)
         # create new Doppler velocity by adding the heave rate of the closest time step
-        new_vel[:, range_bins[i]:range_bins[i+1]] = var + heave_corr[:, range_bins[i]:range_bins[i+1]]
+        new_vel[:, range_bins[i]:range_bins[i+1]] = var - heave_corr[:, range_bins[i]:range_bins[i+1]]
         # save chirptimes of seapath for quality control, as seconds since 1970-01-01 00:00 UTC
         seapath_chirptimes[f"Chirp_{i+1}"] = seapath_closest.index.values.astype(np.float64) / 10 ** 9
         # make data frame with used heave rates
