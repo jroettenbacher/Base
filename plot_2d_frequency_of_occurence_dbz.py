@@ -114,7 +114,7 @@ def plot_frequency_of_occurence_LIMRAD94(program, plot_path, larda_system):
         # create title
         title = f"Frequency of Occurrence of Reflectivity {system}" \
                 f"\nEUREC4A {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d}" \
-                f"\n Chirp program: {program_names['P07']}"
+                f"\n Chirp program: {program_names[p]}"
 
         fig, ax = plt.subplots()
         im = ax.pcolormesh(foc_array, cmap='jet', norm=LogNorm())
