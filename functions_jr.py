@@ -456,7 +456,7 @@ if __name__ == '__main__':
         print('loading variable from LV1 :: ' + var)
         moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
     new_vel, heave_corr, seapath_out = heave_correction(moments, begin_dt, use_cross_product=True)
-    print("Done Testing heave_correction...")
     # test without Doppler Velocity input
     moments.__delitem__('VEL')
     new_vel, heave_corr, seapath_out = heave_correction(moments, begin_dt, use_cross_product=True)
+    print("Done Testing heave_correction...")

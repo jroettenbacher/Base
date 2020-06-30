@@ -18,14 +18,16 @@ import pandas as pd
 
 # run heave correction on cloudnet input file
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
-begin_dt = dt.datetime(2020, 2, 10, 0, 0, 5)
-end_dt = dt.datetime(2020, 2, 10, 23, 59, 55)
+begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
+end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
+begin_dt_zoom = dt.datetime(2020, 2, 5, 9, 25, 0)
+end_dt_zoom = dt.datetime(2020, 2, 5, 9, 35, 0)
 plot_range = [0, 'max']
 only_heave = False
 use_cross_product = True
 mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
 moments = {"VEL": mdv}
-for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime']:
+for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA']:
     print('loading variable from LV1 :: ' + var)
     moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
 new_vel, heave_corr, seapath_chirptimes, seapath_out = jr.heave_correction(moments, begin_dt, only_heave=only_heave,
@@ -49,8 +51,6 @@ print("Done with heave correction")
 ########################################################################################################################
 plot_path = "/projekt1/remsens/work/jroettenbacher/plots/heave_correction"
 plot_range = [0, 3000]
-begin_dt_zoom = dt.datetime(2020, 2, 10, 22, 10, 0)
-end_dt_zoom = dt.datetime(2020, 2, 10, 22, 20, 0)
 name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR'
 name_zoom = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR'
 if use_cross_product:
@@ -101,12 +101,12 @@ cor_meas['var_lims'] = [-1, 1]
 # print(f'figure saved :: {fig_name}')
 
 # corrected MDV - measured MDV zoom
-fig, _ = pyLARDA.Transformations.plot_timeheight(cor_meas, rg_converter=False, title=True, range_interval=plot_range,
-                                                 time_interval=[begin_dt_zoom, end_dt_zoom])
-fig_name = name_zoom + '_MDV_corrected-measured.png'
-fig.savefig(fig_name, dpi=250)
-plt.close()
-print(f'figure saved :: {fig_name}')
+# fig, _ = pyLARDA.Transformations.plot_timeheight(cor_meas, rg_converter=False, title=True, range_interval=plot_range,
+#                                                  time_interval=[begin_dt_zoom, end_dt_zoom])
+# fig_name = name_zoom + '_MDV_corrected-measured.png'
+# fig.savefig(fig_name, dpi=250)
+# plt.close()
+# print(f'figure saved :: {fig_name}')
 
 # meas_cor = moments['Vel-Vel_cor']
 # meas_cor['var_lims'] = [-1, 1]
