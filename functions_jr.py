@@ -301,7 +301,7 @@ def calc_heave_corr(container, date, seapath):
 
 
 def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP",
-                     only_heave=False, use_cross_product=False):
+                     only_heave=False, use_cross_product=False, add=True):
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
     Calculate heave rate from seapath measurements and create heave correction array. If Doppler velocity is given as an
     input, correct it and return an array with the corrected Doppler velocities.
@@ -314,6 +314,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
         path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
         only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
         use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
+        add (bool): whether to add the heave rate or subtract it
 
     Returns: A number of variables
         new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"] or list if no Doppler
@@ -344,8 +345,12 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/camp
     heave_corr, seapath_out = calc_heave_corr(container, date, seapath)
 
     try:
-        # create new Doppler velocity by adding the heave rate of the closest time step
-        new_vel = moments['VEL']['var'] - heave_corr
+        if add:
+            # create new Doppler velocity by adding the heave rate of the closest time step
+            new_vel = moments['VEL']['var'] + heave_corr
+        elif not add:
+            # create new Doppler velocity by subtracting the heave rate of the closest time step
+            new_vel = moments['VEL']['var'] - heave_corr
         # set masked values back to -999 because they also get corrected
         new_vel[moments['VEL']['mask']] = -999
         print(f"Done with heave corrections in {time.time() - start:.2f} seconds")
