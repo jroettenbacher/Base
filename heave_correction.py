@@ -182,14 +182,16 @@ print(f'figure saved :: {fig_name}')
 # plt.close()
 
 # save seapath_out to csv for plotting with R
-seapath_out.columns = ("heading", "heave", "pitch", "roll", "radar_heave", "pitch_heave", "roll_heave", "heave_rate",
-                       "chirp_no")
 # decide on csv file name
 if only_heave and use_cross_product:
+    seapath_out.columns = ("heading", "heave", "pitch", "roll", "heave_rate", "chirp_no")
     csv_name = f"seapath_out_{begin_dt:%Y%m%d}_only_heave_cross_product.csv"
 elif only_heave and not use_cross_product:
+    seapath_out.columns = ("heading", "heave", "pitch", "roll", "radar_heave", "pitch_heave", "roll_heave", "heave_rate",
+                           "chirp_no")
     csv_name = f"seapath_out_{begin_dt:%Y%m%d}_only_heave.csv"
 elif not only_heave and use_cross_product:
+    seapath_out.columns = ("heading", "heave", "pitch", "roll", "heave_rate", "chirp_no")
     csv_name = f"seapath_out_{begin_dt:%Y%m%d}_cross_product.csv"
 else:
     csv_name = f"seapath_out_{begin_dt:%Y%m%d}.csv"
