@@ -125,13 +125,14 @@ def read_seapath(date, path="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_
     return seapath
 
 
-def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, only_heave=False, use_cross_product=False):
+def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=-15.8, only_heave=False, use_cross_product=True):
     """
     Calculate heave rate at a certain location of a ship with the measurements of the INS
     Args:
         seapath (pd.DataFrame): Data frame with heading, roll, pitch and heave as columns
         x_radar (float): x position of location with respect to INS in meters
         y_radar (float): y position of location with respect to INS in meters
+        z_radar (float): z position of location with respect to INS in meters
         only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
         use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
 
@@ -145,15 +146,18 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, only_heave=False, use_cr
     # angles in radians
     pitch = np.deg2rad(seapath["Pitch [°]"])
     roll = np.deg2rad(seapath["Roll [°]"])
-    yaw = np.deg2rad(seapath["Heading [m]"])
+    yaw = np.deg2rad(seapath["Heading [°]"])
     # time delta between two time steps in seconds
     d_t = np.ediff1d(seapath.index).astype('float64') / 1e9
     if not use_cross_product:
+        print("using a simple geometric approach")
         if not only_heave:
+            print("using also the roll and pitch induced heave")
             pitch_heave = x_radar * np.tan(pitch)
             roll_heave = y_radar * np.tan(roll)
 
         elif only_heave:
+            print("using only the ships heave")
             pitch_heave = 0
             roll_heave = 0
 
@@ -165,15 +169,24 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, only_heave=False, use_cr
         # ediff1d calculates the difference between consecutive elements of an array
         # heave difference / time difference = heave rate
         heave_rate = np.ediff1d(seapath["radar_heave"]) / d_t
-        # the first calculated heave rate corresponds to the second time step
-        heave_rate = pd.DataFrame({'Heave Rate [m/s]': heave_rate}, index=seapath.index[1:])
-        seapath = seapath.join(heave_rate)
 
     else:
+        print("using the cross product approach from Hannes Griesche")
         # change of angles with time
-        d_pitch = np.ediff1d(pitch) / d_t
         d_roll = np.ediff1d(roll) / d_t
+        d_pitch = np.ediff1d(pitch) / d_t
         d_yaw = np.ediff1d(yaw) / d_t
+        seapath_heave_rate = np.ediff1d(seapath["Heave [m]"]) / d_t  # heave rate at seapath
+        pos_radar = np.array([x_radar, y_radar, z_radar])  # position of radar as a vector
+        ang_rate = np.array([d_roll, d_pitch, d_yaw]).T  # angle velocity as a matrix
+        pos_radar_exp = np.tile(pos_radar, ang_rate.shape)  # expand to shape of ang_rate
+        cross_prod = np.cross(ang_rate, pos_radar_exp)  # calculate cross product
+        heave_rate = seapath_heave_rate + cross_prod[:, 2]  # calculate heave rate
+
+    # add heave rate to seapath data frame
+    # the first calculated heave rate corresponds to the second time step
+    heave_rate = pd.DataFrame({'Heave Rate [m/s]': heave_rate}, index=seapath.index[1:])
+    seapath = seapath.join(heave_rate)
 
     print(f"Done with heave rate calculation in {time.time() - t1:.2f} seconds")
     return seapath
