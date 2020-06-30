@@ -179,7 +179,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=-15.8, only_heav
         seapath_heave_rate = np.ediff1d(seapath["Heave [m]"]) / d_t  # heave rate at seapath
         pos_radar = np.array([x_radar, y_radar, z_radar])  # position of radar as a vector
         ang_rate = np.array([d_roll, d_pitch, d_yaw]).T  # angle velocity as a matrix
-        pos_radar_exp = np.tile(pos_radar, ang_rate.shape)  # expand to shape of ang_rate
+        pos_radar_exp = np.tile(pos_radar, (ang_rate.shape[0], 1))  # expand to shape of ang_rate
         cross_prod = np.cross(ang_rate, pos_radar_exp)  # calculate cross product
         heave_rate = seapath_heave_rate + cross_prod[:, 2]  # calculate heave rate
 
