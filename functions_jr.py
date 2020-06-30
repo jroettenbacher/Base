@@ -125,7 +125,7 @@ def read_seapath(date, path="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_
     return seapath
 
 
-def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=-15.8, only_heave=False, use_cross_product=True):
+def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=-15.8, only_heave=False, use_cross_product=False):
     """
     Calculate heave rate at a certain location of a ship with the measurements of the INS
     Args:

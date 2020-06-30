@@ -54,8 +54,8 @@ end_dt_zoom = dt.datetime(2020, 2, 10, 22, 20, 0)
 name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR'
 name_zoom = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR'
 if use_cross_product:
-    name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR_cross_product'
-    name_zoom = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR_cross_product'
+    name = f'{name}_cross_product'
+    name_zoom = f'{name_zoom}_cross_product'
 
 mdv['var_lims'] = [-7, 7]
 # # uncorrected MDV
