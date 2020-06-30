@@ -25,6 +25,7 @@ end_dt_zoom = dt.datetime(2020, 2, 5, 9, 35, 0)
 plot_range = [0, 'max']
 only_heave = False
 use_cross_product = True
+add = True
 mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
 moments = {"VEL": mdv}
 for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA']:
@@ -54,8 +55,14 @@ plot_range = [0, 3000]
 name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR'
 name_zoom = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cloudnet_input_meanHR'
 if use_cross_product:
-    name = f'{name}_cross_product'
     name_zoom = f'{name_zoom}_cross_product'
+    name = f'{name}_cross_product'
+if add:
+    name_zoom = f'{name_zoom}+'
+    name = f'{name}+'
+elif not add:
+    name_zoom = f'{name_zoom}-'
+    name = f'{name}-'
 
 mdv['var_lims'] = [-7, 7]
 # # uncorrected MDV
