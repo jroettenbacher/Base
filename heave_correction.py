@@ -32,7 +32,7 @@ for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA']:
     print('loading variable from LV1 :: ' + var)
     moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
 new_vel, heave_corr, seapath_out = jr.heave_correction(moments, begin_dt, only_heave=only_heave,
-                                                       use_cross_product=use_cross_product)
+                                                       use_cross_product=use_cross_product, add=add)
 moments.update({'Vel_cor': moments['VEL'], 'heave_corr': moments['VEL'], 'Vel_cor-Vel': moments['VEL'],
                 'Vel-Vel_cor': moments['VEL']})
 # overwrite var with corrected mean Doppler velocities and heave correction
