@@ -300,7 +300,7 @@ def calc_heave_corr(container, date, seapath):
     return heave_corr, seapath_out
 
 
-def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP",
+def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/sites/eurec4a/instruments/RV-METEOR_DSHIP",
                      only_heave=False, use_cross_product=False, add=True):
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
     Calculate heave rate from seapath measurements and create heave correction array. If Doppler velocity is given as an
