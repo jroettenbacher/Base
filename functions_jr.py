@@ -97,7 +97,7 @@ def find_bases_tops(mask, rg_list):
     return cloud_prop, cloud_mask
 
 
-def read_seapath(date, path="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DSHIP"):
+def read_seapath(date, path="/projekt2/remsens/data_new/sites/eurec4a/instruments/RV-METEOR_DSHIP"):
     """
     Read in Seapath measurements from RV Meteor from .dat files to a pandas.DataFrame
     Args:
