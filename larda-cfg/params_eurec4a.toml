@@ -1,11 +1,11 @@
 
 [LIMRAD94]
   [LIMRAD94.path.l1]
-    base_dir = '/projekt2/remsens/data_new/sites/instruments/eurec4a/LIMRAD94/'
+    base_dir = '/projekt2/remsens/data_new/sites/eurec4a/instruments/LIMRAD94/'
     matching_subdirs = '(Y\d{4}\/M\d{2}\/D\d{2}.*\d{6}_\d{6}.*.LV1.(?i)NC)'
     date_in_filename = '(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [LIMRAD94.path.l0]
-    base_dir = '/projekt2/remsens/data_new/sites/instruments/eurec4a/LIMRAD94/'
+    base_dir = '/projekt2/remsens/data_new/sites/eurec4a/instruments/LIMRAD94/'
     matching_subdirs = '(Y\d{4}\/M\d{2}\/D\d{2}.*\d{6}_\d{6}.*.LV0.(?i)NC)'
     date_in_filename = '(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [LIMRAD94.generic]
