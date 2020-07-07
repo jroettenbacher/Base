@@ -1,11 +1,11 @@
 
 [LIMRAD94]
   [LIMRAD94.path.l1]
-    base_dir = '/projekt2/remsens/data_new/sites/eurec4a/instruments/LIMRAD94/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/'
     matching_subdirs = '(Y\d{4}\/M\d{2}\/D\d{2}.*\d{6}_\d{6}.*.LV1.(?i)NC)'
     date_in_filename = '(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [LIMRAD94.path.l0]
-    base_dir = '/projekt2/remsens/data_new/sites/eurec4a/instruments/LIMRAD94/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/'
     matching_subdirs = '(Y\d{4}\/M\d{2}\/D\d{2}.*\d{6}_\d{6}.*.LV0.(?i)NC)'
     date_in_filename = '(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [LIMRAD94.generic]
@@ -301,7 +301,7 @@
 
 [LIMRAD94_cn_input]
   [LIMRAD94_cn_input.path.nc]
-    base_dir = '/projekt2/remsens/data_new/sites/eurec4a/instruments/LIMRAD94/cloudnet_input/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input/'
     matching_subdirs = '(.*\d{8}_\d{6}-\d{6}_LIMRAD94.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [LIMRAD94_cn_input.generic]
@@ -406,7 +406,7 @@
 
 [LIMRAD94_30s]
   [LIMRAD94_30s.path.nc]
-    base_dir = '/projekt2/remsens/data_new/sites/eurec4a/instruments/LIMRAD94/30s_averages/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/30s_averages/'
     matching_subdirs = '(.*RV-METEOR_LIMRAD94_Ze_\d{8}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
     # _(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})
@@ -503,7 +503,7 @@
 [CEILO]
   [CEILO.path.nc]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_CEILOMETER/CHM170158/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/RV-METEOR_CEILOMETER/CHM170158/'
     matching_subdirs = '(\d{4}\/\d{2}\/\d{8}_FSMETEOR_CHM170158.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   # this general settings need to be handed down to the params
