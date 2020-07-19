@@ -97,7 +97,7 @@ def find_bases_tops(mask, rg_list):
     return cloud_prop, cloud_mask
 
 
-def read_seapath(date, path="/projekt2/remsens/data_new/sites/eurec4a/instruments/RV-METEOR_DSHIP"):
+def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP"):
     """
     Read in Seapath measurements from RV Meteor from .dat files to a pandas.DataFrame
     Args:
@@ -125,7 +125,8 @@ def read_seapath(date, path="/projekt2/remsens/data_new/sites/eurec4a/instrument
     return seapath
 
 
-def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave=False, use_cross_product=False):
+def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave=False, use_cross_product=False,
+                    transform_to_earth=True, calc_only_z_comp=False):
     """
     Calculate heave rate at a certain location of a ship with the measurements of the INS
     Args:
@@ -173,14 +174,33 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
     else:
         print("using the cross product approach from Hannes Griesche")
         # change of angles with time
-        d_roll = np.ediff1d(roll) / d_t
-        d_pitch = np.ediff1d(pitch) / d_t
-        d_yaw = np.ediff1d(yaw) / d_t
+        d_roll = np.ediff1d(roll) / d_t  # phi
+        d_pitch = np.ediff1d(pitch) / d_t  # theta
+        d_yaw = np.ediff1d(yaw) / d_t  # psi
         seapath_heave_rate = np.ediff1d(seapath["Heave [m]"]) / d_t  # heave rate at seapath
         pos_radar = np.array([x_radar, y_radar, z_radar])  # position of radar as a vector
         ang_rate = np.array([d_roll, d_pitch, d_yaw]).T  # angle velocity as a matrix
         pos_radar_exp = np.tile(pos_radar, (ang_rate.shape[0], 1))  # expand to shape of ang_rate
-        cross_prod = np.cross(ang_rate, pos_radar_exp)  # calculate cross product
+        if calc_only_z_comp:
+            cross_prod = d_pitch * y_radar - d_roll * x_radar
+        else:
+            cross_prod = np.cross(ang_rate, pos_radar_exp)  # calculate cross product
+
+        if transform_to_earth:
+            print("Transform into Earth Coordinate System")
+            phi, theta, psi = roll, pitch, yaw
+            a1 = np.cos(theta) * np.cos(psi)
+            a2 = -1 * np.cos(phi) * np.sin(psi) + np.sin(theta) * np.cos(psi) * np.sin(phi)
+            a3 = np.sin(phi) * np.sin(psi) + np.cos(phi) * np.sin(theta) * np.cos(psi)
+            b1 = np.cos(theta) * np.sin(psi)
+            b2 = np.cos(phi) * np.cos(psi) + np.sin(theta) * np.sin(phi) * np.sin(psi)
+            b3 = -1 * np.cos(psi) * np.sin(phi) + np.cos(phi) * np.sin(theta) * np.sin(psi)
+            c1 = -1 * np.sin(theta)
+            c2 = np.cos(theta) * np.sin(phi)
+            c3 = np.cos(theta) * np.cos(phi)
+            Q_T = np.array([[a1, a2, a3], [b1, b2, b3], [c1, c2, c3]])
+            cross_prod = Q_T * cross_prod
+
         heave_rate = seapath_heave_rate + cross_prod[:, 2]  # calculate heave rate
 
     # add heave rate to seapath data frame
@@ -276,6 +296,7 @@ def calc_heave_corr(container, date, seapath):
                 idc = id_max[j]
                 warnings.warn(f"Heave rate greater 5 * std encountered ({seapath_closest['Heave Rate [m/s]'][idc]})! \n"
                               f"Using average of step before and after. Index: {idc}", UserWarning)
+                # TODO: make more sensible filter
                 avg_hrate = (seapath_closest["Heave Rate [m/s]"][idc - 1] + seapath_closest["Heave Rate [m/s]"][idc + 1]) / 2
                 if avg_hrate > 5 * std:
                     warnings.warn(f"Heave Rate value greater than 5 * std encountered ({avg_hrate})! \n"
@@ -300,7 +321,7 @@ def calc_heave_corr(container, date, seapath):
     return heave_corr, seapath_out
 
 
-def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/sites/eurec4a/instruments/RV-METEOR_DSHIP",
+def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
                      only_heave=False, use_cross_product=False, add=True):
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
     Calculate heave rate from seapath measurements and create heave correction array. If Doppler velocity is given as an
