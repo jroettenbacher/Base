@@ -28,7 +28,7 @@ larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 begin_dt = datetime.datetime(2020, 1, 17, 0, 0, 5)
 end_dt = datetime.datetime(2020, 2, 19, 23, 59, 55)
 plot_range = [0, 'max']
-plot_path = f'/projekt1/remsens/work/jroettenbacher/plots'
+plot_path = f'/projekt1/remsens/work/jroettenbacher/plots/lwp_iwv'
 
 # read in MWR variables
 print(f"Loading HATPRO data...")
@@ -75,8 +75,8 @@ MWR_lwp['var'] = np.ma.masked_where(rain_flag_dwd_ip, MWR_lwp['var'])
 df = pd.DataFrame({'lwp': MWR_lwp['var'], 'iwv': MWR_iwv['var']}, index=np.array([h.ts_to_dt(ts) for ts in MWR_lwp['ts']]))
 # mask values in data frame, mask needs two have same shape as data frame (2 columns, x rows)
 df_masked = df.mask(np.array([rain_flag_dwd_ip, rain_flag_dwd_ip]).T)
-# mask iwv values > 65 kg m-2
-df_masked["iwv"] = df_masked["iwv"].mask(df_masked["iwv"] > 65)
+# # mask iwv values > 65 kg m-2
+# df_masked["iwv"] = df_masked["iwv"].mask(df_masked["iwv"] > 65)
 # mask negative lwp values
 df_masked["lwp"] = df_masked["lwp"].mask(df_masked["lwp"] < 0)
 
@@ -112,63 +112,65 @@ print(f"Done with stats in {time.time() - t1:.2f}")
 # Plotting
 ########################################################################################################################
 # time series plotting
-# name = f"{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}"
-# fig, _ = pyLARDA.Transformations.plot_timeseries(MWR_lwp, rg_converter=True, title=True)
-# fig.savefig(plot_path + name + '_MWR_LWP.png', dpi=250)
-#
-# fig, _ = pyLARDA.Transformations.plot_timeseries(MWR_iwv, rg_converter=True, title=True)
-# fig.savefig(plot_path + name + '_MWR_IWV.png', dpi=250)
-#
-# fig, _ = pyLARDA.Transformations.plot_timeheight(MWR_hum, rg_converter=True, title=True)
-# fig.savefig(plot_path + name + '_MWR_abshum.png', dpi=250)
-#
-# fig, _ = pyLARDA.Transformations.plot_timeheight(MWR_temp, rg_converter=True, title=True)
-# fig.savefig(plot_path + name + '_MWR_temp.png', dpi=250)
+
+name1 = f"RV-Meteor_microwave-radiometer"
+name2 = f"{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}.png"
+fig, _ = pyLARDA.Transformations.plot_timeseries(MWR_lwp, rg_converter=True, title=True)
+fig.savefig(f"{plot_path}/{name1}_LWP_{name2}", dpi=250)
+
+fig, _ = pyLARDA.Transformations.plot_timeseries(MWR_iwv, rg_converter=True, title=True)
+fig.savefig(f"{plot_path}/{name1}_IWV_{name2}", dpi=250)
+
+fig, _ = pyLARDA.Transformations.plot_timeheight(MWR_hum, rg_converter=True, title=True)
+fig.savefig(f"{plot_path}/{name1}_abshum_{name2}", dpi=250)
+
+fig, _ = pyLARDA.Transformations.plot_timeheight(MWR_temp, rg_converter=True, title=True)
+fig.savefig(f"{plot_path}/{name1}_temp_{name2}", dpi=250)
 
 ########################################################################################################################
-# plotting statistics
-# layout stuff
-print("Plotting statistics...")
-t1 = time.time()
-plt.style.use("default")
-plt.rcParams.update({'figure.figsize': (6, 7)})
-variables = ["lwp", "iwv"]
-ylabels = ["Liquid Water Path [g m-2]", "Integrated Water Vapor [kg m-2]"]
-titles = ["Liquid Water Path", "Integrated Water Vapor"]
-for i in stats:
-    string = i.split(sep="_")  # split data frame name to extract averaging time and statistic used
-    stat = string[1].capitalize()
-    timestep = string[0]
-    for var, ylabel, title in zip(variables, ylabels, titles):
-        t2 = time.time()
-        fig, ax = plt.subplots()
-        ax.errorbar(stats[i].index, stats[i][var], yerr=stats[i][f'{var}_std'], fmt='-b',
-                    ecolor='lightgrey', label=f"{var.swapcase()} with 1 standard deviation", linewidth=3)
-        ax.legend(title='', loc='upper right')
-        if var == "iwv":
-            ax.set_ylim([15, 50])
-        elif var == "lwp":
-            ax.set_ylim([0, 350])
-        ax.set_ylabel(ylabel)
-        ax.set_xlabel("Datetime [UTC]")
-        ax.set_title(f"{title} {timestep} Rolling {stat}"
-                     f"\nEUREC4A RV-Meteor - {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d} "
-                     f"\nMicrowave Radiometer HATPRO Uni Leipzig")
-        ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))
-        ax.xaxis.set_minor_locator(mdates.DayLocator(interval=1))
-        ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
-        ax.yaxis.set_minor_locator(AutoMinorLocator(2))
-        ax.yaxis.set_minor_formatter(FormatStrFormatter('%d'))
-        ax.tick_params(which='minor', length=4, labelsize=12)
-        fig.autofmt_xdate()
-        # plt.tight_layout()
-        # ax.grid(True, which='minor', color="grey", linestyle='-', linewidth=1)
-        ax.xaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
-        ax.yaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
-        figname = f"{plot_path}/RV-Meteor_microwave-radiometer_{timestep}_rolling_{stat}_{var}_" \
-                  f"{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}.png"
-        plt.savefig(figname, dpi=250)
-        print(f"Figure saved :: {figname}\n"
-              f"Time passed: {time.time() - t2:.2f}")
-        plt.close()
-print(f"Finished plotting statistics in {time.time() - t1:.2f}")
+# # plotting statistics
+# # layout stuff
+# print("Plotting statistics...")
+# t1 = time.time()
+# plt.style.use("default")
+# plt.rcParams.update({'figure.figsize': (6, 7)})
+# variables = ["lwp", "iwv"]
+# ylabels = ["Liquid Water Path [g m-2]", "Integrated Water Vapor [kg m-2]"]
+# titles = ["Liquid Water Path", "Integrated Water Vapor"]
+# for i in stats:
+#     string = i.split(sep="_")  # split data frame name to extract averaging time and statistic used
+#     stat = string[1].capitalize()
+#     timestep = string[0]
+#     for var, ylabel, title in zip(variables, ylabels, titles):
+#         t2 = time.time()
+#         fig, ax = plt.subplots()
+#         ax.errorbar(stats[i].index, stats[i][var], yerr=stats[i][f'{var}_std'], fmt='-b',
+#                     ecolor='lightgrey', label=f"{var.swapcase()} with 1 standard deviation", linewidth=3)
+#         ax.legend(title='', loc='upper right')
+#         if var == "iwv":
+#             ax.set_ylim([15, 50])
+#         elif var == "lwp":
+#             ax.set_ylim([0, 350])
+#         ax.set_ylabel(ylabel)
+#         ax.set_xlabel("Datetime [UTC]")
+#         ax.set_title(f"{title} {timestep} Rolling {stat}"
+#                      f"\nEUREC4A RV-Meteor - {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d} "
+#                      f"\nMicrowave Radiometer HATPRO Uni Leipzig")
+#         ax.xaxis.set_major_locator(mdates.DayLocator(interval=5))
+#         ax.xaxis.set_minor_locator(mdates.DayLocator(interval=1))
+#         ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
+#         ax.yaxis.set_minor_locator(AutoMinorLocator(2))
+#         ax.yaxis.set_minor_formatter(FormatStrFormatter('%d'))
+#         ax.tick_params(which='minor', length=4, labelsize=12)
+#         fig.autofmt_xdate()
+#         # plt.tight_layout()
+#         # ax.grid(True, which='minor', color="grey", linestyle='-', linewidth=1)
+#         ax.xaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
+#         ax.yaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
+#         figname = f"{plot_path}/RV-Meteor_microwave-radiometer_{timestep}_rolling_{stat}_{var}_" \
+#                   f"{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}.png"
+#         plt.savefig(figname, dpi=250)
+#         print(f"Figure saved :: {figname}\n"
+#               f"Time passed: {time.time() - t2:.2f}")
+#         plt.close()
+# print(f"Finished plotting statistics in {time.time() - t1:.2f}")
