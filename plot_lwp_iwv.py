@@ -115,10 +115,10 @@ print(f"Done with stats in {time.time() - t1:.2f}")
 
 name1 = f"RV-Meteor_microwave-radiometer"
 name2 = f"{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}.png"
-fig, _ = pyLARDA.Transformations.plot_timeseries(MWR_lwp, rg_converter=True, title=True)
+fig, _ = pyLARDA.Transformations.plot_timeseries(MWR_lwp, title=True)
 fig.savefig(f"{plot_path}/{name1}_LWP_{name2}", dpi=250)
 
-fig, _ = pyLARDA.Transformations.plot_timeseries(MWR_iwv, rg_converter=True, title=True)
+fig, _ = pyLARDA.Transformations.plot_timeseries(MWR_iwv, title=True)
 fig.savefig(f"{plot_path}/{name1}_IWV_{name2}", dpi=250)
 
 fig, _ = pyLARDA.Transformations.plot_timeheight(MWR_hum, rg_converter=True, title=True)

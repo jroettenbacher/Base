@@ -480,7 +480,7 @@
     which_path = 'lv2_clwvi'
     variable_name = 'clwvi'
     ncreader = 'time'
-    var_lims = [-25, 500]
+    var_lims = [-25, 2000]
   [HATPRO.params.flag]
     which_path = 'lv2_clwvi'
     variable_name = 'flag'
