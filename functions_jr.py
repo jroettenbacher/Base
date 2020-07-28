@@ -424,7 +424,7 @@ def calc_sensitivity_curve(program):
     rain_flag_dwd_ip = {}
 
     for p in program:
-        print(f"Working on program {p}")
+        print(f"Calculating sensitivity curve for program {p}")
         begin_dt = begin_dts[p]
         end_dt = end_dts[p]
         t1 = time.time()
