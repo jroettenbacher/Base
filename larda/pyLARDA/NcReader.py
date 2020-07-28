@@ -24,18 +24,16 @@ def get_time_slicer(ts, f, time_interval):
         right one would be beyond the ts range -> argnearest instead searchsorted
     3. only one is timestamp
     """
-    # print('timestamps ', h.ts_to_dt(ts[0]), h.ts_to_dt(ts[-1]))
-    # setup slice to load base on time_interval
-    # it_b = h.argnearest(ts, h.dt_to_ts(time_interval[0]))
+
     # select first timestamp right of begin (not left if nearer as above)
+    #print(f'start time {h.ts_to_dt(ts[0])}')
     it_b = 0 if ts.shape[0] == 1 else np.searchsorted(ts, h.dt_to_ts(time_interval[0]), side='right')
     if len(time_interval) == 2:
         it_e = h.argnearest(ts, h.dt_to_ts(time_interval[1]))
 
         if it_b == ts.shape[0]: it_b = it_b - 1
         valid_step =  3 * np.median(np.diff(ts))
-        if ts[it_e] < h.dt_to_ts(time_interval[0]) - valid_step \
-                or ts[it_b] < h.dt_to_ts(time_interval[0]):
+        if ts[it_e] < h.dt_to_ts(time_interval[0]) - valid_step or ts[it_b] < h.dt_to_ts(time_interval[0]):
             # second condition is to ensure that no timestamp before
             # the selected interval is choosen
             # (problem with limrad after change of sampling frequency)
@@ -66,9 +64,9 @@ def get_var_attr_from_nc(name, paraminfo, variable):
         try:
             attr = variable.getncattr(paraminfo[name])
         except Exception as e:
-            print('Error extracting paraminfo of variable ' + str(name))
-            print('Check spelling in .toml file or remove from .toml')
-            print('Exception :: ', e)
+            logger.critical('Error extracting paraminfo of variable ' + str(name))
+            logger.critical('Check spelling in .toml file or remove from .toml')
+            logger.critical('Exception :: ', e)
     else:
         attr = paraminfo[name.replace("identifier_", "")]
 
@@ -110,7 +108,8 @@ def reader(paraminfo):
                 ts = timeconverter(times)
             # get the time slicer from time_interval
             slicer = get_time_slicer(ts, f, time_interval)
-            if slicer == None and paraminfo['ncreader'] != 'pollynet_profile':
+            if slicer is None and paraminfo['ncreader'] != 'pollynet_profile':
+                logger.critical(f'No time slice found!\nfile :: {f}\n')
                 return None
 
             if paraminfo['ncreader'] == "pollynet_profile":
@@ -119,7 +118,11 @@ def reader(paraminfo):
             if paraminfo['ncreader'] in ['timeheight', 'spec', 'mira_noise', 'pollynet_profile']:
                 range_tg = True
 
-                range_interval = further_intervals[0]
+                try:
+                    range_interval = further_intervals[0]
+                except IndexError as e:
+                    logger.error('No range interval was given.')
+
                 ranges = ncD.variables[paraminfo['range_variable']]
                 logger.debug('loader range conversion {}'.format(paraminfo['range_conversion']))
                 rangeconverter, _ = h.get_converter_array(
@@ -227,16 +230,13 @@ def reader(paraminfo):
             if paraminfo['ncreader'] == "pollynet_profile":
                 del slicer[0]
 
-            if "identifier_fill_value" in paraminfo.keys() and not "fill_value" in paraminfo.keys():
-                fill_value = var.getncattr(paraminfo['identifier_fill_value'])
-                mask = (var[tuple(slicer)].data == fill_value)
-            elif "fill_value" in paraminfo.keys():
-                fill_value = paraminfo['fill_value']
-                mask = np.isclose(var[tuple(slicer)].data, fill_value)
-            else:
-                mask = ~np.isfinite(var[tuple(slicer)].data)
-
-            data['mask'] = maskconverter(mask)
+            # read in the variable definition dictionary
+            #
+            if "identifier_var_def" in paraminfo.keys() and not "var_def" in paraminfo.keys():
+                data['var_definition'] = h.guess_str_to_dict(
+                    var.getncattr(paraminfo['identifier_var_def']))
+            elif "var_def" in paraminfo.keys():
+                data['var_definition'] =  paraminfo['var_def']
 
             if paraminfo['ncreader'] == 'mira_noise':
                 r_c = ncD.variables[paraminfo['radar_const']][:]
@@ -246,7 +246,8 @@ def reader(paraminfo):
                                    npw[slicer[0], np.newaxis] * (data['rg'][np.newaxis, :] / 5000.) ** 2
                 data['var'] = calibrated_noise
             else:
-                data['var'] = varconverter(var[tuple(slicer)].data)
+                data['var'] = varconverter(var[:])[tuple(slicer)]
+
                 #if paraminfo['compute_velbins'] == "mrrpro":
                 #    data['var'] = data['var'] * wl** 4 / (np.pi** 5) / 0.93 * 10**6
 

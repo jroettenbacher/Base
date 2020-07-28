@@ -32,7 +32,7 @@ def export_spectra_to_nc(data, system='', path='', **kwargs):
         ds.history = 'Created ' + time.ctime(time.time())
         ds.system = system
         ds.location = data['paraminfo']['location']
-        ds.FillValue = data['paraminfo']['fill_value']
+        ds._FillValue = data['paraminfo']['fill_value']
 
         ds.createDimension('chirp', no_chirps)  # add variable number of chirps later
         ds.createDimension('time', data['ts'].size)
@@ -102,7 +102,7 @@ def rpg_radar2nc(data, path, larda_git_path, **kwargs):
         ds.description = 'Concatenated data files of LIMRAD 94GHz - FMCW Radar, used as input for Cloudnet processing, ' \
                          'filters applied: ghos-echo, despeckle, use only main peak'
         ds.history = 'Created ' + time.ctime(time.time())
-        ds.FillValue = data['Ze']['paraminfo']['fill_value']
+        ds._FillValue = data['Ze']['paraminfo']['fill_value']
 
         ds.day = dt_start.day
         ds.month = dt_start.month
@@ -296,7 +296,7 @@ def rpg_radar2nc_old(data, path, **kwargs):
                          'filters applied: ghos-echo, despeckle, use only main peak'
         ds.history = 'Created ' + time.ctime(time.time())
         ds.source = data['Ze']['paraminfo']['location']
-        ds.FillValue = data['Ze']['paraminfo']['fill_value']
+        ds._FillValue = data['Ze']['paraminfo']['fill_value']
 
         ds.createDimension('chirp', no_chirps)  # add variable number of chirps later
         ds.createDimension('time', data['Ze']['ts'].size)
