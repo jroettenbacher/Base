@@ -435,7 +435,7 @@ def calc_sensitivity_curve(program):
         # DWD rain flag
         # weather data, time res = 1 min, only read in Dauer (duration) column, gives rain duration in seconds
         t2 = time.time()
-        weather = pd.read_csv("/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_DWD/20200114_M161_Nsl.CSV", sep=";",
+        weather = pd.read_csv("/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DWD/20200114_M161_Nsl.CSV", sep=";",
                               index_col="Timestamp", usecols=[0, 5], squeeze=True)
         weather.index = pd.to_datetime(weather.index, format="%d.%m.%Y %H:%M")
         weather = weather[begin_dt:end_dt]  # select date range

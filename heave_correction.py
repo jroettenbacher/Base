@@ -195,16 +195,16 @@ print(f'figure saved :: {fig_name}')
 
 # save seapath_out to csv for plotting with R
 # decide on csv file name
-if only_heave and use_cross_product:
-    seapath_out.columns = ("heading", "heave", "pitch", "roll", "heave_rate", "chirp_no")
-    csv_name = f"seapath_out_{begin_dt:%Y%m%d}_only_heave_cross_product.csv"
-elif only_heave and not use_cross_product:
-    seapath_out.columns = ("heading", "heave", "pitch", "roll", "radar_heave", "pitch_heave", "roll_heave", "heave_rate",
-                           "chirp_no")
-    csv_name = f"seapath_out_{begin_dt:%Y%m%d}_only_heave.csv"
-elif not only_heave and use_cross_product:
-    seapath_out.columns = ("heading", "heave", "pitch", "roll", "heave_rate", "chirp_no")
-    csv_name = f"seapath_out_{begin_dt:%Y%m%d}_cross_product.csv"
-else:
-    csv_name = f"seapath_out_{begin_dt:%Y%m%d}.csv"
-seapath_out.to_csv(f"{plot_path}/{csv_name}", encoding="1252", index_label="datetime")
+# if only_heave and use_cross_product:
+#     seapath_out.columns = ("heading", "heave", "pitch", "roll", "heave_rate", "chirp_no")
+#     csv_name = f"seapath_out_{begin_dt:%Y%m%d}_only_heave_cross_product.csv"
+# elif only_heave and not use_cross_product:
+#     seapath_out.columns = ("heading", "heave", "pitch", "roll", "radar_heave", "pitch_heave", "roll_heave", "heave_rate",
+#                            "chirp_no")
+#     csv_name = f"seapath_out_{begin_dt:%Y%m%d}_only_heave.csv"
+# elif not only_heave and use_cross_product:
+#     seapath_out.columns = ("heading", "heave", "pitch", "roll", "heave_rate", "chirp_no")
+#     csv_name = f"seapath_out_{begin_dt:%Y%m%d}_cross_product.csv"
+# else:
+#     csv_name = f"seapath_out_{begin_dt:%Y%m%d}.csv"
+# seapath_out.to_csv(f"{plot_path}/{csv_name}", encoding="1252", index_label="datetime")
