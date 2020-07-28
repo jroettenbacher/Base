@@ -125,7 +125,7 @@ def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-
     return seapath
 
 
-def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave=False, use_cross_product=False,
+def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave=False, use_cross_product=True,
                     transform_to_earth=True, calc_only_z_comp=False):
     """
     Calculate heave rate at a certain location of a ship with the measurements of the INS
@@ -199,7 +199,9 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
             c2 = np.cos(theta) * np.sin(phi)
             c3 = np.cos(theta) * np.cos(phi)
             Q_T = np.array([[a1, a2, a3], [b1, b2, b3], [c1, c2, c3]])
-            cross_prod = Q_T * cross_prod
+            # remove first entry of Q_T to match dimension of cross_prod
+            Q_T = Q_T[:, :, 1:]
+            cross_prod = np.einsum('ijk,kj->kj', Q_T, cross_prod)
 
         heave_rate = seapath_heave_rate + cross_prod[:, 2]  # calculate heave rate
 
