@@ -26,7 +26,7 @@ plot_range = [0, 'max']
 only_heave = False
 use_cross_product = True
 transform_to_earth = True
-add = True
+add = False
 mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
 moments = {"VEL": mdv}
 for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA']:
@@ -59,6 +59,9 @@ name_zoom = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_
 if use_cross_product:
     name_zoom = f'{name_zoom}_cross_product'
     name = f'{name}_cross_product'
+if transform_to_earth:
+    name_zoom = f'{name_zoom}_transformed'
+    name = f'{name}_transformed'
 if add:
     name_zoom = f'{name_zoom}+'
     name = f'{name}+'
