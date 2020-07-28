@@ -161,7 +161,8 @@ def plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system)
 
 
 if __name__ == '__main__':
-    program = ['P06']
+    # leave out P06 because it has no values for the stepped plots
+    program = ['P07', 'P09']
     steps = [3, 24]
     plot_path = "../plots/foc_LIMRAD94"
     larda_systems = ["LIMRAD94", "LIMRAD94_cn_input"]
