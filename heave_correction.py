@@ -1,6 +1,6 @@
 #!/bin/python
 
-# script for quality control off heave correction
+# script for quality control of heave correction
 ########################################################################################################################
 # library import
 ########################################################################################################################
@@ -22,13 +22,10 @@ begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
 end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
 begin_dt_zoom = dt.datetime(2020, 2, 5, 9, 25, 0)
 end_dt_zoom = dt.datetime(2020, 2, 5, 9, 35, 0)
-# begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
-# end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
-# begin_dt_zoom = dt.datetime(2020, 2, 5, 9, 25, 0)
-# end_dt_zoom = dt.datetime(2020, 2, 5, 9, 35, 0)
 plot_range = [0, 'max']
 only_heave = False
 use_cross_product = True
+transform_to_earth = True
 add = True
 mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
 moments = {"VEL": mdv}
@@ -36,7 +33,8 @@ for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA']:
     print('loading variable from LV1 :: ' + var)
     moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
 new_vel, heave_corr, seapath_out = jr.heave_correction(moments, begin_dt, only_heave=only_heave,
-                                                       use_cross_product=use_cross_product, add=add)
+                                                       use_cross_product=use_cross_product,
+                                                       transform_to_earth=transform_to_earth, add=add)
 moments.update({'Vel_cor': moments['VEL'], 'heave_corr': moments['VEL'], 'Vel_cor-Vel': moments['VEL'],
                 'Vel-Vel_cor': moments['VEL']})
 # overwrite var with corrected mean Doppler velocities and heave correction
