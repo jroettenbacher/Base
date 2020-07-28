@@ -126,7 +126,7 @@ def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-
 
 
 def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave=False, use_cross_product=True,
-                    transform_to_earth=True, calc_only_z_comp=False):
+                    transform_to_earth=True):
     """
     Calculate heave rate at a certain location of a ship with the measurements of the INS
     Args:
@@ -136,6 +136,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
         z_radar (float): z position of location with respect to INS in meters
         only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
         use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
+        transform_to_earth (bool): transform cross product to earth coordinate system as described in https://repository.library.noaa.gov/view/noaa/17400
 
     Returns:
         seapath (pd.DataFrame): Data frame as input with additional columns radar_heave, pitch_heave, roll_heave and
@@ -181,10 +182,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
         pos_radar = np.array([x_radar, y_radar, z_radar])  # position of radar as a vector
         ang_rate = np.array([d_roll, d_pitch, d_yaw]).T  # angle velocity as a matrix
         pos_radar_exp = np.tile(pos_radar, (ang_rate.shape[0], 1))  # expand to shape of ang_rate
-        if calc_only_z_comp:
-            cross_prod = d_pitch * y_radar - d_roll * x_radar
-        else:
-            cross_prod = np.cross(ang_rate, pos_radar_exp)  # calculate cross product
+        cross_prod = np.cross(ang_rate, pos_radar_exp)  # calculate cross product
 
         if transform_to_earth:
             print("Transform into Earth Coordinate System")
@@ -325,7 +323,7 @@ def calc_heave_corr(container, date, seapath):
 
 
 def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
-                     only_heave=False, use_cross_product=True, transform_to_earth=True, add=True, calc_only_z_comp=False):
+                     only_heave=False, use_cross_product=True, transform_to_earth=True, add=True):
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
     Calculate heave rate from seapath measurements and create heave correction array. If Doppler velocity is given as an
     input, correct it and return an array with the corrected Doppler velocities.
@@ -340,7 +338,6 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
         use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
         transform_to_earth (bool): transform cross product to earth coordinate system as described in https://repository.library.noaa.gov/view/noaa/17400
         add (bool): whether to add the heave rate or subtract it
-        calc_only_z_comp (bool): calculate only the z-component of the cross product
 
     Returns: A number of variables
         new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"] or list if no Doppler
@@ -361,7 +358,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
     # Calculating Heave Rate
     ####################################################################################################################
     seapath = calc_heave_rate(seapath, only_heave=only_heave, use_cross_product=use_cross_product,
-                              transform_to_earth=transform_to_earth, calc_only_z_comp=calc_only_z_comp)
+                              transform_to_earth=transform_to_earth)
 
     ####################################################################################################################
     # Calculating heave correction array and add to Doppler velocity
