@@ -44,6 +44,8 @@ $$ heaverate_{radar} = \frac{heave_{radar}(t_{n+1}) - heave_{radar}(t_n)}{t_{n+1
 
 **Idea:** Determine the heave rate $v_{C_z}$ of the radar by summing up the z-component of the cross product between the rotation vector of the ship $v_{P_R}$ and the position of the radar relative to the INS of the ship $X_R$ with the z-component of the translation vector of the ship $v_{P_{T,z}}$. That's the way Hannes Griesche did it ([paper](https://doi.org/10.5194/amt-2019-434)).
 
+**Problem:** This determines the cross product in the ships coordinate system. The cross product needs to be transformed into the earths coordinate system.
+
 **What you need:**
 
 * Displacement of radar in reference to Inertial Navigation System

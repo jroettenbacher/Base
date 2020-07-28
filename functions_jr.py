@@ -218,7 +218,7 @@ def calc_heave_corr(container, date, seapath):
     """Calculate heave correction for mean Doppler velocity
 
     Args:
-        container (larda container): LIMRAD94 C1/2/3_Range and ts
+        container (larda container): LIMRAD94 C1/2/3_Range, SeqIntTime and ts
         date (dt.datetime): date of file
         seapath (pd.DataFrame): Data frame with heave rate column ("Heave Rate [m/s]")
 
@@ -298,7 +298,8 @@ def calc_heave_corr(container, date, seapath):
                 idc = id_max[j]
                 warnings.warn(f"Heave rate greater 5 * std encountered ({seapath_closest['Heave Rate [m/s]'][idc]})! \n"
                               f"Using average of step before and after. Index: {idc}", UserWarning)
-                # TODO: make more sensible filter
+                # TODO: make more sensible filter, this is a rather sensible filter, because we average over the time
+                #  steps before and after. Altough the values are already averages, this should smooth out outliers
                 avg_hrate = (seapath_closest["Heave Rate [m/s]"][idc - 1] + seapath_closest["Heave Rate [m/s]"][idc + 1]) / 2
                 if avg_hrate > 5 * std:
                     warnings.warn(f"Heave Rate value greater than 5 * std encountered ({avg_hrate})! \n"
@@ -324,7 +325,7 @@ def calc_heave_corr(container, date, seapath):
 
 
 def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
-                     only_heave=False, use_cross_product=False, add=True):
+                     only_heave=False, use_cross_product=True, transform_to_earth=True, add=True, calc_only_z_comp=False):
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
     Calculate heave rate from seapath measurements and create heave correction array. If Doppler velocity is given as an
     input, correct it and return an array with the corrected Doppler velocities.
@@ -337,7 +338,9 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
         path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
         only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
         use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
+        transform_to_earth (bool): transform cross product to earth coordinate system as described in https://repository.library.noaa.gov/view/noaa/17400
         add (bool): whether to add the heave rate or subtract it
+        calc_only_z_comp (bool): calculate only the z-component of the cross product
 
     Returns: A number of variables
         new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"] or list if no Doppler
@@ -357,7 +360,8 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
     ####################################################################################################################
     # Calculating Heave Rate
     ####################################################################################################################
-    seapath = calc_heave_rate(seapath, only_heave=only_heave, use_cross_product=use_cross_product)
+    seapath = calc_heave_rate(seapath, only_heave=only_heave, use_cross_product=use_cross_product,
+                              transform_to_earth=transform_to_earth, calc_only_z_comp=calc_only_z_comp)
 
     ####################################################################################################################
     # Calculating heave correction array and add to Doppler velocity

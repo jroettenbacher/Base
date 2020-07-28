@@ -29,7 +29,7 @@ end_dt_zoom = dt.datetime(2020, 2, 5, 9, 35, 0)
 plot_range = [0, 'max']
 only_heave = False
 use_cross_product = True
-add = False
+add = True
 mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
 moments = {"VEL": mdv}
 for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA']:
