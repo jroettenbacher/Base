@@ -436,6 +436,72 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
         return new_vel, heave_corr, seapath_out
 
 
+def heave_correction_spectra(moments, date,
+                             path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
+                             mean_hr=True, only_heave=False, use_cross_product=True, transform_to_earth=True, add=False):
+    """Shift Doppler spectra to correct for heave motion of ship (RV-Meteor)
+    Calculate heave rate from seapath measurements and create heave correction array. Translate the heave correction to
+    a number spectra bins by which to move each spectra. If Spectra are given, shift them and return a 3D array with the
+    shifted spectra.
+    Without spectra input, only the heave correction array with the number if bins to move is returned.
+
+    Args:
+        moments: LIMRAD94 moments container filled with spectra, C1/2/3_Range, SeqIntTime, MaxVel, DoppLen and Inc_ElA (for ts) from LV1 file
+        date (datetime.datetime): object with date of current file
+        path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
+        mean_hr (bool): whether to use the mean heave rate over the SeqIntTime or the heave rate at the start time of the chirp
+        only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
+        use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
+        transform_to_earth (bool): transform cross product to earth coordinate system as described in https://repository.library.noaa.gov/view/noaa/17400
+        add (bool): whether to add the heave rate or subtract it
+
+    Returns: A number of variables
+        new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"] or list if no Doppler
+        Velocity is given;
+        heave_corr (ndarray): heave rate closest to each radar timestep for each height bin, same shape as
+        moments["VEL"]["var"];
+        seapath_out (pd.DataFrame): data frame with all heave information from the closest time steps to the chirps
+
+    """
+    ####################################################################################################################
+    # Data Read in
+    ####################################################################################################################
+    start = time.time()
+    print(f"Starting heave correction for {date:%Y-%m-%d}")
+    seapath = read_seapath(date, path_to_seapath)
+
+    ####################################################################################################################
+    # Calculating Heave Rate
+    ####################################################################################################################
+    seapath = calc_heave_rate(seapath, only_heave=only_heave, use_cross_product=use_cross_product,
+                              transform_to_earth=transform_to_earth)
+
+    ####################################################################################################################
+    # Calculating heave correction array and add to Doppler velocity
+    ####################################################################################################################
+    # make input container to calc_heave_corr function
+    container = {'C1Range': moments['C1Range'], 'C2Range': moments['C2Range'], 'C3Range': moments['C3Range'],
+                 'SeqIntTime': moments['SeqIntTime'], 'ts': moments['Inc_ElA']['ts']}
+    heave_corr, seapath_out = calc_heave_corr(container, date, seapath, mean_hr=mean_hr)
+
+    try:
+        if add:
+            # create new Doppler velocity by adding the heave rate of the closest time step
+            new_vel = moments['VEL']['var'] + heave_corr
+        elif not add:
+            # create new Doppler velocity by subtracting the heave rate of the closest time step
+            new_vel = moments['VEL']['var'] - heave_corr
+        # set masked values back to -999 because they also get corrected
+        new_vel[moments['VEL']['mask']] = -999
+        print(f"Done with heave corrections in {time.time() - start:.2f} seconds")
+        return new_vel, heave_corr, seapath_out
+    except KeyError:
+        print(f"No input Velocities found! Cannot correct Doppler Velocity.\n Returning only heave_corr array!")
+        print(f"Done with heave correction calculation only in {time.time() - start:.2f} seconds")
+        new_vel = ["I'm an empty list!"]  # create an empty list to return the same number of variables
+        return new_vel, heave_corr, seapath_out
+
+
 def calc_sensitivity_curve(program):
     """Calculate mean sensitivity limit over height for specified chirp table (sensitivity curve)
 
