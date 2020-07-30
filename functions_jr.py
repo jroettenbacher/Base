@@ -216,7 +216,7 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
     """Calculate heave correction for mean Doppler velocity
 
     Args:
-        container (larda container): LIMRAD94 C1/2/3_Range, SeqIntTime and ts
+        container (larda container): LIMRAD94 C1/2/3_Range, SeqIntTime, ts, MaxVel, DoppLen
         date (dt.datetime): date of file
         seapath (pd.DataFrame): Data frame with heave rate column ("Heave Rate [m/s]")
         mean_hr (bool): whether to use the mean heave rate over the SeqIntTime or the heave rate at the start time of the chirp
@@ -326,8 +326,57 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
     return heave_corr, seapath_out
 
 
+def calc_dopp_res(MaxVel, DoppLen, no_chirps, range_bins):
+    """
+
+    Args:
+        MaxVel: Unambiguous Doppler velocity (+/-) m/s from LV1 file
+        DoppLen: Number of spectral lines in Doppler spectra from LV1 file
+        no_chirps: Number of chirps
+        range_bins: range bin number of lower chirp borders, starts with 0
+
+    Returns: 1D array with Doppler resolution for each height bin
+
+    """
+    DoppRes = np.divide(2.0 * MaxVel, DoppLen)
+    dopp_res = np.empty(range_bins[-1])
+    for ic in range(no_chirps):
+        dopp_res[range_bins[ic]:range_bins[ic + 1]] = DoppRes[ic]
+    return dopp_res
+
+
+def heave_rate_to_spectra_bins(heave_corr, doppler_res):
+    """translate the heave correction to Doppler spectra bins
+
+    Args:
+        heave_corr (ndarray): heave rate closest to each radar timestep for each height bin, time x range
+        doppler_res (ndarray): Doppler resolution of each chirp of LIMRAD94 for whole range 1 x range
+
+    Returns: ndarray with number of bins to move each Doppler spectrum
+        n_dopp_bins_shift (ndarray): of same dimension as heave_corr
+
+    """
+    start = time.time()
+    # add a dimension to the doppler_res vector
+    doppler_res = np.expand_dims(doppler_res, axis=1)
+    # repeat doppler_res to same time dimension as heave_corr
+    doppler_res = np.repeat(doppler_res.T, heave_corr.shape[0], axis=0)
+
+    assert doppler_res.shape == heave_corr.shape, f"Arrays have different shape! {doppler_res.shape} " \
+                                                        f"and {heave_corr.shape}"
+
+    # calculate number of Doppler bins
+    n_dopp_bins_shift = np.round(heave_corr / doppler_res)
+    # mask all values which where previously masked
+    n_dopp_bins_shift = np.ma.masked_where(heave_corr == -999, n_dopp_bins_shift)
+    # set masked values back to -999 because they also got translated
+    n_dopp_bins_shift[n_dopp_bins_shift.mask] = -999
+    print(f"Done with translation of heave corrections to Doppler bins in {time.time() - start:.2f} seconds")
+    return n_dopp_bins_shift, heave_corr
+
+
 def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
-                     only_heave=False, use_cross_product=True, transform_to_earth=True, add=False):
+                     mean_hr=True, only_heave=False, use_cross_product=True, transform_to_earth=True, add=False):
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
     Calculate heave rate from seapath measurements and create heave correction array. If Doppler velocity is given as an
     input, correct it and return an array with the corrected Doppler velocities.
@@ -338,6 +387,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
                  SeqIntTime and Inc_ElA (for time (ts)) from LV1 file
         date (datetime.datetime): object with date of current file
         path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
+        mean_hr (bool): whether to use the mean heave rate over the SeqIntTime or the heave rate at the start time of the chirp
         only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
         use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
         transform_to_earth (bool): transform cross product to earth coordinate system as described in https://repository.library.noaa.gov/view/noaa/17400
@@ -361,7 +411,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
     ####################################################################################################################
     # Calculating Heave Rate
     ####################################################################################################################
-    seapath = calc_heave_rate(seapath, only_heave=only_heave, use_cross_product=use_cross_product,
+    seapath = calc_heave_rate(seapath, mean_hr=mean_hr, only_heave=only_heave, use_cross_product=use_cross_product,
                               transform_to_earth=transform_to_earth)
 
     ####################################################################################################################
@@ -485,7 +535,7 @@ if __name__ == '__main__':
     plot_range = [0, 'max']
     mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
     moments = {"VEL": mdv}
-    for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA']:
+    for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA', 'DoppLen', 'MaxVel']:
         print('loading variable from LV1 :: ' + var)
         moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
     new_vel, heave_corr, seapath_out = heave_correction(moments, begin_dt, use_cross_product=True)
