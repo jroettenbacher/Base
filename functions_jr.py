@@ -212,13 +212,14 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
     return seapath
 
 
-def calc_heave_corr(container, date, seapath):
+def calc_heave_corr(container, date, seapath, mean_hr=True):
     """Calculate heave correction for mean Doppler velocity
 
     Args:
         container (larda container): LIMRAD94 C1/2/3_Range, SeqIntTime and ts
         date (dt.datetime): date of file
         seapath (pd.DataFrame): Data frame with heave rate column ("Heave Rate [m/s]")
+        mean_hr (bool): whether to use the mean heave rate over the SeqIntTime or the heave rate at the start time of the chirp
 
     Returns: heave_corr
         heave_corr (ndarray): heave rate closest to each radar timestep for each height bin, time x range
@@ -271,17 +272,20 @@ def calc_heave_corr(container, date, seapath):
         # convert timestamps of moments to array
         ts = chirp_timestamps[f"chirp_{i+1}"].values
         id_diff_mins = []  # initialize list for indices of the time steps with minimum difference
-        dfs = []  # initialize list for means over integration time for each radar time step
+        means_ls = []  # initialize list for means over integration time for each radar time step
         for t in ts:
             id_diff_min = h.argnearest(seapath_ts, t)  # find index of nearest seapath time step to radar time step
             id_diff_mins.append(id_diff_min)
             # get time stamp of closest index
-            ts_diff = seapath.index[id_diff_min]
-            # select rows from closest time stamp to end of integration time and average, append to list
-            dfs.append(seapath[ts_diff:ts_diff+int_time].mean())
+            ts_id_diff_min = seapath.index[id_diff_min]
+            if mean_hr:
+                # select rows from closest time stamp to end of integration time and average, append to list
+                means_ls.append(seapath[ts_id_diff_min:ts_id_diff_min+int_time].mean())
+            else:
+                means_ls.append(seapath[ts_id_diff_min])
 
         # concatinate all means into one dataframe with the original header (transpose)
-        seapath_closest = pd.concat(dfs, axis=1).T
+        seapath_closest = pd.concat(means_ls, axis=1).T
         # add index with closest seapath time step to radar time step
         seapath_closest.index = seapath.index[id_diff_mins]
 
@@ -323,7 +327,7 @@ def calc_heave_corr(container, date, seapath):
 
 
 def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
-                     only_heave=False, use_cross_product=True, transform_to_earth=True, add=True):
+                     only_heave=False, use_cross_product=True, transform_to_earth=True, add=False):
     """Correct mean Doppler velocity for heave motion of ship (RV-Meteor)
     Calculate heave rate from seapath measurements and create heave correction array. If Doppler velocity is given as an
     input, correct it and return an array with the corrected Doppler velocities.
