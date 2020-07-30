@@ -363,14 +363,10 @@ def heave_rate_to_spectra_bins(heave_corr, doppler_res):
     doppler_res = np.repeat(doppler_res.T, heave_corr.shape[0], axis=0)
 
     assert doppler_res.shape == heave_corr.shape, f"Arrays have different shape! {doppler_res.shape} " \
-                                                        f"and {heave_corr.shape}"
+                                                  f"and {heave_corr.shape}"
 
     # calculate number of Doppler bins
     n_dopp_bins_shift = np.round(heave_corr / doppler_res)
-    # mask all values which where previously masked
-    n_dopp_bins_shift = np.ma.masked_where(heave_corr == -999, n_dopp_bins_shift)
-    # set masked values back to -999 because they also got translated
-    n_dopp_bins_shift[n_dopp_bins_shift.mask] = -999
     print(f"Done with translation of heave corrections to Doppler bins in {time.time() - start:.2f} seconds")
     return n_dopp_bins_shift, heave_corr
 
@@ -411,7 +407,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
     ####################################################################################################################
     # Calculating Heave Rate
     ####################################################################################################################
-    seapath = calc_heave_rate(seapath, mean_hr=mean_hr, only_heave=only_heave, use_cross_product=use_cross_product,
+    seapath = calc_heave_rate(seapath, only_heave=only_heave, use_cross_product=use_cross_product,
                               transform_to_earth=transform_to_earth)
 
     ####################################################################################################################
@@ -420,7 +416,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
     # make input container to calc_heave_corr function
     container = {'C1Range': moments['C1Range'], 'C2Range': moments['C2Range'], 'C3Range': moments['C3Range'],
                  'SeqIntTime': moments['SeqIntTime'], 'ts': moments['Inc_ElA']['ts']}
-    heave_corr, seapath_out = calc_heave_corr(container, date, seapath)
+    heave_corr, seapath_out = calc_heave_corr(container, date, seapath, mean_hr=mean_hr)
 
     try:
         if add:
