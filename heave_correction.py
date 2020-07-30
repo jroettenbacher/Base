@@ -18,10 +18,26 @@ import pandas as pd
 
 # run heave correction on cloudnet input file
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
-begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
-end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
-begin_dt_zoom = dt.datetime(2020, 2, 5, 9, 25, 0)
-end_dt_zoom = dt.datetime(2020, 2, 5, 9, 35, 0)
+# begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
+# end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
+# begin_dt_zoom = dt.datetime(2020, 2, 5, 9, 25, 0)
+# end_dt_zoom = dt.datetime(2020, 2, 5, 9, 35, 0)
+# begin_dt = dt.datetime(2020, 1, 28, 0, 0, 5)
+# end_dt = dt.datetime(2020, 1, 28, 23, 59, 55)
+# begin_dt_zoom = dt.datetime(2020, 1, 28, 17, 12, 0)
+# end_dt_zoom = dt.datetime(2020, 1, 28, 17, 22, 0)
+# begin_dt = dt.datetime(2020, 2, 10, 0, 0, 5)
+# end_dt = dt.datetime(2020, 2, 10, 23, 59, 55)
+# begin_dt_zoom = dt.datetime(2020, 2, 10, 22, 10, 0)
+# end_dt_zoom = dt.datetime(2020, 2, 10, 22, 20, 0)
+# begin_dt = dt.datetime(2020, 2, 2, 0, 0, 5)
+# end_dt = dt.datetime(2020, 2, 2, 23, 59, 55)
+# begin_dt_zoom = dt.datetime(2020, 2, 2, 11, 0, 0)
+# end_dt_zoom = dt.datetime(2020, 2, 2, 11, 20, 0)
+begin_dt = dt.datetime(2020, 2, 3, 0, 0, 5)
+end_dt = dt.datetime(2020, 2, 3, 23, 59, 55)
+begin_dt_zoom = dt.datetime(2020, 2, 3, 18, 0, 0)
+end_dt_zoom = dt.datetime(2020, 2, 3, 18, 20, 0)
 plot_range = [0, 'max']
 only_heave = False
 use_cross_product = True
