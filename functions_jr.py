@@ -211,6 +211,26 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
     print(f"Done with heave rate calculation in {time.time() - t1:.2f} seconds")
     return seapath
 
+def get_range_bin_borders(no_chirps, container):
+    """get the range bins which correspond to the chirp borders of a FMCW radar
+
+    Args:
+        no_chirps (int): Number of chirps
+        container (dict): Dictionary with C1/2/3Range variable from LV1 files
+
+    Returns: ndarray with chirp borders including 0
+        range_bins
+
+    """
+    range_bins = np.zeros(no_chirps + 1, dtype=np.int)  # needs to be length 4 to include all +1 chirp borders
+    for i in range(no_chirps):
+        try:
+            range_bins[i + 1] = range_bins[i] + container[f'C{i + 1}Range']['var'][0].shape
+        except ValueError:
+            # in case only one file is read in data["C1Range"]["var"] has only one dimension
+            range_bins[i + 1] = range_bins[i] + container[f'C{i + 1}Range']['var'].shape
+
+    return range_bins
 
 def calc_heave_corr(container, date, seapath, mean_hr=True):
     """Calculate heave correction for mean Doppler velocity
@@ -250,15 +270,9 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
     chirp_timestamps["chirp_2"] = container["ts"] - chirp_dur[1] - chirp_dur[2]
     chirp_timestamps["chirp_3"] = container["ts"] - chirp_dur[2]
 
-    # list with range bin numbers of chirp borders
+    # array with range bin numbers of chirp borders
     no_chirps = len(chirp_dur)
-    range_bins = np.zeros(no_chirps + 1, dtype=np.int)  # needs to be length 4 to include all +1 chirp borders
-    for i in range(no_chirps):
-        try:
-            range_bins[i + 1] = range_bins[i] + container[f'C{i + 1}Range']['var'][0].shape
-        except ValueError:
-            # in case only one file is read in data["C1Range"]["var"] has only one dimension
-            range_bins[i + 1] = range_bins[i] + container[f'C{i + 1}Range']['var'].shape
+    range_bins = get_range_bin_borders(no_chirps, container)
 
     seapath_ts = seapath.index.values.astype(np.float64) / 10 ** 9  # convert datetime index to seconds since 1970-01-01
     total_range_bins = range_bins[-1]  # get total number of range bins
@@ -477,12 +491,16 @@ def heave_correction_spectra(moments, date,
                               transform_to_earth=transform_to_earth)
 
     ####################################################################################################################
-    # Calculating heave correction array and add to Doppler velocity
+    # Calculating heave correction array and translate to number of Doppler bin shifts
     ####################################################################################################################
     # make input container to calc_heave_corr function
     container = {'C1Range': moments['C1Range'], 'C2Range': moments['C2Range'], 'C3Range': moments['C3Range'],
                  'SeqIntTime': moments['SeqIntTime'], 'ts': moments['Inc_ElA']['ts']}
     heave_corr, seapath_out = calc_heave_corr(container, date, seapath, mean_hr=mean_hr)
+
+    doppler_res = calc_dopp_res(MaxVel=, DoppLen=, no_chirps=, range_bins=)
+    n_dopp_bins_shift, heave_corr = heave_rate_to_spectra_bins(heave_corr, doppler_res)
+
 
     try:
         if add:
