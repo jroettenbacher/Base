@@ -497,7 +497,7 @@ def heave_correction_spectra(data, date,
     ####################################################################################################################
     # make input container to calc_heave_corr function
     container = {'C1Range': data['C1Range'], 'C2Range': data['C2Range'], 'C3Range': data['C3Range'],
-                 'SeqIntTime': data['SeqIntTime'], 'ts': data['Inc_ElA']['ts'], 'MaxVel': data['MaxVel'],
+                 'SeqIntTime': data['SeqIntTime'], 'ts': data['VHSpec']['ts'], 'MaxVel': data['MaxVel'],
                  'DoppLen': data["DoppLen"]}
     heave_corr, seapath_out = calc_heave_corr(container, date, seapath, mean_hr=mean_hr)
 
@@ -511,13 +511,13 @@ def heave_correction_spectra(data, date,
         # correct spectra for heave rate by moving it by the corresponding number of Doppler bins
         spectra = data['VHSpec']['var']
         new_spectra = np.empty_like(spectra)
-        for iT in data['n_ts']:
+        for iT in range(data['n_ts']):
             # loop through time steps
-            for iR in data['nrg']:
+            for iR in range(data['n_rg']):
                 # loop through range gates
                 # TODO: check if mask is True and skip, although masked shifted spectra do not introduce any error,
                 # this might speed up things...
-                shift = n_dopp_bins_shift[iT, iR]
+                shift = int(n_dopp_bins_shift[iT, iR])
                 spectrum = spectra[iT, iR, :]
                 if add:
                     new_spec = np.roll(spectrum, shift)
