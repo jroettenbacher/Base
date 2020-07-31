@@ -1,7 +1,7 @@
 
 from itertools import groupby
-import numpy as np
 from scipy import interpolate
+import numpy as np
 import pandas as pd
 import time
 import matplotlib as mpl
@@ -211,6 +211,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
     print(f"Done with heave rate calculation in {time.time() - t1:.2f} seconds")
     return seapath
 
+
 def get_range_bin_borders(no_chirps, container):
     """get the range bins which correspond to the chirp borders of a FMCW radar
 
@@ -231,6 +232,7 @@ def get_range_bin_borders(no_chirps, container):
             range_bins[i + 1] = range_bins[i] + container[f'C{i + 1}Range']['var'].shape
 
     return range_bins
+
 
 def calc_heave_corr(container, date, seapath, mean_hr=True):
     """Calculate heave correction for mean Doppler velocity
@@ -298,7 +300,7 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
             else:
                 means_ls.append(seapath[ts_id_diff_min])
 
-        # concatinate all means into one dataframe with the original header (transpose)
+        # concatenate all means into one dataframe with the original header (transpose)
         seapath_closest = pd.concat(means_ls, axis=1).T
         # add index with closest seapath time step to radar time step
         seapath_closest.index = seapath.index[id_diff_mins]
@@ -344,10 +346,10 @@ def calc_dopp_res(MaxVel, DoppLen, no_chirps, range_bins):
     """
 
     Args:
-        MaxVel: Unambiguous Doppler velocity (+/-) m/s from LV1 file
-        DoppLen: Number of spectral lines in Doppler spectra from LV1 file
-        no_chirps: Number of chirps
-        range_bins: range bin number of lower chirp borders, starts with 0
+        MaxVel (ndarray): Unambiguous Doppler velocity (+/-) m/s from LV1 file
+        DoppLen (ndarray): Number of spectral lines in Doppler spectra from LV1 file
+        no_chirps (int): Number of chirps
+        range_bins (ndarray): range bin number of lower chirp borders, starts with 0
 
     Returns: 1D array with Doppler resolution for each height bin
 
@@ -450,7 +452,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
         return new_vel, heave_corr, seapath_out
 
 
-def heave_correction_spectra(moments, date,
+def heave_correction_spectra(data, date,
                              path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
                              mean_hr=True, only_heave=False, use_cross_product=True, transform_to_earth=True, add=False):
     """Shift Doppler spectra to correct for heave motion of ship (RV-Meteor)
@@ -460,7 +462,7 @@ def heave_correction_spectra(moments, date,
     Without spectra input, only the heave correction array with the number if bins to move is returned.
 
     Args:
-        moments: LIMRAD94 moments container filled with spectra, C1/2/3_Range, SeqIntTime, MaxVel, DoppLen and Inc_ElA (for ts) from LV1 file
+        data: LIMRAD94 data container filled with spectra, C1/2/3_Range, SeqIntTime, MaxVel, DoppLen and Inc_ElA (for ts) from LV1 file
         date (datetime.datetime): object with date of current file
         path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
         mean_hr (bool): whether to use the mean heave rate over the SeqIntTime or the heave rate at the start time of the chirp
@@ -470,10 +472,10 @@ def heave_correction_spectra(moments, date,
         add (bool): whether to add the heave rate or subtract it
 
     Returns: A number of variables
-        new_vel (ndarray); corrected Doppler velocities, same shape as moments["VEL"]["var"] or list if no Doppler
+        new_vel (ndarray); corrected Doppler velocities, same shape as data["VEL"]["var"] or list if no Doppler
         Velocity is given;
         heave_corr (ndarray): heave rate closest to each radar timestep for each height bin, same shape as
-        moments["VEL"]["var"];
+        data["VEL"]["var"];
         seapath_out (pd.DataFrame): data frame with all heave information from the closest time steps to the chirps
 
     """
@@ -494,30 +496,43 @@ def heave_correction_spectra(moments, date,
     # Calculating heave correction array and translate to number of Doppler bin shifts
     ####################################################################################################################
     # make input container to calc_heave_corr function
-    container = {'C1Range': moments['C1Range'], 'C2Range': moments['C2Range'], 'C3Range': moments['C3Range'],
-                 'SeqIntTime': moments['SeqIntTime'], 'ts': moments['Inc_ElA']['ts']}
+    container = {'C1Range': data['C1Range'], 'C2Range': data['C2Range'], 'C3Range': data['C3Range'],
+                 'SeqIntTime': data['SeqIntTime'], 'ts': data['Inc_ElA']['ts'], 'MaxVel': data['MaxVel'],
+                 'DoppLen': data["DoppLen"]}
     heave_corr, seapath_out = calc_heave_corr(container, date, seapath, mean_hr=mean_hr)
 
-    doppler_res = calc_dopp_res(MaxVel=, DoppLen=, no_chirps=, range_bins=)
+    no_chirps = len(data['DoppLen'])
+    range_bins = get_range_bin_borders(no_chirps, data)
+    doppler_res = calc_dopp_res(data['MaxVel'], data['DoppLen'], no_chirps, range_bins)
+
     n_dopp_bins_shift, heave_corr = heave_rate_to_spectra_bins(heave_corr, doppler_res)
 
-
     try:
-        if add:
-            # create new Doppler velocity by adding the heave rate of the closest time step
-            new_vel = moments['VEL']['var'] + heave_corr
-        elif not add:
-            # create new Doppler velocity by subtracting the heave rate of the closest time step
-            new_vel = moments['VEL']['var'] - heave_corr
-        # set masked values back to -999 because they also get corrected
-        new_vel[moments['VEL']['mask']] = -999
+        # correct spectra for heave rate by moving it by the corresponding number of Doppler bins
+        spectra = data['VHSpec']['var']
+        new_spectra = np.empty_like(spectra)
+        for iT in data['n_ts']:
+            # loop through time steps
+            for iR in data['nrg']:
+                # loop through range gates
+                # TODO: check if mask is True and skip, although masked shifted spectra do not introduce any error,
+                # this might speed up things...
+                shift = n_dopp_bins_shift[iT, iR]
+                spectrum = spectra[iT, iR, :]
+                if add:
+                    new_spec = np.roll(spectrum, shift)
+                elif not add:
+                    new_spec = np.roll(spectrum, -shift)
+
+                new_spectra[iT, iR, :] = new_spec
+
         print(f"Done with heave corrections in {time.time() - start:.2f} seconds")
-        return new_vel, heave_corr, seapath_out
+        return new_spectra, heave_corr, n_dopp_bins_shift, seapath_out
     except KeyError:
-        print(f"No input Velocities found! Cannot correct Doppler Velocity.\n Returning only heave_corr array!")
+        print(f"No input spectra found! Cannot shift spectra.\n Returning only heave_corr and n_dopp_bins_shift array!")
         print(f"Done with heave correction calculation only in {time.time() - start:.2f} seconds")
-        new_vel = ["I'm an empty list!"]  # create an empty list to return the same number of variables
-        return new_vel, heave_corr, seapath_out
+        new_spectra = ["I'm an empty list!"]  # create an empty list to return the same number of variables
+        return new_spectra, heave_corr, n_dopp_bins_shift, seapath_out
 
 
 def calc_sensitivity_curve(program):
