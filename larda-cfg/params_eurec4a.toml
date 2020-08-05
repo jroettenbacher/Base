@@ -142,6 +142,7 @@
     variable_name = 'ChirpFFTSize'
     ncreader = 'aux'
     var_lims = []
+    var_unit = '-'
   [LIMRAD94.params.Inc_El]
     variable_name = 'Inc_El'
     ncreader = 'time'
