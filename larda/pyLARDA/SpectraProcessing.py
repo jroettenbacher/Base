@@ -369,13 +369,13 @@ def load_spectra_rpgfmcw94(larda, time_span, rpg_radar='LIMRAD94', **kwargs):
     if heave_correct:
         tstart = time.time()
         current_day = ts_to_dt(data['VHSpec']['ts'][0])
-        data['VHSpec']['var'], _, _ = heave_correction_spectra(data, current_day,
-                                                               path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
-                                                               mean_hr=True,
-                                                               only_heave=False,
-                                                               use_cross_product=True,
-                                                               transform_to_earth=True,
-                                                               add=False)
+        data['VHSpec']['var'], _, _, _ = heave_correction_spectra(data, current_day,
+                                                                  path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
+                                                                  mean_hr=True,
+                                                                  only_heave=False,
+                                                                  use_cross_product=True,
+                                                                  transform_to_earth=True,
+                                                                  add=False)
         logger.info(f'Heave correction applied, elapsed time = {seconds_to_fstring(time.time() - tstart)} [min:sec]')
 
     # TODO: remove duplicated if clause do_despeckle2D? (JR)
