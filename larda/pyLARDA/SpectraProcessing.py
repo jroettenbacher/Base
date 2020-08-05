@@ -300,6 +300,7 @@ def load_spectra_rpgfmcw94(larda, time_span, rpg_radar='LIMRAD94', **kwargs):
     DoppLen_in = larda.read(rpg_radar, "DoppLen", time_span)
     MaxVel_in = larda.read(rpg_radar, "MaxVel", time_span)
     ChirpFFTSize_in = larda.read(rpg_radar, "ChirpFFTSize", time_span)
+    SeqIntTime_in = larda.read(rpg_radar, "SeqIntTime", time_span)
     data = {}
 
     # depending on how much files are loaded, AvgNum and DoppLen are multidimensional list
@@ -309,12 +310,14 @@ def load_spectra_rpgfmcw94(larda, time_span, rpg_radar='LIMRAD94', **kwargs):
         ChirpFFTSize = ChirpFFTSize_in['var'][0]
         DoppRes = np.divide(2.0 * MaxVel_in['var'][0], DoppLen_in['var'][0])
         MaxVel = MaxVel_in['var'][0]
+        SeqIntTime = SeqIntTime_in['var'][0]
     else:
         AvgNum = AvgNum_in['var']
         DoppLen = DoppLen_in['var']
         ChirpFFTSize = ChirpFFTSize_in['var']
         DoppRes = np.divide(2.0 * MaxVel_in['var'], DoppLen_in['var'])
         MaxVel = MaxVel_in['var']
+        SeqIntTime = SeqIntTime_in['var']
 
     # initialize
     tstart = time.time()
@@ -333,11 +336,12 @@ def load_spectra_rpgfmcw94(larda, time_span, rpg_radar='LIMRAD94', **kwargs):
     data['DoppLen'] = DoppLen
     data['MaxVel'] = MaxVel
     data['ChirpFFTSize'] = ChirpFFTSize
+    data['SeqIntTime'] = SeqIntTime
     data['n_ts'], data['n_rg'], data['n_vel'] = data['VHSpec']['var'].shape
     data['n_ch'] = len(MaxVel)
     data['rg_offsets'] = [0]
     data['vel'] = []
-    for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime']:
+    for var in ['C1Range', 'C2Range', 'C3Range']:
         print('loading variable from LV1 :: ' + var)
         data.update({var: larda.read(rpg_radar, var, time_span, [0, 'max'])})
 
@@ -1225,7 +1229,7 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
     for i in range(no_chirps):
         t1 = time.time()
         # get integration time for chirp
-        int_time = pd.Timedelta(seconds=container['SeqIntTime']['var'][0][i])
+        int_time = pd.Timedelta(seconds=container['SeqIntTime'][i])
         # convert timestamps of moments to array
         ts = chirp_timestamps[f"chirp_{i+1}"].values
         id_diff_mins = []  # initialize list for indices of the time steps with minimum difference
