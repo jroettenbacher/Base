@@ -378,13 +378,6 @@ def load_spectra_rpgfmcw94(larda, time_span, rpg_radar='LIMRAD94', **kwargs):
                                                                   add=False)
         logger.info(f'Heave correction applied, elapsed time = {seconds_to_fstring(time.time() - tstart)} [min:sec]')
 
-    # TODO: remove duplicated if clause do_despeckle2D? (JR)
-    if do_despeckle2D:
-        tstart = time.time()
-        data['dspkl_mask'] = despeckle2D(data['VHSpec']['var'])
-        data['VHSpec']['var'][data['dspkl_mask']], data['VHSpec']['mask'][data['dspkl_mask']] = -999.0, True
-        logger.info(f'Despeckle applied, elapsed time = {seconds_to_fstring(time.time() - tstart)} [min:sec]')
-
     # read spectra and other variables
     if estimate_noise:
         tstart = time.time()
