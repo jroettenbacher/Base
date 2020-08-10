@@ -5,7 +5,7 @@ import netCDF4
 import numpy as np
 import pyLARDA.helpers as h
 import time
-import git
+# import git
 
 
 def export_spectra_to_nc(data, system='', path='', **kwargs):
@@ -81,8 +81,8 @@ def rpg_radar2nc(data, path, larda_git_path, **kwargs):
     ds_name = f'{path}/{h.ts_to_dt(data["Ze"]["ts"][0]):%Y%m%d}-{site_name}-limrad94.nc'
     ncvers = '4'
 
-    repo = git.Repo(larda_git_path)
-    sha = repo.head.object.hexsha
+    # repo = git.Repo(larda_git_path)
+    # sha = repo.head.object.hexsha
 
     with netCDF4.Dataset(ds_name, 'w', format=f'NETCDF{ncvers}') as ds:
         ds.Convention = 'CF-1.0'
@@ -98,7 +98,7 @@ def rpg_radar2nc(data, path, larda_git_path, **kwargs):
         ds.calibrations = f'remove Precip. ghost: {kwargs["ghost_echo_1"]}\n, remove curtain ghost: {kwargs["ghost_echo_2"]}\n' \
                           f'despeckle: {kwargs["despeckle"]}\n, number of standard deviations above noise: {kwargs["NF"]}\n'
 
-        ds.git_description = f'GIT commit ID  {sha}'
+        # ds.git_description = f'GIT commit ID  {sha}'
         ds.description = 'Concatenated data files of LIMRAD 94GHz - FMCW Radar, used as input for Cloudnet processing, ' \
                          'filters applied: ghos-echo, despeckle, use only main peak'
         ds.history = 'Created ' + time.ctime(time.time())
