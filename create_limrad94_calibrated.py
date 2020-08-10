@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     range_ = [0, 'max']
     limrad94_settings.update({'NF': float(kwargs['NF']) if 'NF' in kwargs else 6.0})
-    site_ = kwargs['site'] if 'site' in kwargs else 'punta-arenas'
+    site_ = kwargs['site'] if 'site' in kwargs else 'rv-meteor'
     limrad94_settings.update({'site': site_})
     PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_corrected'
 
