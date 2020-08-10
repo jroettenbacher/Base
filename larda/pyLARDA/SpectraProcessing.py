@@ -342,7 +342,7 @@ def load_spectra_rpgfmcw94(larda, time_span, rpg_radar='LIMRAD94', **kwargs):
     data['rg_offsets'] = [0]
     data['vel'] = []
     for var in ['C1Range', 'C2Range', 'C3Range']:
-        print('loading variable from LV1 :: ' + var)
+        logger.debug('loading variable from LV1 :: ' + var)
         data.update({var: larda.read(rpg_radar, var, time_span, [0, 'max'])})
 
     for ic in range(len(AvgNum)):
