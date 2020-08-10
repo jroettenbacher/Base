@@ -15,8 +15,10 @@ RUSER="eurec4a"  # define user
 PASS="pass4eurec4a!"  # define password
 # define local directory
 #LCD="/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/upload_to_aeris"  # LIMRAD94 data (30s averages)
-LCD="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_CEILOMETER/upload_to_aeris"  # ceilometer data (nc files)
+#LCD="/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_CEILOMETER/upload_to_aeris"  # ceilometer data (nc files)
+LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/HATPRO/upload_to_aeris"  # HATPRO data and plots
 #define remote directory
 #RCD="/upload/SHIPS/RV-METEOR/cloudradar/ncfiles"  # cloud radar
-RCD="/upload/SHIPS/RV-METEOR/ceilometer/ncfiles"  # ceilometer nc files
+#RCD="/upload/SHIPS/RV-METEOR/ceilometer/ncfiles"  # ceilometer nc files
+RCD="/upload/SHIPS/RV-METEOR/radiometer"  # HATPRO data and plots, level 1 + 2 
 lftp -e "mirror -R $LCD $RCD " -u "$RUSER","$PASS" "$HOST"
