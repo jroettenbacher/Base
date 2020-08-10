@@ -74,6 +74,7 @@ if __name__ == '__main__':
         'ghost_echo_1': False,  # reduces the domain (Nyquist velocity) by ± 2.5 [m/s], when signal > 0 [dBZ] within 200m above antenna
         'ghost_echo_2': True,  # removes curtain like ghost echos
         'dealiasing': False,  # spectrum de-aliasing
+        'heave_correction': True,  # correct for heave motion of ship
     }
 
     range_ = [0, 'max']
