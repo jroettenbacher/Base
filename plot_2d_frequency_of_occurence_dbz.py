@@ -61,12 +61,13 @@ def calc_freq_of_occurrence_reflectivity(radar_ze, indices, bin_width=1):
     return foc_array, hist_bins
 
 
-def plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system, campaign='eurec4a'):
+def plot_frequency_of_occurence_LIMRAD94(program, step, mean_sl, plot_path, larda_system, campaign='eurec4a'):
     """Plot a 2D frequency of occurrence of reflectivity over height
 
     Args:
         program (list): list of chirp program numbers like 'P07'
         step (int): at which time step the plots should be made, allows for daily cycle plots (1, 2, 3, 4, 6, 8, 12, 24)
+        mean_sl (dict): dictionary with mean sensitivity limits for specified programs
         plot_path (str): path where plot should be saved to
         larda_system (str): which larda system to use (LIMRAD94, LIMRAD94_cn_input), should have Ze and rg parameter
         campaign (str): name of campaign to get data from
@@ -77,7 +78,7 @@ def plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system,
 
     start = time.time()
     # define durations of use for each chirp table (program)
-    begin_dts = {'P09': dt.datetime(2020, 1, 17, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 15, 30, 5),
+    begin_dts = {'P09': dt.datetime(2020, 1, 20, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 15, 30, 5),
                  'P07': dt.datetime(2020, 1, 31, 22, 30, 5)}
     end_dts = {'P09': dt.datetime(2020, 1, 27, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 23, 42, 00),
                'P07': dt.datetime(2020, 2, 19, 23, 59, 55)}
@@ -87,9 +88,6 @@ def plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system,
     assert step in [1, 2, 3, 4, 6, 8, 12, 24], f"Step size is not a sensible value, {step}!" \
                                                f"Use an integer which 24 can be divided by!"
     steps = np.arange(0, 25, step)
-
-    # get mean sensitivity limits
-    mean_sl = jr.calc_sensitivity_curve(program)
 
     for p in program:
         assert p in program_names.keys(), f"Please use program codes like 'P07' to select chirptable! Not {p}! " \
@@ -163,10 +161,12 @@ def plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system,
 if __name__ == '__main__':
     # leave out P06 because it has no values for the stepped plots
     program = ['P09']
-    steps = [3, 24]
+    steps = [24]
     plot_path = "../plots/foc_LIMRAD94"
     larda_systems = ["LIMRAD94", "LIMRAD94_cn_input"]
 
+    # get mean sensitivity limits
+    mean_sl = jr.calc_sensitivity_curve(program)
     for larda_system in larda_systems:
         for step in steps:
             plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system)
