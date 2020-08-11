@@ -1046,7 +1046,7 @@ def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-
     seapath.index = pd.to_datetime(seapath.index, infer_datetime_format=True)
     seapath.index.name = 'datetime'
     seapath.columns = ['Heading [°]', 'Heave [m]', 'Pitch [°]', 'Roll [°]']  # rename columns
-    print(f"Done reading in Seapath data in {time.time() - start:.2f} seconds")
+    logger.info(f"Done reading in Seapath data in {time.time() - start:.2f} seconds")
     return seapath
 
 
@@ -1069,7 +1069,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
 
     """
     t1 = time.time()
-    print("Calculating Heave Rate...")
+    logger.info("Calculating Heave Rate...")
     # angles in radians
     pitch = np.deg2rad(seapath["Pitch [°]"])
     roll = np.deg2rad(seapath["Roll [°]"])
@@ -1077,14 +1077,14 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
     # time delta between two time steps in seconds
     d_t = np.ediff1d(seapath.index).astype('float64') / 1e9
     if not use_cross_product:
-        print("using a simple geometric approach")
+        logger.info("using a simple geometric approach")
         if not only_heave:
-            print("using also the roll and pitch induced heave")
+            logger.info("using also the roll and pitch induced heave")
             pitch_heave = x_radar * np.tan(pitch)
             roll_heave = y_radar * np.tan(roll)
 
         elif only_heave:
-            print("using only the ships heave")
+            logger.info("using only the ships heave")
             pitch_heave = 0
             roll_heave = 0
 
@@ -1098,7 +1098,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
         heave_rate = np.ediff1d(seapath["radar_heave"]) / d_t
 
     else:
-        print("using the cross product approach from Hannes Griesche")
+        logger.info("using the cross product approach from Hannes Griesche")
         # change of angles with time
         d_roll = np.ediff1d(roll) / d_t  # phi
         d_pitch = np.ediff1d(pitch) / d_t  # theta
@@ -1110,7 +1110,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
         cross_prod = np.cross(ang_rate, pos_radar_exp)  # calculate cross product
 
         if transform_to_earth:
-            print("Transform into Earth Coordinate System")
+            logger.info("Transform into Earth Coordinate System")
             phi, theta, psi = roll, pitch, yaw
             a1 = np.cos(theta) * np.cos(psi)
             a2 = -1 * np.cos(phi) * np.sin(psi) + np.sin(theta) * np.cos(psi) * np.sin(phi)
@@ -1133,7 +1133,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
     heave_rate = pd.DataFrame({'Heave Rate [m/s]': heave_rate}, index=seapath.index[1:])
     seapath = seapath.join(heave_rate)
 
-    print(f"Done with heave rate calculation in {time.time() - t1:.2f} seconds")
+    logger.info(f"Done with heave rate calculation in {time.time() - t1:.2f} seconds")
     return seapath
 
 
@@ -1259,9 +1259,9 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
         # duplicate the heave correction over the range dimension to add it to all range bins of the chirp
         shape = range_bins[i + 1] - range_bins[i]
         heave_corr[:, range_bins[i]:range_bins[i+1]] = heave_rate.repeat(shape, axis=1)
-        print(f"Calculated heave correction for Chirp {i+1} in {time.time() - t1:.2f} seconds")
+        logger.info(f"Calculated heave correction for Chirp {i+1} in {time.time() - t1:.2f} seconds")
 
-    print(f"Done with heave correction calculation in {time.time() - start:.2f} seconds")
+    logger.info(f"Done with heave correction calculation in {time.time() - start:.2f} seconds")
     return heave_corr, seapath_out
 
 
@@ -1306,7 +1306,7 @@ def heave_rate_to_spectra_bins(heave_corr, doppler_res):
 
     # calculate number of Doppler bins
     n_dopp_bins_shift = np.round(heave_corr / doppler_res)
-    print(f"Done with translation of heave corrections to Doppler bins in {time.time() - start:.2f} seconds")
+    logger.info(f"Done with translation of heave corrections to Doppler bins in {time.time() - start:.2f} seconds")
     return n_dopp_bins_shift, heave_corr
 
 
@@ -1340,7 +1340,7 @@ def heave_correction_spectra(data, date,
     # Data Read in
     ####################################################################################################################
     start = time.time()
-    print(f"Starting heave correction for {date:%Y-%m-%d}")
+    logger.info(f"Starting heave correction for {date:%Y-%m-%d}")
     seapath = read_seapath(date, path_to_seapath)
 
     ####################################################################################################################
@@ -1393,11 +1393,11 @@ def heave_correction_spectra(data, date,
 
                 new_spectra[iT, iR, :] = new_spec
 
-        print(f"Done with heave corrections in {time.time() - start:.2f} seconds")
+        logger.info(f"Done with heave corrections in {time.time() - start:.2f} seconds")
         return new_spectra, heave_corr, n_dopp_bins_shift, seapath_out
     except KeyError:
-        print(f"No input spectra found! Cannot shift spectra.\n Returning only heave_corr and n_dopp_bins_shift array!")
-        print(f"Done with heave correction calculation only in {time.time() - start:.2f} seconds")
+        logger.info(f"No input spectra found! Cannot shift spectra.\n Returning only heave_corr and n_dopp_bins_shift array!")
+        logger.info(f"Done with heave correction calculation only in {time.time() - start:.2f} seconds")
         new_spectra = ["I'm an empty list!"]  # create an empty list to return the same number of variables
         return new_spectra, heave_corr, n_dopp_bins_shift, seapath_out
 
