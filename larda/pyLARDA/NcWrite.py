@@ -100,7 +100,7 @@ def rpg_radar2nc(data, path, larda_git_path, **kwargs):
 
         # ds.git_description = f'GIT commit ID  {sha}'
         ds.description = 'Concatenated data files of LIMRAD 94GHz - FMCW Radar, used as input for Cloudnet processing, ' \
-                         'filters applied: ghos-echo, despeckle, use only main peak'
+                         'filters applied: ghost-echo, despeckle, use only main peak'
         ds.history = 'Created ' + time.ctime(time.time())
         ds._FillValue = data['Ze']['paraminfo']['fill_value']
 
