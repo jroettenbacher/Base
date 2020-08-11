@@ -169,4 +169,4 @@ if __name__ == '__main__':
     mean_sl = jr.calc_sensitivity_curve(program)
     for larda_system in larda_systems:
         for step in steps:
-            plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system)
+            plot_frequency_of_occurence_LIMRAD94(program, step, mean_sl, plot_path, larda_system)
