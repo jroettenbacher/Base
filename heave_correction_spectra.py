@@ -4,20 +4,15 @@
 ########################################################################################################################
 # library import
 ########################################################################################################################
-import sys, time
+import sys
 import datetime as dt
 sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
 import pyLARDA
-import pyLARDA.helpers as h
-import logging
-import numpy as np
-import functions_jr as jr
 import matplotlib.pyplot as plt
-import pandas as pd
 
 # read in heave corrected cloudnet input file
-larda = pyLARDA.LARDA().connect('eurec4a')
+larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
 end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
 begin_dt_zoom = dt.datetime(2020, 2, 5, 9, 25, 0)
