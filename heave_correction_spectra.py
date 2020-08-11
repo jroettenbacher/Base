@@ -58,7 +58,7 @@ plt.close()
 print(f'figure saved :: {fig_name}')
 
 # corrected MDV zoom
-fig, _ = pyLARDA.Transformations.plot_timeheight(moments['VEL'], rg_converter=False, title=True,
+fig, _ = pyLARDA.Transformations.plot_timeheight(moments['VEL_cor'], rg_converter=False, title=True,
                                                  range_interval=plot_range, time_interval=[begin_dt_zoom, end_dt_zoom])
 fig_name = name_zoom + '_MDV_corrected.png'
 fig.savefig(fig_name, dpi=250)
