@@ -57,9 +57,19 @@ fig.savefig(fig_name, dpi=250)
 plt.close()
 print(f'figure saved :: {fig_name}')
 
+# corrected MDV
+fig, _ = pyLARDA.Transformations.plot_timeheight(moments['VEL_cor'], rg_converter=False, title=True,
+                                                 time_interval=[begin_dt, end_dt],
+                                                 range_interval=plot_range)
+fig_name = name + '_MDV_corrected.png'
+fig.savefig(fig_name, dpi=250)
+plt.close()
+print(f'figure saved :: {fig_name}')
+
 # corrected MDV zoom
 fig, _ = pyLARDA.Transformations.plot_timeheight(moments['VEL_cor'], rg_converter=False, title=True,
-                                                 range_interval=plot_range, time_interval=[begin_dt_zoom, end_dt_zoom])
+                                                 time_interval=[begin_dt_zoom, end_dt_zoom],
+                                                 range_interval=plot_range)
 fig_name = name_zoom + '_MDV_corrected.png'
 fig.savefig(fig_name, dpi=250)
 plt.close()
