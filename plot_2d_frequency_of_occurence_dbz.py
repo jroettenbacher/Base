@@ -61,7 +61,7 @@ def calc_freq_of_occurrence_reflectivity(radar_ze, indices, bin_width=1):
     return foc_array, hist_bins
 
 
-def plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system):
+def plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system, campaign='eurec4a'):
     """Plot a 2D frequency of occurrence of reflectivity over height
 
     Args:
@@ -69,6 +69,7 @@ def plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system)
         step (int): at which time step the plots should be made, allows for daily cycle plots (1, 2, 3, 4, 6, 8, 12, 24)
         plot_path (str): path where plot should be saved to
         larda_system (str): which larda system to use (LIMRAD94, LIMRAD94_cn_input), should have Ze and rg parameter
+        campaign (str): name of campaign to get data from
 
     Returns: 2D frequency of occurrence of reflectivity plot for specified chirp program(s)
 
@@ -87,7 +88,6 @@ def plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system)
                                                f"Use an integer which 24 can be divided by!"
     steps = np.arange(0, 25, step)
 
-
     # get mean sensitivity limits
     mean_sl = jr.calc_sensitivity_curve(program)
 
@@ -102,7 +102,7 @@ def plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system)
         end_dt = end_dts[p]
         plot_range = [0, 'max']
         # load LARDA
-        larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
+        larda = pyLARDA.LARDA().connect(campaign)
         # read in linear reflectivity factor from larda and convert to dBZ
         radar_ze = larda.read(system, "Ze", [begin_dt, end_dt], plot_range)
         print(f"Read in data from larda: {time.time() - start:.2f} seconds")
@@ -162,7 +162,7 @@ def plot_frequency_of_occurence_LIMRAD94(program, step, plot_path, larda_system)
 
 if __name__ == '__main__':
     # leave out P06 because it has no values for the stepped plots
-    program = ['P07', 'P09']
+    program = ['P09']
     steps = [3, 24]
     plot_path = "../plots/foc_LIMRAD94"
     larda_systems = ["LIMRAD94", "LIMRAD94_cn_input"]
