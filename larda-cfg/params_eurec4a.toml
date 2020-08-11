@@ -153,6 +153,16 @@
     ncreader = 'time'
     var_unit = 'deg'
     var_lims = [-45.0, 45.0]
+  [LIMRAD94.params.Azm]
+    variable_name = 'Azm'
+    ncreader = 'time'
+    var_unit = 'deg'
+    var_lims = [0, 360]
+  [LIMRAD94.params.Elv]
+    variable_name = 'Elv'
+    ncreader = 'time'
+    var_unit = 'deg'
+    var_lims = [0, 90]
   [LIMRAD94.params.C1Range]
     which_path = 'l0'
     variable_name = 'C1Range'
