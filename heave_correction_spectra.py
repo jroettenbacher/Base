@@ -49,7 +49,7 @@ name = f'{plot_path}/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1] 
 name_zoom = f'{plot_path}/{begin_dt_zoom:%Y%m%d_%H%M}_{end_dt_zoom:%Y%m%d_%H%M}_{plot_range[1] / 1000:.0f}km_cni_hc'
 
 # uncorrected MDV zoom
-fig, _ = pyLARDA.Transformations.plot_timeheight(moments['mdv_uncorr'], rg_converter=False, title=True,
+fig, _ = pyLARDA.Transformations.plot_timeheight(moments['VEL'], rg_converter=False, title=True,
                                                  time_interval=[begin_dt_zoom, end_dt_zoom],
                                                  range_interval=plot_range)
 fig_name = name_zoom + '_MDV_uncorrected.png'
