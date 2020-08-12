@@ -204,7 +204,7 @@ def rpg_radar2nc(data, path, larda_git_path, **kwargs):
             ts = np.subtract(data['Ze']['ts'], datetime.datetime(dt_start.year, dt_start.month, dt_start.day, hour_bias, 0, 0).timestamp()) / 3600
             ts_str = 'Decimal hours from midnight UTC to the middle of each day'
             ts_unit = f'hours since {dt_start:%Y-%m-%d} 00:00:00 +00:00 (UTC)'
-            rg = data['Ze']['rg'] / 1000.0
+            rg = data['Ze']['rg']
         elif cn_version == 'matlab':
             ts = np.subtract(data['Ze']['ts'], datetime.datetime(2001, 1, 1, hour_bias, 0, 0).timestamp())
             ts_str = 'Seconds since 1st January 2001 00:00 UTC'
@@ -215,7 +215,7 @@ def rpg_radar2nc(data, path, larda_git_path, **kwargs):
 
         nc_add_variable(ds, val=ts, dimension=('time',), var_name='time', type=np.float64, long_name=ts_str, units=ts_unit)
         nc_add_variable(ds, val=rg, dimension=('range',), var_name='range', type=np.float32,
-                        long_name='Range from antenna to the centre of each range gate', units='km')
+                        long_name='Range from antenna to the centre of each range gate', units='m')
         nc_add_variable(ds, val=data['Azm']['var'], dimension=('time',), var_name='azimuth', type=np.float32,
                         long_name='Azimuth angle from north', units='degree')
         nc_add_variable(ds, val=data['Elv']['var'], dimension=('time',), var_name='elevation', type=np.float32,
