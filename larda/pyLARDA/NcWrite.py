@@ -96,7 +96,8 @@ def rpg_radar2nc(data, path, larda_git_path, **kwargs):
         ds.reference = 'W Band Cloud Radar LIMRAD94\nDocumentation and User Manual provided by manufacturer RPG Radiometer Physics GmbH\n' \
                        'Information about system also available at https://www.radiometer-physics.de/'
         ds.calibrations = f'remove Precip. ghost: {kwargs["ghost_echo_1"]}\n, remove curtain ghost: {kwargs["ghost_echo_2"]}\n' \
-                          f'despeckle: {kwargs["despeckle"]}\n, number of standard deviations above noise: {kwargs["NF"]}\n'
+                          f'despeckle: {kwargs["despeckle"]}\n, number of standard deviations above noise: {kwargs["NF"]}\n' \
+                          f'spectra heave corrected: {kwargs["heave_correction"]}'
 
         # ds.git_description = f'GIT commit ID  {sha}'
         ds.description = 'Concatenated data files of LIMRAD 94GHz - FMCW Radar, used as input for Cloudnet processing, ' \
