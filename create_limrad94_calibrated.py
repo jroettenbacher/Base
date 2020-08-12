@@ -89,7 +89,7 @@ if __name__ == '__main__':
     # new spectra processor v2
     radarZSpec = sp.load_spectra_rpgfmcw94(larda, TIME_SPAN_, **limrad94_settings)
     radarMoments = sp.spectra2moments(radarZSpec, larda.connectors['LIMRAD94'].system_info['params'], **limrad94_settings)
-    limrad94_settings.update({'hour_bias': 1})  # README: no need to account for summer/winter time in the Matlab version!
+    limrad94_settings.update({'hour_bias': 0})  # README: no need to account for summer/winter time in the Matlab version!
 
     # load additional variables
     radarMoments.update({
