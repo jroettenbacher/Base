@@ -200,7 +200,7 @@ def rpg_radar2nc(data, path, larda_git_path, **kwargs):
         # time and range variable
         # convert to time since midnight
         if cn_version == 'python':
-            ts = np.subtract(data['Ze']['ts'], datetime.datetime(dt_start.year, dt_start.month, dt_start.day, hour_bias, 0, 0).timestamp())
+            ts = np.subtract(data['Ze']['ts'], datetime.datetime(dt_start.year, dt_start.month, dt_start.day, hour_bias, 0, 0).timestamp()) / 3600
             ts_str = 'Decimal hours from midnight UTC to the middle of each day'
             ts_unit = f'hours since {dt_start:%Y-%m-%d} 00:00:00 +00:00 (UTC)'
             rg = data['Ze']['rg'] / 1000.0
