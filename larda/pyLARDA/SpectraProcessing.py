@@ -1254,7 +1254,7 @@ def heave_correction_spectra(data, date,
         add (bool): whether to add the heave rate or subtract it
 
     Returns: A number of variables
-        new_spectra (ndarray); corrected Doppler velocities, same shape as data["VHSpec"]["var"] or list if no Doppler
+        new_spectra (ndarray); corrected Doppler spectra, same shape as data["VHSpec"]["var"] or list if no Doppler
         Spectra are given;
         heave_corr (ndarray): heave rate closest to each radar timestep for each height bin, shape = (time x range);
         seapath_out (pd.DataFrame): data frame with all heave information from the closest time steps to the chirps
