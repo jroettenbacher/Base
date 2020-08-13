@@ -1087,7 +1087,7 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
     """Calculate heave correction for mean Doppler velocity
 
     Args:
-        container (larda container): LIMRAD94 C1/2/3_Range, SeqIntTime, ts, MaxVel, DoppLen
+        container (larda container): LIMRAD94 C1/2/3_Range, SeqIntTime, ts
         date (datetime.datetime): date of file
         seapath (pd.DataFrame): Data frame with heave rate column ("Heave Rate [m/s]")
         mean_hr (bool): whether to use the mean heave rate over the SeqIntTime or the heave rate at the start time of the chirp
