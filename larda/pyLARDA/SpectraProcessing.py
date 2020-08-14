@@ -952,6 +952,98 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
         return new_vel, heave_corr, seapath_out
 
 
+def heave_correction_spectra(data, date,
+                             path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
+                             mean_hr=True, only_heave=False, use_cross_product=True, transform_to_earth=True, add=False):
+    """Shift Doppler spectra to correct for heave motion of ship (RV-Meteor)
+    Calculate heave rate from seapath measurements and create heave correction array. Translate the heave correction to
+    a number spectra bins by which to move each spectra. If Spectra are given, shift them and return a 3D array with the
+    shifted spectra.
+    Without spectra input, only the heave correction array and the array with the number if bins to move is returned.
+
+    Args:
+        data: LIMRAD94 data container filled with spectra and C1/2/3_Range, SeqIntTime, MaxVel, DoppLen, ts from LV1 file
+        date (datetime.datetime): object with date of current file
+        path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
+        mean_hr (bool): whether to use the mean heave rate over the SeqIntTime or the heave rate at the start time of the chirp
+        only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
+        use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
+        transform_to_earth (bool): transform cross product to earth coordinate system as described in https://repository.library.noaa.gov/view/noaa/17400
+        add (bool): whether to add the heave rate or subtract it
+
+    Returns: A number of variables
+        new_spectra (ndarray); corrected Doppler spectra, same shape as data["VHSpec"]["var"] or list if no Doppler
+        Spectra are given;
+        heave_corr (ndarray): heave rate closest to each radar timestep for each height bin, shape = (time x range);
+        seapath_out (pd.DataFrame): data frame with all heave information from the closest time steps to the chirps
+
+    """
+    ####################################################################################################################
+    # Data Read in
+    ####################################################################################################################
+    start = time.time()
+    logger.info(f"Starting heave correction for {date:%Y-%m-%d}")
+    seapath = read_seapath(date, path_to_seapath)
+
+    ####################################################################################################################
+    # Calculating Heave Rate
+    ####################################################################################################################
+    seapath = calc_heave_rate(seapath, only_heave=only_heave, use_cross_product=use_cross_product,
+                              transform_to_earth=transform_to_earth)
+
+    ####################################################################################################################
+    # Calculating heave correction array and translate to number of Doppler bin shifts
+    ####################################################################################################################
+    # make input container for calc_heave_corr function
+    container = {'C1Range': data['C1Range'], 'C2Range': data['C2Range'], 'C3Range': data['C3Range'],
+                 'SeqIntTime': data['SeqIntTime'], 'ts': data['VHSpec']['ts'], 'MaxVel': data['MaxVel'],
+                 'DoppLen': data["DoppLen"]}
+    heave_corr, seapath_out = calc_heave_corr(container, date, seapath, mean_hr=mean_hr)
+
+    no_chirps = len(data['DoppLen'])
+    range_bins = get_range_bin_borders(no_chirps, data)
+    doppler_res = calc_dopp_res(data['MaxVel'], data['DoppLen'], no_chirps, range_bins)
+
+    n_dopp_bins_shift, heave_corr = heave_rate_to_spectra_bins(heave_corr, doppler_res)
+
+    ####################################################################################################################
+    # Shifting spectra and writing to new 3D array
+    ####################################################################################################################
+
+    try:
+        # correct spectra for heave rate by moving it by the corresponding number of Doppler bins
+        spectra = data['VHSpec']['var']
+        new_spectra = np.empty_like(spectra)
+        for iT in range(data['n_ts']):
+            # loop through time steps
+            for iR in range(data['n_rg']):
+                # loop through range gates
+                # TODO: check if mask is True and skip, although masked shifted spectra do not introduce any error,
+                # this might speed up things...
+                try:
+                    shift = int(n_dopp_bins_shift[iT, iR])
+                except ValueError as e:
+                    logger.debug(f'A {e.__class__} occurred. \n'
+                                 f'Value of n_dopp_bins_shift[{iT}, {iR}]: {n_dopp_bins_shift[iT, iR]} \n'
+                                 f'shift is set to 0')
+                    shift = 0
+                spectrum = spectra[iT, iR, :]
+                if add:
+                    new_spec = np.roll(spectrum, shift)
+                elif not add:
+                    new_spec = np.roll(spectrum, -shift)
+
+                new_spectra[iT, iR, :] = new_spec
+
+        logger.info(f"Done with heave corrections in {time.time() - start:.2f} seconds")
+        return new_spectra, heave_corr, n_dopp_bins_shift, seapath_out
+    except KeyError:
+        logger.info(f"No input spectra found! Cannot shift spectra.\n Returning only heave_corr and n_dopp_bins_shift array!")
+        logger.info(f"Done with heave correction calculation only in {time.time() - start:.2f} seconds")
+        new_spectra = ["I'm an empty list!"]  # create an empty list to return the same number of variables
+        return new_spectra, heave_corr, n_dopp_bins_shift, seapath_out
+
+
 def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP"):
     """
     Read in Seapath measurements from RV Meteor from .dat files to a pandas.DataFrame
@@ -1240,96 +1332,7 @@ def heave_rate_to_spectra_bins(heave_corr, doppler_res):
     return n_dopp_bins_shift, heave_corr
 
 
-def heave_correction_spectra(data, date,
-                             path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
-                             mean_hr=True, only_heave=False, use_cross_product=True, transform_to_earth=True, add=False):
-    """Shift Doppler spectra to correct for heave motion of ship (RV-Meteor)
-    Calculate heave rate from seapath measurements and create heave correction array. Translate the heave correction to
-    a number spectra bins by which to move each spectra. If Spectra are given, shift them and return a 3D array with the
-    shifted spectra.
-    Without spectra input, only the heave correction array and the array with the number if bins to move is returned.
 
-    Args:
-        data: LIMRAD94 data container filled with spectra and C1/2/3_Range, SeqIntTime, MaxVel, DoppLen, ts from LV1 file
-        date (datetime.datetime): object with date of current file
-        path_to_seapath (string): path where seapath measurement files (daily dat files) are stored
-        mean_hr (bool): whether to use the mean heave rate over the SeqIntTime or the heave rate at the start time of the chirp
-        only_heave (bool): whether to use only heave to calculate the heave rate or include pitch and roll induced heave
-        use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
-        transform_to_earth (bool): transform cross product to earth coordinate system as described in https://repository.library.noaa.gov/view/noaa/17400
-        add (bool): whether to add the heave rate or subtract it
-
-    Returns: A number of variables
-        new_spectra (ndarray); corrected Doppler spectra, same shape as data["VHSpec"]["var"] or list if no Doppler
-        Spectra are given;
-        heave_corr (ndarray): heave rate closest to each radar timestep for each height bin, shape = (time x range);
-        seapath_out (pd.DataFrame): data frame with all heave information from the closest time steps to the chirps
-
-    """
-    ####################################################################################################################
-    # Data Read in
-    ####################################################################################################################
-    start = time.time()
-    logger.info(f"Starting heave correction for {date:%Y-%m-%d}")
-    seapath = read_seapath(date, path_to_seapath)
-
-    ####################################################################################################################
-    # Calculating Heave Rate
-    ####################################################################################################################
-    seapath = calc_heave_rate(seapath, only_heave=only_heave, use_cross_product=use_cross_product,
-                              transform_to_earth=transform_to_earth)
-
-    ####################################################################################################################
-    # Calculating heave correction array and translate to number of Doppler bin shifts
-    ####################################################################################################################
-    # make input container for calc_heave_corr function
-    container = {'C1Range': data['C1Range'], 'C2Range': data['C2Range'], 'C3Range': data['C3Range'],
-                 'SeqIntTime': data['SeqIntTime'], 'ts': data['VHSpec']['ts'], 'MaxVel': data['MaxVel'],
-                 'DoppLen': data["DoppLen"]}
-    heave_corr, seapath_out = calc_heave_corr(container, date, seapath, mean_hr=mean_hr)
-
-    no_chirps = len(data['DoppLen'])
-    range_bins = get_range_bin_borders(no_chirps, data)
-    doppler_res = calc_dopp_res(data['MaxVel'], data['DoppLen'], no_chirps, range_bins)
-
-    n_dopp_bins_shift, heave_corr = heave_rate_to_spectra_bins(heave_corr, doppler_res)
-
-    ####################################################################################################################
-    # Shifting spectra and writing to new 3D array
-    ####################################################################################################################
-
-    try:
-        # correct spectra for heave rate by moving it by the corresponding number of Doppler bins
-        spectra = data['VHSpec']['var']
-        new_spectra = np.empty_like(spectra)
-        for iT in range(data['n_ts']):
-            # loop through time steps
-            for iR in range(data['n_rg']):
-                # loop through range gates
-                # TODO: check if mask is True and skip, although masked shifted spectra do not introduce any error,
-                # this might speed up things...
-                try:
-                    shift = int(n_dopp_bins_shift[iT, iR])
-                except ValueError as e:
-                    logger.debug(f'A {e.__class__} occurred. \n'
-                                 f'Value of n_dopp_bins_shift[{iT}, {iR}]: {n_dopp_bins_shift[iT, iR]} \n'
-                                 f'shift is set to 0')
-                    shift = 0
-                spectrum = spectra[iT, iR, :]
-                if add:
-                    new_spec = np.roll(spectrum, shift)
-                elif not add:
-                    new_spec = np.roll(spectrum, -shift)
-
-                new_spectra[iT, iR, :] = new_spec
-
-        logger.info(f"Done with heave corrections in {time.time() - start:.2f} seconds")
-        return new_spectra, heave_corr, n_dopp_bins_shift, seapath_out
-    except KeyError:
-        logger.info(f"No input spectra found! Cannot shift spectra.\n Returning only heave_corr and n_dopp_bins_shift array!")
-        logger.info(f"Done with heave correction calculation only in {time.time() - start:.2f} seconds")
-        new_spectra = ["I'm an empty list!"]  # create an empty list to return the same number of variables
-        return new_spectra, heave_corr, n_dopp_bins_shift, seapath_out
 
 
 def spectra2polarimetry(ZSpec, paraminfo, **kwargs):
