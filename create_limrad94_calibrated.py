@@ -73,8 +73,8 @@ if __name__ == '__main__':
         'despeckle2D': True,  # 2D convolution (5x5 window), removes single non-zero values,
         'ghost_echo_1': False,  # reduces the domain (Nyquist velocity) by ± 2.5 [m/s], when signal > 0 [dBZ] within 200m above antenna
         'ghost_echo_2': True,  # removes curtain like ghost echos
-        'dealiasing': False,  # spectrum de-aliasing
-        'heave_correction': False,  # correct for heave motion of ship
+        'dealiasing': True,  # spectrum de-aliasing
+        'heave_correction': True,  # correct for heave motion of ship
     }
 
     range_ = [0, 'max']
