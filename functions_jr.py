@@ -537,35 +537,35 @@ def heave_correction_spectra(data, date,
         return new_spectra, heave_corr, n_dopp_bins_shift, seapath_out
 
 
-def calc_sensitivity_curve(program):
-    """Calculate mean sensitivity limit over height for specified chirp table (sensitivity curve)
+def calc_sensitivity_curve(program, campaign, rain_flag=True):
+    """Calculate statistics of the sensitivity limit over height for specified chirp table (sensitivity curves)
 
-    Implemented chirp tables: "tradewindCU (P09)", "Cu_small_Tint (P06)", "Cu_small_Tint2 (P07)".
-    Dates are only for eurec4a campaign!
+    Implemented chirp tables: "tradewindCU (P09)", "Cu_small_Tint (P06)", "Cu_small_Tint2 (P07)", "Lindenberg P03".
 
     Args:
         program (list): list of program numbers e.g. 'P07'
+        campaign (str): name of campaign from where to load data
+        rain_flag (bool): whether to apply a rain flag to the data, currently implemented for eurec4a
 
-    Returns:
-        dictionary of dictionaries with mean sensitivity curve for horizontal and vertical channel,
-        filtered and not filtered with DWD rain flag
+    Returns: dictionary of dictionaries with min, max, mean sensitivity curve for horizontal and vertical channel,
+    filtered and not filtered with DWD rain flag
 
     """
 
     start = time.time()
-    programs = ["P09", "P06", "P07"]  # implemented chirp tables
+    programs = ["P09", "P06", "P07", "P03"]  # implemented chirp tables
     for p in program:
         assert p in programs, f"Please use program codes like 'P07' to select chirptable! Not {p}!" \
                               f"Check functions documentation to see which program corresponds to which chirptable"
     # Load LARDA
-    larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
+    larda = pyLARDA.LARDA().connect(campaign, build_lists=True)
     system = "LIMRAD94"
 
     # define durations of use for each chirp table (program)
     begin_dts = {'P09': dt.datetime(2020, 1, 17, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 15, 30, 5),
-                 'P07': dt.datetime(2020, 1, 31, 22, 30, 5)}
-    end_dts = {'P09': dt.datetime(2020, 1, 27, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 23, 42, 00),
-               'P07': dt.datetime(2020, 2, 19, 23, 59, 55)}
+                 'P07': dt.datetime(2020, 1, 31, 22, 30, 5), 'P03': dt.datetime(2020, 7, 15, 0, 0, 5)}
+    end_dts = {'P09': dt.datetime(2020, 1, 27, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 23, 42, 0),
+               'P07': dt.datetime(2020, 2, 19, 23, 59, 55), 'P03': dt.datetime(2020, 10, 20, 23, 59, 55)}
     plot_range = [0, 'max']
 
     # read in sensitivity variables for each chirp table over whole range (all chirps)
@@ -583,24 +583,27 @@ def calc_sensitivity_curve(program):
         slh[p] = larda.read(system, "SLh", [begin_dt, end_dt], plot_range)
         print(f"Read in sensitivity limits in {time.time() - t1:.2f} seconds")
 
-        # DWD rain flag
-        # weather data, time res = 1 min, only read in Dauer (duration) column, gives rain duration in seconds
-        t2 = time.time()
-        weather = pd.read_csv("/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DWD/20200114_M161_Nsl.CSV", sep=";",
-                              index_col="Timestamp", usecols=[0, 5], squeeze=True)
-        weather.index = pd.to_datetime(weather.index, format="%d.%m.%Y %H:%M")
-        weather = weather[begin_dt:end_dt]  # select date range
-        rain_flag_dwd[p] = weather > 0  # set rain flag if rain duration is greater 0 seconds
-        # interpolate rainflag to radar time resolution
-        f = interpolate.interp1d(h.dt_to_ts(rain_flag_dwd[p].index), rain_flag_dwd[p], kind='nearest',
-                                 fill_value="extrapolate")
-        rain_flag_dwd_ip[p] = f(np.asarray(slv[p]['ts']))
-        # adjust rainflag to sensitivity limit dimensions
-        rain_flag_dwd_ip[p] = np.tile(rain_flag_dwd_ip[p], (slv[p]['var'].shape[1], 1)).swapaxes(0,1).copy()
-        print(f"Read in and interpolated DWD rainflag in {time.time() - t2:.2f} seconds")
+        if rain_flag and campaign == 'eurec4a':
+            # DWD rain flag
+            # weather data, time res = 1 min, only read in Dauer (duration) column, gives rain duration in seconds
+            t1 = time.time()
+            weather = pd.read_csv("/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DWD/20200114_M161_Nsl.CSV", sep=";",
+                                  index_col="Timestamp", usecols=[0, 5], squeeze=True)
+            weather.index = pd.to_datetime(weather.index, format="%d.%m.%Y %H:%M")
+            weather = weather[begin_dt:end_dt]  # select date range
+            rain_flag_dwd[p] = weather > 0  # set rain flag if rain duration is greater 0 seconds
+            # interpolate rainflag to radar time resolution
+            f = interpolate.interp1d(h.dt_to_ts(rain_flag_dwd[p].index), rain_flag_dwd[p], kind='nearest',
+                                     fill_value="extrapolate")
+            rain_flag_dwd_ip[p] = f(np.asarray(slv[p]['ts']))
+            # adjust rainflag to sensitivity limit dimensions
+            rain_flag_dwd_ip[p] = np.tile(rain_flag_dwd_ip[p], (slv[p]['var'].shape[1], 1)).swapaxes(0,1).copy()
+            print(f"Read in and interpolated DWD rainflag in {time.time() - t1:.2f} seconds")
+        else:
+            rain_flag = False
 
     # take mean of sensitivity limit for whole period of operation
-    t3 = time.time()
+    t1 = time.time()
     mean_slv = {}
     mean_slh = {}
     mean_slv_f = {}
@@ -608,14 +611,45 @@ def calc_sensitivity_curve(program):
     for p in program:
         mean_slv[p] = np.mean(slv[p]['var'], axis=0)
         mean_slh[p] = np.mean(slh[p]['var'], axis=0)
-        # rainflag filtered means
-        mean_slv_f[p] = np.mean(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
-        mean_slh_f[p] = np.mean(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
+        if rain_flag:
+            # rainflag filtered means
+            mean_slv_f[p] = np.mean(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
+            mean_slh_f[p] = np.mean(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
 
-    print(f"Averaged sensitivity limits for rain filtered and non filtered data in {time.time() - t3:.2f} seconds")
+    print(f"Averaged sensitivity limits for rain filtered and non filtered data in {time.time() - t1:.2f} seconds")
+
+    # get min and max sensitivity limits for whole period of operation
+    t1 = time.time()
+    min_max_slv = dict.fromkeys(['min', 'max'], {})
+    min_max_slh = dict.fromkeys(['min', 'max'], {})
+    min_max_slv_f = dict.fromkeys(['min', 'max'], {})
+    min_max_slh_f = dict.fromkeys(['min', 'max'], {})
+    for p in program:
+        min_max_slv['min'][p] = np.min(slv[p]['var'], axis=0)
+        min_max_slh['min'][p] = np.min(slh[p]['var'], axis=0)
+        min_max_slv['max'][p] = np.max(slv[p]['var'], axis=0)
+        min_max_slh['max'][p] = np.max(slh[p]['var'], axis=0)
+        if rain_flag:
+            # rainflag filtered min max
+            min_max_slv_f['min'][p] = np.min(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
+            min_max_slh_f['min'][p] = np.min(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
+            min_max_slv_f['max'][p] = np.max(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
+            min_max_slh_f['max'][p] = np.max(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
+
+    print(f"Calculated min and max sensitivity limits for rain filtered and non filtered data in "
+          f"{time.time() - t1:.2f} seconds")
     print(f"Done with calculate_sensitivity_curve in {time.time() - start:.2f} seconds")
-
-    return {'mean_slv': mean_slv, 'mean_slv_f': mean_slv_f, 'mean_slh': mean_slh, 'mean_slh_f': mean_slh_f}
+    if rain_flag:
+        stats = {'mean_slv': mean_slv, 'mean_slv_f': mean_slv_f, 'mean_slh': mean_slh, 'mean_slh_f': mean_slh_f,
+                 'min_slv': min_max_slv['min'], 'min_slv_f': min_max_slv_f['min'],
+                 'min_slh': min_max_slh['min'], 'min_slh_f': min_max_slh_f['min'],
+                 'max_slv': min_max_slv['max'], 'max_slv_f': min_max_slv_f['max'],
+                 'max_slh': min_max_slh['max'], 'max_slh_f': min_max_slh_f['max']}
+    else:
+        stats = {'mean_slv': mean_slv, 'mean_slh': mean_slh,
+                 'min_slv': min_max_slv['min'], 'min_slh': min_max_slh['min'],
+                 'max_slv': min_max_slv['max'], 'max_slh': min_max_slh['max']}
+    return stats
 
 
 if __name__ == '__main__':
