@@ -164,10 +164,10 @@ def plot_frequency_of_occurence_limrad94(program, step, stats_sl, plot_path, lar
 
 if __name__ == '__main__':
     # leave out P06 because it has no values for the stepped plots
-    program = ['P07']
-    steps = [24]
+    program = ['P07', 'P09']
+    steps = [3, 24]
     plot_path = "../plots/foc_LIMRAD94"
-    larda_systems = ["LIMRAD94"]#, "LIMRAD94_cn_input"]
+    larda_systems = ["LIMRAD94", "LIMRAD94_cn_input"]
     campaign = 'eurec4a'
 
     # get mean sensitivity limits
