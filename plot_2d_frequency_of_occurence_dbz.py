@@ -28,7 +28,7 @@ def calc_freq_of_occurrence_reflectivity(radar_ze, indices, bin_width=1):
         bin_width (int): which bin width should be used (optional, default=1)
 
     Returns: foc_array, hist_bins
-        foc_array (np.array): array containing the frequencies in each reflectivity bin for each height bin, normalized
+        foc_array (masked array): array containing the frequencies in each reflectivity bin for each height bin, normalized
         to the total number of occurrences over the whole height;
         hist_bins (np.array): 1D array containing the bin edges including the rightmost bin
 
@@ -55,6 +55,7 @@ def calc_freq_of_occurrence_reflectivity(radar_ze, indices, bin_width=1):
     foc_array[foc_array == 0] = np.nan
     # normalize by count of all pixels
     foc_array = foc_array / np.nansum(foc_array)
+    foc_array = np.ma.masked_where(np.isnan(foc_array), foc_array)
     print(f"Computed histograms and created array for plotting in {time.time() - start:.2f} seconds")
 
     return foc_array, hist_bins
