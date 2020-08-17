@@ -10,7 +10,6 @@ sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
 import pyLARDA
 import pyLARDA.helpers as h
-import datetime as dt
 import time
 import numpy as np
 import functions_jr as jr
@@ -61,13 +60,13 @@ def calc_freq_of_occurrence_reflectivity(radar_ze, indices, bin_width=1):
     return foc_array, hist_bins
 
 
-def plot_frequency_of_occurence_LIMRAD94(program, step, mean_sl, plot_path, larda_system, campaign='eurec4a'):
+def plot_frequency_of_occurence_limrad94(program, step, stats_sl, plot_path, larda_system, campaign='eurec4a'):
     """Plot a 2D frequency of occurrence of reflectivity over height
 
     Args:
         program (list): list of chirp program numbers like 'P07'
         step (int): at which time step the plots should be made, allows for daily cycle plots (1, 2, 3, 4, 6, 8, 12, 24)
-        mean_sl (dict): dictionary with mean sensitivity limits for specified programs
+        stats_sl (dict): dictionary with statistics on sensitivity limits for specified programs
         plot_path (str): path where plot should be saved to
         larda_system (str): which larda system to use (LIMRAD94, LIMRAD94_cn_input), should have Ze and rg parameter
         campaign (str): name of campaign to get data from
@@ -78,11 +77,8 @@ def plot_frequency_of_occurence_LIMRAD94(program, step, mean_sl, plot_path, lard
 
     start = time.time()
     # define durations of use for each chirp table (program)
-    begin_dts = {'P09': dt.datetime(2020, 1, 20, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 15, 30, 5),
-                 'P07': dt.datetime(2020, 1, 31, 22, 30, 5)}
-    end_dts = {'P09': dt.datetime(2020, 1, 27, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 23, 42, 00),
-               'P07': dt.datetime(2020, 2, 19, 23, 59, 55)}
-    program_names = {'P09': "tradewindCU (P09)", 'P06': "Cu_small_Tint (P06)", 'P07': "Cu_small_Tint2 (P07)"}
+    begin_dts, end_dts = jr.get_chirp_table_durations(program)
+    program_names = jr.get_chirp_table_names(program)
 
     # get time chunk borders
     assert step in [1, 2, 3, 4, 6, 8, 12, 24], f"Step size is not a sensible value, {step}!" \
@@ -90,10 +86,6 @@ def plot_frequency_of_occurence_LIMRAD94(program, step, mean_sl, plot_path, lard
     steps = np.arange(0, 25, step)
 
     for p in program:
-        assert p in program_names.keys(), f"Please use program codes like 'P07' to select chirptable! Not {p}! " \
-                                          f"Check functions documentation to see which program corresponds to which " \
-                                          f"chirptable"
-
         # define larda stuff
         system = larda_system
         begin_dt = begin_dts[p]
@@ -119,10 +111,16 @@ def plot_frequency_of_occurence_LIMRAD94(program, step, mean_sl, plot_path, lard
             foc_array, hist_bins = calc_freq_of_occurrence_reflectivity(radar_ze, indices)
 
             # scale sensitivity limit to pcolormesh axis = 0-{number of hist_bins}, add lowest value in histogram bins
-            mean_slh = h.lin2z(mean_sl['mean_slh'][p]) + np.abs(hist_bins[0])
-            mean_slv = h.lin2z(mean_sl['mean_slv'][p]) + np.abs(hist_bins[0])
+            mean_slh = h.lin2z(stats_sl['mean_slh'][p]) + np.abs(hist_bins[0])
+            mean_slv = h.lin2z(stats_sl['mean_slv'][p]) + np.abs(hist_bins[0])
+            min_slv = h.lin2z(stats_sl['min_slv'][p]) + np.abs(hist_bins[0])
+            min_slh = h.lin2z(stats_sl['min_slh'][p]) + np.abs(hist_bins[0])
+            max_slv = h.lin2z(stats_sl['max_slv'][p]) + np.abs(hist_bins[0])
+            max_slh = h.lin2z(stats_sl['max_slh'][p]) + np.abs(hist_bins[0])
 
-            figname = f"{plot_path}/RV-Meteor_{system}_freq_of_occurrence_{p}_{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}_{steps[i]}-{steps[i+1]}UTC.png"
+            # get location of campaign from larda
+            location = larda.camp.LOCATION
+            figname = f"{plot_path}/{location}_{system}_freq_of_occurrence_{p}_{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}_{steps[i]}-{steps[i+1]}UTC.png"
 
             # create an array for the x and y tick labels
             height = radar_ze['rg']
@@ -131,15 +129,19 @@ def plot_frequency_of_occurence_LIMRAD94(program, step, mean_sl, plot_path, lard
 
             # create title
             title = f"Frequency of Occurrence of Reflectivity {system}" \
-                    f"\nEUREC4A {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d} {steps[i]} - {steps[i+1]} UTC" \
+                    f"\n{campaign} {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d} {steps[i]} - {steps[i+1]} UTC" \
                     f"\n Chirp program: {program_names[p]}"
 
             fig, ax = plt.subplots()
             im = ax.pcolormesh(foc_array, cmap='jet', norm=LogNorm())
-            ax.plot(mean_slh, np.arange(len(height)), "k-", label="Horizontal Polarization")
-            ax.plot(mean_slv, np.arange(len(height)), "r-", label="Vertical Polarization")
+            ax.plot(mean_slh, np.arange(len(height)), "-", color='green', label="Mean Horizontal Polarization")
+            ax.plot(mean_slv, np.arange(len(height)), "-", color='red', label="Mean Vertical Polarization")
+            ax.plot(min_slh, np.arange(len(height)), "-", color='limegreen', label="Min Horizontal Polarization")
+            ax.plot(min_slv, np.arange(len(height)), "-", color='tomato', label="Min Vertical Polarization")
+            ax.plot(max_slh, np.arange(len(height)), "-", color='darkolivegreen', label="Max Horizontal Polarization")
+            ax.plot(max_slv, np.arange(len(height)), "-", color='firebrick', label="Max Vertical Polarization")
             fig.colorbar(im, ax=ax)
-            fig.legend(title="Mean Sensitivity Limit", bbox_to_anchor=(0.5, -0.01), loc="lower center",
+            fig.legend(title="Sensitivity Limits", bbox_to_anchor=(0.5, -0.01), loc="lower center",
                        bbox_transform=fig.transFigure, ncol=2)
             ax.yaxis.set_minor_locator(AutoMinorLocator(5))
             ax.xaxis.set_minor_locator(AutoMinorLocator(2))
@@ -163,10 +165,11 @@ if __name__ == '__main__':
     program = ['P09']
     steps = [24]
     plot_path = "../plots/foc_LIMRAD94"
-    larda_systems = ["LIMRAD94", "LIMRAD94_cn_input"]
+    larda_systems = ["LIMRAD94"]#, "LIMRAD94_cn_input"]
+    campaign = 'eurec4a'
 
     # get mean sensitivity limits
-    mean_sl = jr.calc_sensitivity_curve(program)
+    stats_sl = jr.calc_sensitivity_curve(program, campaign, rain_flag=True)
     for larda_system in larda_systems:
         for step in steps:
-            plot_frequency_of_occurence_LIMRAD94(program, step, mean_sl, plot_path, larda_system)
+            plot_frequency_of_occurence_limrad94(program, step, stats_sl, plot_path, larda_system)
