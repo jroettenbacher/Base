@@ -686,6 +686,9 @@ def get_chirp_table_names(program):
     """
     program_names = {'P09': "tradewindCU (P09)", 'P06': "Cu_small_Tint (P06)", 'P07': "Cu_small_Tint2 (P07)",
                      'P03': "Lindenberg (P03)"}
+    for p in program:
+        assert p in program_names.keys(), f"{p} is not a valid/implemented chirp program number"
+
     return {p: program_names[p] for p in program}
 
 
