@@ -540,8 +540,6 @@ def heave_correction_spectra(data, date,
 def calc_sensitivity_curve(program, campaign, rain_flag=True):
     """Calculate statistics of the sensitivity limit over height for specified chirp table (sensitivity curves)
 
-    Implemented chirp tables: "tradewindCU (P09)", "Cu_small_Tint (P06)", "Cu_small_Tint2 (P07)", "Lindenberg P03".
-
     Args:
         program (list): list of program numbers e.g. 'P07'
         campaign (str): name of campaign from where to load data
@@ -561,11 +559,8 @@ def calc_sensitivity_curve(program, campaign, rain_flag=True):
     larda = pyLARDA.LARDA().connect(campaign, build_lists=True)
     system = "LIMRAD94"
 
-    # define durations of use for each chirp table (program)
-    begin_dts = {'P09': dt.datetime(2020, 1, 17, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 15, 30, 5),
-                 'P07': dt.datetime(2020, 1, 31, 22, 30, 5), 'P03': dt.datetime(2020, 7, 15, 0, 0, 5)}
-    end_dts = {'P09': dt.datetime(2020, 1, 27, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 23, 42, 0),
-               'P07': dt.datetime(2020, 2, 19, 23, 59, 55), 'P03': dt.datetime(2020, 10, 20, 23, 59, 55)}
+    # get duration of use for each chirp tables
+    begin_dts, end_dts = get_chirp_table_durations(program)
     plot_range = [0, 'max']
 
     # read in sensitivity variables for each chirp table over whole range (all chirps)
@@ -651,6 +646,31 @@ def calc_sensitivity_curve(program, campaign, rain_flag=True):
                  'max_slv': min_max_slv['max'], 'max_slh': min_max_slh['max']}
     return stats
 
+
+def get_chirp_table_durations(program):
+    """get the begin and end datetime of a specified chirp table
+
+    Implemented chirp tables: "tradewindCU (P09)", "Cu_small_Tint (P06)", "Cu_small_Tint2 (P07)", "Lindenberg (P03)".
+
+    Args:
+        program (list): list of program names, e.g. "P07"
+
+    Returns: begin and end datetime of specified chirp table in a dictionary with program as keys
+
+    """
+    # define durations of use for each chirp table (program)
+    begin_dts = {'P09': dt.datetime(2020, 1, 17, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 15, 30, 5),
+                 'P07': dt.datetime(2020, 1, 31, 22, 30, 5), 'P03': dt.datetime(2020, 7, 15, 0, 0, 5)}
+    end_dts = {'P09': dt.datetime(2020, 1, 27, 0, 0, 5), 'P06': dt.datetime(2020, 1, 30, 23, 42, 0),
+               'P07': dt.datetime(2020, 2, 19, 23, 59, 55), 'P03': dt.datetime(2020, 10, 20, 23, 59, 55)}
+    for p in program:
+        assert p in begin_dts.keys() and p in end_dts.keys(), f"{p} is not a valid/implemented chirp program number"
+
+    # create dictionaries with the wanted program durations only
+    begin_out = {p: begin_dts[p] for p in program}
+    end_out = {p: end_dts[p] for p in program}
+
+    return begin_out, end_out
 
 if __name__ == '__main__':
     import sys, time
