@@ -615,10 +615,10 @@ def calc_sensitivity_curve(program, campaign, rain_flag=True):
 
     # get min and max sensitivity limits for whole period of operation
     t1 = time.time()
-    min_max_slv = dict.fromkeys(['min', 'max'], {})
-    min_max_slh = dict.fromkeys(['min', 'max'], {})
-    min_max_slv_f = dict.fromkeys(['min', 'max'], {})
-    min_max_slh_f = dict.fromkeys(['min', 'max'], {})
+    min_max_slv = {k: {} for k in ['min', 'max']}
+    min_max_slh = {k: {} for k in ['min', 'max']}
+    min_max_slv_f = {k: {} for k in ['min', 'max']}
+    min_max_slh_f = {k: {} for k in ['min', 'max']}
     for p in program:
         min_max_slv['min'][p] = np.min(slv[p]['var'], axis=0)
         min_max_slh['min'][p] = np.min(slh[p]['var'], axis=0)
