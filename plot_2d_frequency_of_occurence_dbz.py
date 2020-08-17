@@ -136,11 +136,11 @@ def plot_frequency_of_occurence_limrad94(program, step, stats_sl, plot_path, lar
             fig, ax = plt.subplots()
             im = ax.pcolormesh(foc_array, cmap='jet', norm=LogNorm())
             ax.plot(mean_slh, np.arange(len(height)), "-", color='green', label="Mean Horizontal Polarization")
+            ax.plot(max_slh, np.arange(len(height)), "-", color='olive', label="Max Horizontal Polarization")
+            ax.plot(min_slh, np.arange(len(height)), "-", color='lime', label="Min Horizontal Polarization")
             ax.plot(mean_slv, np.arange(len(height)), "-", color='red', label="Mean Vertical Polarization")
-            ax.plot(min_slh, np.arange(len(height)), "-", color='limegreen', label="Min Horizontal Polarization")
+            ax.plot(max_slv, np.arange(len(height)), "-", color='darkred', label="Max Vertical Polarization")
             ax.plot(min_slv, np.arange(len(height)), "-", color='tomato', label="Min Vertical Polarization")
-            ax.plot(max_slh, np.arange(len(height)), "-", color='darkolivegreen', label="Max Horizontal Polarization")
-            ax.plot(max_slv, np.arange(len(height)), "-", color='firebrick', label="Max Vertical Polarization")
             fig.colorbar(im, ax=ax)
             fig.legend(title="Sensitivity Limits", bbox_to_anchor=(0.5, -0.01), loc="lower center",
                        bbox_transform=fig.transFigure, ncol=2)
@@ -156,14 +156,15 @@ def plot_frequency_of_occurence_limrad94(program, step, stats_sl, plot_path, lar
             ax.set_ylabel("Height [km]")
             ax.set_title(title)
             fig.tight_layout()
-            fig.subplots_adjust(bottom=0.2)
+            fig.subplots_adjust(bottom=0.3)
             fig.savefig(figname, dpi=300)
             plt.close()
+            print(f"Saved {figname}")
 
 
 if __name__ == '__main__':
     # leave out P06 because it has no values for the stepped plots
-    program = ['P06']
+    program = ['P07']
     steps = [24]
     plot_path = "../plots/foc_LIMRAD94"
     larda_systems = ["LIMRAD94"]#, "LIMRAD94_cn_input"]
