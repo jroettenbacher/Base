@@ -672,6 +672,23 @@ def get_chirp_table_durations(program):
 
     return begin_out, end_out
 
+
+def get_chirp_table_names(program):
+    """get the names of the supplied chirp table programs
+
+    Implemented chirp tables: "tradewindCU (P09)", "Cu_small_Tint (P06)", "Cu_small_Tint2 (P07)", "Lindenberg (P03)".
+
+    Args:
+        program (list): list of chirp program names, e.g. "P07"
+
+    Returns: dictionary with the corresponding program names to each supplied program number
+
+    """
+    program_names = {'P09': "tradewindCU (P09)", 'P06': "Cu_small_Tint (P06)", 'P07': "Cu_small_Tint2 (P07)",
+                     'P03': "Lindenberg (P03)"}
+    return {p: program_names[p] for p in program}
+
+
 if __name__ == '__main__':
     import sys, time
     import datetime as dt
