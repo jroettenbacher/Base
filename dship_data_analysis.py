@@ -7,8 +7,11 @@ import time
 import datetime as dt
 import pandas as pd
 import dask.dataframe as dd
+import matplotlib.pyplot as plt
+import numpy as np
 
 path = "/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP"
+plot_path = "/projekt1/remsens/work/jroettenbacher/plots/dship"
 # # this code snippet checks if any column that should be a float64 column is one
 # # and says if for one day this is not the case
 # # somehow the missing data was set to -999-999.-999-999-999 on the 11.02.2020
@@ -31,7 +34,7 @@ path = "/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/R
 #
 
 # read in all data and plot the difference between each time step
-file = "*_DSHIP_seapath*"
+file = "*_DSHIP_seapath_1Hz.dat"
 seapath = dd.read_csv(f"{path}/{file}", encoding='windows-1252', sep="\t", skiprows=(1, 2),
                       parse_dates=['date time'])
 # change colnames
@@ -44,4 +47,10 @@ def diff(df, periods=1):
                            periods, 0, periods=periods)
 
 
-result = diff(seapath).compute()
+result = diff(seapath.datetime).compute()
+np.max(result)
+np.min(result)
+np.sum(np.isnan(result))
+plt.plot(result[1:])
+plt.savefig(f"{plot_path}/time_diff_seapath.png")
+plt.close()
