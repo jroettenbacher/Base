@@ -18,8 +18,8 @@ for date in df.Begin_Date.dt.date.unique():
     if not os.path.exists(outpath):
         os.makedirs(outpath)
 
-    tmp_df = df.loc[df.Begin_Date.dt.date == date]
-    tmp_df.to_csv(f'{outpath}/{date:%Y_%m_%d}_cloud_collection_LEIPZIG_all.csv', sep=';')
+    tmp_df = df.loc[df.Begin_Date.dt.date == date]  # select only rows which match the current date
+    tmp_df.to_csv(f'{outpath}/{date:%Y_%m_%d}_cloud_collection_LEIPZIG_all.csv', sep=';')  # save to csv
 
 
 
