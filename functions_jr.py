@@ -574,10 +574,11 @@ def calc_sensitivity_curve(program, campaign, rain_flag=True):
         begin_dt = begin_dts[p]
         end_dt = end_dts[p]
         t1 = time.time()
+        slh[p] = larda.read(system, "SLh", [begin_dt, end_dt], plot_range)
+        slv[p] = larda.read(system, "SLv", [begin_dt, end_dt], plot_range)
         # Note: The sensitivity and the total noise are combined in V-channel. Thus SLV = 4 * SLV - SLH
         # see mattermost LIMRAD94 channel #sensitivity for details
-        slh[p] = larda.read(system, "SLh", [begin_dt, end_dt], plot_range)
-        slv[p] = 4 * larda.read(system, "SLv", [begin_dt, end_dt], plot_range) - slh[p]
+        slv[p]['var'] = 4 * slv[p]['var'] - slh[p]['var']
         print(f"Read in sensitivity limits in {time.time() - t1:.2f} seconds")
 
         if rain_flag and campaign == 'eurec4a':
