@@ -147,7 +147,7 @@ def plot_frequency_of_occurence_limrad94(program, step, stats_sl, plot_path, lar
             ax.plot(min_slv, np.arange(len(height)), "-", color='tomato', label="Min Vertical Polarization")
             fig.colorbar(im, ax=ax)
             fig.legend(title="Sensitivity Limits", bbox_to_anchor=(0.5, -0.01), loc="lower center",
-                       bbox_transform=fig.transFigure, ncol=2)
+                       bbox_transform=fig.transFigure, ncol=2, fontsize='small')
             ax.yaxis.set_minor_locator(AutoMinorLocator(5))
             ax.xaxis.set_minor_locator(AutoMinorLocator(2))
             ax.xaxis.set_major_formatter(IndexFormatter(xlabels))
