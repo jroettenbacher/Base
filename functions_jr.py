@@ -600,53 +600,36 @@ def calc_sensitivity_curve(program, campaign, rain_flag=True):
         else:
             rain_flag = False
 
-    # take mean of sensitivity limit for whole period of operation
+    # get statistics of sensitivity limit for whole period of operation
     t1 = time.time()
-    mean_slv = {}
-    mean_slh = {}
-    mean_slv_f = {}
-    mean_slh_f = {}
+    stats = {k: {} for k in ['mean_slv', 'median_slv', 'min_slv', 'max_slv',
+                             'mean_slh', 'median_slh', 'min_slh', 'max_slh',
+                             'mean_slv_f', 'median_slv_f', 'min_slv_f', 'max_slv_f',
+                             'mean_slh_f', 'median_slh_f', 'min_slh_f', 'max_slh_f']}
     for p in program:
-        mean_slv[p] = np.mean(slv[p]['var'], axis=0)
-        mean_slh[p] = np.mean(slh[p]['var'], axis=0)
+        stats['mean_slv'][p] = np.mean(slv[p]['var'], axis=0)
+        stats['mean_slh'][p] = np.mean(slh[p]['var'], axis=0)
+        stats['median_slv'][p] = np.median(slv[p]['var'], axis=0)
+        stats['median_slh'][p] = np.median(slh[p]['var'], axis=0)
+        stats['min_slv'][p] = np.min(slv[p]['var'], axis=0)
+        stats['min_slh'][p] = np.min(slh[p]['var'], axis=0)
+        stats['max_slv'][p] = np.max(slv[p]['var'], axis=0)
+        stats['max_slh'][p] = np.max(slh[p]['var'], axis=0)
         if rain_flag:
             # rainflag filtered means
-            mean_slv_f[p] = np.mean(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
-            mean_slh_f[p] = np.mean(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
+            stats['mean_slv_f'][p] = np.mean(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
+            stats['mean_slh_f'][p] = np.mean(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
+            stats['median_slv_f'][p] = np.median(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
+            stats['median_slh_f'][p] = np.median(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
+            stats['min_slv_f'][p] = np.min(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
+            stats['min_slh_f'][p] = np.min(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
+            stats['max_slv_f'][p] = np.max(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
+            stats['max_slh_f'][p] = np.max(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
 
-    print(f"Averaged sensitivity limits for rain filtered and non filtered data in {time.time() - t1:.2f} seconds")
-
-    # get min and max sensitivity limits for whole period of operation
-    t1 = time.time()
-    min_max_slv = {k: {} for k in ['min', 'max']}
-    min_max_slh = {k: {} for k in ['min', 'max']}
-    min_max_slv_f = {k: {} for k in ['min', 'max']}
-    min_max_slh_f = {k: {} for k in ['min', 'max']}
-    for p in program:
-        min_max_slv['min'][p] = np.min(slv[p]['var'], axis=0)
-        min_max_slh['min'][p] = np.min(slh[p]['var'], axis=0)
-        min_max_slv['max'][p] = np.max(slv[p]['var'], axis=0)
-        min_max_slh['max'][p] = np.max(slh[p]['var'], axis=0)
-        if rain_flag:
-            # rainflag filtered min max
-            min_max_slv_f['min'][p] = np.min(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
-            min_max_slh_f['min'][p] = np.min(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
-            min_max_slv_f['max'][p] = np.max(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
-            min_max_slh_f['max'][p] = np.max(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
-
-    print(f"Calculated min and max sensitivity limits for rain filtered and non filtered data in "
+    print(f"Calculated statistics of sensitivity limits for rain filtered and non filtered data in "
           f"{time.time() - t1:.2f} seconds")
     print(f"Done with calculate_sensitivity_curve in {time.time() - start:.2f} seconds")
-    if rain_flag:
-        stats = {'mean_slv': mean_slv, 'mean_slv_f': mean_slv_f, 'mean_slh': mean_slh, 'mean_slh_f': mean_slh_f,
-                 'min_slv': min_max_slv['min'], 'min_slv_f': min_max_slv_f['min'],
-                 'min_slh': min_max_slh['min'], 'min_slh_f': min_max_slh_f['min'],
-                 'max_slv': min_max_slv['max'], 'max_slv_f': min_max_slv_f['max'],
-                 'max_slh': min_max_slh['max'], 'max_slh_f': min_max_slh_f['max']}
-    else:
-        stats = {'mean_slv': mean_slv, 'mean_slh': mean_slh,
-                 'min_slv': min_max_slv['min'], 'min_slh': min_max_slh['min'],
-                 'max_slv': min_max_slv['max'], 'max_slh': min_max_slh['max']}
+
     return stats
 
 
