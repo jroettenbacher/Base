@@ -52,10 +52,16 @@ mdv_uncorr['var_lims'] = [-7, 7]
 # read in uncorrected velocity from new cloudnet input files
 mdv_uncorr_2 = larda.read('LIMRAD94_cni', 'Vel', [begin_dt, end_dt], plot_range)
 mdv_uncorr_2['var_lims'] = [-7, 7]
-moments = {'VEL_cor': mdv, 'VEL_cor2': mdv_2, 'VEL': mdv_uncorr, 'VEL2': mdv_uncorr_2,
-           'VEL_uncor-cor': mdv, 'VEL_uncor-cor2': mdv_2,
+
+# put every variable in a dict
+moments = {'VEL_cor': mdv,
+           'VEL_cor2': mdv_2,
+           'VEL': mdv_uncorr, 'VEL2': mdv_uncorr_2,
+           'VEL_uncor-cor': mdv,
+           'VEL_uncor-cor2': mdv_2,
            'heave_corr': mdv, 'n_dopp_shift': mdv,
-           'VEL_uncor-cor-heave_corr': mdv, 'VEL_uncor-cor-heave_corr2': mdv_2}
+           'VEL_uncor-cor-heave_corr2': mdv_2,
+           'VEL_uncor-cor-heave_corr': mdv}
 for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA', 'MaxVel', 'DoppLen']:
     print('loading variable from LV1 :: ' + var)
     moments.update({var: larda.read('LIMRAD94', var, [begin_dt, end_dt], [0, 'max'])})
@@ -168,7 +174,7 @@ plt.close()
 print(f'figure saved :: {fig_name}')
 
 # doppler bin shift array zoom
-moments['n_dopp_shift']['var_lims'] = [-7, 7]
+moments['n_dopp_shift']['var_lims'] = [-3, 3]
 fig, _ = pyLARDA.Transformations.plot_timeheight(moments['n_dopp_shift'], rg_converter=False, title=True,
                                                  time_interval=[begin_dt_zoom, end_dt_zoom],
                                                  range_interval=plot_range)
@@ -187,7 +193,7 @@ fig.savefig(fig_name, dpi=250)
 plt.close()
 print(f'figure saved :: {fig_name}')
 
-# difference between difference between Vel and Vel_cor and heave correction
+# difference between difference between Vel and Vel_cor dealiased and heave correction
 moments['VEL_uncor-cor-heave_corr2']['var_lims'] = [-1, 1]
 fig, _ = pyLARDA.Transformations.plot_timeheight(moments['VEL_uncor-cor-heave_corr2'], rg_converter=False, title=True,
                                                  time_interval=[begin_dt_zoom, end_dt_zoom],
@@ -196,3 +202,29 @@ fig_name = f"{name_zoom}_{moments['VEL_uncor-cor-heave_corr2']['paraminfo']['sys
 fig.savefig(fig_name, dpi=250)
 plt.close()
 print(f'figure saved :: {fig_name}')
+
+# plot differently zoomed plots of corrected and uncorrected MDV (spectra) 25.01.2020
+begin_dt = dt.datetime(2020,  2, 5, 0, 0, 0)
+end_dt = dt.datetime(2020, 2, 5, 20, 0, 0)
+plot_range = [0, 'max']
+mdv = larda.read('LIMRAD94_cni_hc', 'Vel', [begin_dt, end_dt], plot_range)
+mdv['var_lims'] = [-7, 7]
+mdv_uncor = larda.read('LIMRAD94_cni', 'Vel', [begin_dt, end_dt], plot_range)
+mdv_uncor['var_lims'] = [-7, 7]
+hours = [12, 6, 3, 1, 0.5]  # different time range
+max_ranges = [3000, 6000, 10000]  # different height range
+# # testing
+# hour = hours[-1]
+# max_range = max_ranges[0]
+for var, name in zip([mdv, mdv_uncor], ['spectra_corrected', 'uncorrected']):
+    for hour in hours:
+        for max_range in max_ranges:
+            end_dt_plot = begin_dt + dt.timedelta(hours=hour)
+            plot_range = [0, max_range]
+            fig, _ = pyLARDA.Transformations.plot_timeheight(var, rg_converter=False, title=True,
+                                                             time_interval=[begin_dt, end_dt_plot],
+                                                             range_interval=plot_range)
+            fig_name = f"{plot_path}/{begin_dt:%Y%m%d_%H%M}-{end_dt_plot:%Y%m%d_%H%M}_{max_range/1000:.0f}km_MDV_{name}.png"
+            fig.savefig(fig_name, dpi=250)
+            plt.close()
+            print(f'figure saved :: {fig_name}')
