@@ -289,6 +289,7 @@ def load_spectra_rpgfmcw94(larda, time_span, rpg_radar='LIMRAD94', **kwargs):
     # read limrad94 doppler spectra and caluclate radar moments
     std_above_mean_noise = float(kwargs['noise_factor']) if 'noise_factor' in kwargs else 6.0
     heave_correct = kwargs['heave_correction'] if 'heave_correction' in kwargs else False
+    add = kwargs['add'] if 'add' in kwargs else False
     dealiasing_flag = kwargs['dealiasing'] if 'dealiasing' in kwargs else False
     ghost_echo_1 = kwargs['ghost_echo_1'] if 'ghost_echo_1' in kwargs else True
     ghost_echo_2 = kwargs['ghost_echo_2'] if 'ghost_echo_2' in kwargs else True
@@ -375,7 +376,7 @@ def load_spectra_rpgfmcw94(larda, time_span, rpg_radar='LIMRAD94', **kwargs):
                                                                   only_heave=False,
                                                                   use_cross_product=True,
                                                                   transform_to_earth=True,
-                                                                  add=False)
+                                                                  add=add)
         logger.info(f'Heave correction applied, elapsed time = {seconds_to_fstring(time.time() - tstart)} [min:sec]')
 
     if do_despeckle2D:
@@ -957,9 +958,9 @@ def heave_correction_spectra(data, date,
                              mean_hr=True, only_heave=False, use_cross_product=True, transform_to_earth=True, add=False):
     """Shift Doppler spectra to correct for heave motion of ship (RV-Meteor)
     Calculate heave rate from seapath measurements and create heave correction array. Translate the heave correction to
-    a number spectra bins by which to move each spectra. If Spectra are given, shift them and return a 3D array with the
-    shifted spectra.
-    Without spectra input, only the heave correction array and the array with the number if bins to move is returned.
+    a number of spectra bins by which to move each spectra. If Spectra are given, shift them and return a 3D array with
+    the  shifted spectra.
+    Without spectra input, only the heave correction array and the array with the number of bins to move is returned.
 
     Args:
         data: LIMRAD94 data container filled with spectra and C1/2/3_Range, SeqIntTime, MaxVel, DoppLen, ts from LV1 file
