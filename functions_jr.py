@@ -96,13 +96,14 @@ def find_bases_tops(mask, rg_list):
     return cloud_prop, cloud_mask
 
 
-def read_seapath(date, nrows=None, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP"):
+def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
+                 **kwargs):
     """
     Read in Seapath measurements from RV Meteor from .dat files to a pandas.DataFrame
     Args:
         date (datetime.datetime): object with date of current file
-        nrows (int): number of rows to read, useful when only a few rows are needed
         path (str): path to seapath files
+        kwargs for read_csv
 
     Returns:
         seapath (DataFrame): DataFrame with Seapath measurements
@@ -110,12 +111,15 @@ def read_seapath(date, nrows=None, path="/projekt2/remsens/data_new/site-campaig
     """
     # Seapath attitude and heave data 1 or 10 Hz, choose file depending on date
     start = time.time()
+    # unpack kwargs
+    nrows = kwargs['nrows'] if 'nrows' in kwargs else None
+    skiprows = kwargs['skiprows'] if 'skiprows' in kwargs else (1, 2)
     if date < dt.datetime(2020, 1, 27):
         file = f"{date:%Y%m%d}_DSHIP_seapath_1Hz.dat"
     else:
         file = f"{date:%Y%m%d}_DSHIP_seapath_10Hz.dat"
     # set encoding and separator, skip the rows with the unit and type of measurement
-    seapath = pd.read_csv(f"{path}/{file}", encoding='windows-1252', sep="\t", skiprows=(1, 2),
+    seapath = pd.read_csv(f"{path}/{file}", encoding='windows-1252', sep="\t", skiprows=skiprows,
                           index_col='date time', nrows=nrows)
     # transform index to datetime
     seapath.index = pd.to_datetime(seapath.index, infer_datetime_format=True)
