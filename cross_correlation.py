@@ -140,4 +140,35 @@ def calc_time_shift_limrad_seapath(date, version=1, plot_xcorr=False):
     else:
         print(f"Wrong version selected! {version}")
 
-    return time_shift
+    return time_shift, seapath
+
+
+if __name__ == '__main__':
+    date = dt.date(2020, 2, 16)
+    datetime = dt.datetime.combine(date, dt.datetime.min.time())
+    t_shift, seapath = calc_time_shift_limrad_seapath(date)
+
+    # turn shift to number of timesteps
+    sr = 10  # sampling rate of seapath in Hertz
+    shift = int(np.round(t_shift * 10))
+    # shift seapath data by shift
+    seapath_shifted = seapath.shift(periods=shift)
+
+    # replace Nans at start with data from the previous day
+    if shift > 0:
+        datetime_previous = datetime - dt.timedelta(1)
+        skiprows = np.arange(1, len(seapath)-shift+2)
+        seapath_previous = jr.read_seapath(datetime_previous, nrows=shift+1, skiprows=skiprows)
+        seapath_previous = jr.calc_heave_rate(seapath_previous)
+        seapath_previous = seapath_previous.iloc[1: , :]
+        # overwrite nan values
+        seapath_shifted.iloc[0:shift, :] = seapath_previous
+    else:
+        datetime_following = datetime + dt.timedelta(1)
+        seapath_following = jr.read_seapath(datetime_following, nrows=shift)
+        seapath_following = jr.calc_heave_rate(seapath_following)
+        # overwrite nan values
+        # leaves in one NaN value because the heave rate of the first time step of a day cannot be calculated
+        # one nan is better than 19 though so this is alright
+        seapath_shifted.iloc[-shift:, :] = seapath_following
+
