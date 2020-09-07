@@ -96,11 +96,12 @@ def find_bases_tops(mask, rg_list):
     return cloud_prop, cloud_mask
 
 
-def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP"):
+def read_seapath(date, nrows=None, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP"):
     """
     Read in Seapath measurements from RV Meteor from .dat files to a pandas.DataFrame
     Args:
         date (datetime.datetime): object with date of current file
+        nrows (int): number of rows to read, useful when only a few rows are needed
         path (str): path to seapath files
 
     Returns:
@@ -115,7 +116,7 @@ def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-
         file = f"{date:%Y%m%d}_DSHIP_seapath_10Hz.dat"
     # set encoding and separator, skip the rows with the unit and type of measurement
     seapath = pd.read_csv(f"{path}/{file}", encoding='windows-1252', sep="\t", skiprows=(1, 2),
-                          index_col='date time')
+                          index_col='date time', nrows=nrows)
     # transform index to datetime
     seapath.index = pd.to_datetime(seapath.index, infer_datetime_format=True)
     seapath.index.name = 'datetime'
@@ -316,7 +317,7 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
                 warnings.warn(f"Heave rate greater 5 * std encountered ({seapath_closest['Heave Rate [m/s]'][idc]})! \n"
                               f"Using average of step before and after. Index: {idc}", UserWarning)
                 # TODO: make more sensible filter, this is a rather sensible filter, because we average over the time
-                #  steps before and after. Altough the values are already averages, this should smooth out outliers
+                #  steps before and after. Although the values are already averages, this should smooth out outliers
                 avg_hrate = (seapath_closest["Heave Rate [m/s]"][idc - 1] + seapath_closest["Heave Rate [m/s]"][idc + 1]) / 2
                 if avg_hrate > 5 * std:
                     warnings.warn(f"Heave Rate value greater than 5 * std encountered ({avg_hrate})! \n"
