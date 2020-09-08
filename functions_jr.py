@@ -711,13 +711,13 @@ def calc_time_shift_limrad_seapath(seapath, version=1, plot_xcorr=False):
 
     """
     start = time.time()
-    logger.info(f"Start time shift analysis between LIMRAD94 mean Doppler velocity and RV Meteor heave rate for "
-                f"{date:%Y-%m-%d}")
     plot_path = "/projekt1/remsens/work/jroettenbacher/Base/tmp"
     logger.debug(f"plot path: {plot_path}")
     # get date from seapath data
     begin_dt = seapath.index[0]
     end_dt = begin_dt + dt.timedelta(seconds=23 * 60 * 60 + 59 * 60 + 59)
+    logger.info(f"Start time shift analysis between LIMRAD94 mean Doppler velocity and RV Meteor heave rate for "
+                f"{begin_dt:%Y-%m-%d}")
     plot_range = [0, 'max']
     larda = pyLARDA.LARDA().connect('eurec4a')
     ####################################################################################################################
@@ -887,9 +887,9 @@ if __name__ == '__main__':
     # new_vel, heave_corr, seapath_out = heave_correction(moments, begin_dt, use_cross_product=True)
     # print("Done Testing heave_correction...")
 
-    # time shift analysis
-    date = dt.datetime(2020, 2, 16)
-    seapath = read_seapath(date)
-    seapath = calc_heave_rate(seapath)
-    t_shift, shift, seapath = calc_time_shift_limrad_seapath(seapath)
-    seapath_shifted = shift_seapath(seapath, -shift)
+    # # time shift analysis
+    # date = dt.datetime(2020, 2, 16)
+    # seapath = read_seapath(date)
+    # seapath = calc_heave_rate(seapath)
+    # t_shift, shift, seapath = calc_time_shift_limrad_seapath(seapath)
+    # seapath_shifted = shift_seapath(seapath, -shift)
