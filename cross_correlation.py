@@ -13,7 +13,7 @@ import logging
 import functions_jr as jr
 
 log = logging.getLogger('__main__')
-log.setLevel(logging.WARNING)
+log.setLevel(logging.ERROR)
 log.addHandler(logging.StreamHandler())
 
 date = dt.datetime(2020, 2, 15, 0, 0, 0)
