@@ -152,7 +152,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
 
     """
     t1 = time.time()
-    print("Calculating Heave Rate...")
+    logger.info("Calculating Heave Rate...")
     # angles in radians
     pitch = np.deg2rad(seapath["Pitch [°]"])
     roll = np.deg2rad(seapath["Roll [°]"])
@@ -160,14 +160,14 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
     # time delta between two time steps in seconds
     d_t = np.ediff1d(seapath.index).astype('float64') / 1e9
     if not use_cross_product:
-        print("using a simple geometric approach")
+        logger.info("using a simple geometric approach")
         if not only_heave:
-            print("using also the roll and pitch induced heave")
+            logger.info("using also the roll and pitch induced heave")
             pitch_heave = x_radar * np.tan(pitch)
             roll_heave = y_radar * np.tan(roll)
 
         elif only_heave:
-            print("using only the ships heave")
+            logger.info("using only the ships heave")
             pitch_heave = 0
             roll_heave = 0
 
@@ -181,7 +181,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
         heave_rate = np.ediff1d(seapath["radar_heave"]) / d_t
 
     else:
-        print("using the cross product approach from Hannes Griesche")
+        logger.info("using the cross product approach from Hannes Griesche")
         # change of angles with time
         d_roll = np.ediff1d(roll) / d_t  # phi
         d_pitch = np.ediff1d(pitch) / d_t  # theta
@@ -193,7 +193,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
         cross_prod = np.cross(ang_rate, pos_radar_exp)  # calculate cross product
 
         if transform_to_earth:
-            print("Transform into Earth Coordinate System")
+            logger.info("Transform into Earth Coordinate System")
             phi, theta, psi = roll, pitch, yaw
             a1 = np.cos(theta) * np.cos(psi)
             a2 = -1 * np.cos(phi) * np.sin(psi) + np.sin(theta) * np.cos(psi) * np.sin(phi)
@@ -216,7 +216,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
     heave_rate = pd.DataFrame({'Heave Rate [m/s]': heave_rate}, index=seapath.index[1:])
     seapath = seapath.join(heave_rate)
 
-    print(f"Done with heave rate calculation in {time.time() - t1:.2f} seconds")
+    logger.info(f"Done with heave rate calculation in {time.time() - t1:.2f} seconds")
     return seapath
 
 
@@ -344,9 +344,9 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
         # duplicate the heave correction over the range dimension to add it to all range bins of the chirp
         shape = range_bins[i + 1] - range_bins[i]
         heave_corr[:, range_bins[i]:range_bins[i+1]] = heave_rate.repeat(shape, axis=1)
-        print(f"Calculated heave correction for Chirp {i+1} in {time.time() - t1:.2f} seconds")
+        logger.info(f"Calculated heave correction for Chirp {i+1} in {time.time() - t1:.2f} seconds")
 
-    print(f"Done with heave correction calculation in {time.time() - start:.2f} seconds")
+    logger.info(f"Done with heave correction calculation in {time.time() - start:.2f} seconds")
     return heave_corr, seapath_out
 
 
@@ -391,7 +391,7 @@ def heave_rate_to_spectra_bins(heave_corr, doppler_res):
 
     # calculate number of Doppler bins
     n_dopp_bins_shift = np.round(heave_corr / doppler_res)
-    print(f"Done with translation of heave corrections to Doppler bins in {time.time() - start:.2f} seconds")
+    logger.info(f"Done with translation of heave corrections to Doppler bins in {time.time() - start:.2f} seconds")
     return n_dopp_bins_shift, heave_corr
 
 
@@ -425,7 +425,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
     # Data Read in
     ####################################################################################################################
     start = time.time()
-    print(f"Starting heave correction for {date:%Y-%m-%d}")
+    logger.info(f"Starting heave correction for {date:%Y-%m-%d}")
     seapath = read_seapath(date, path_to_seapath)
 
     ####################################################################################################################
@@ -451,11 +451,11 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
             new_vel = moments['VEL']['var'] - heave_corr
         # set masked values back to -999 because they also get corrected
         new_vel[moments['VEL']['mask']] = -999
-        print(f"Done with heave corrections in {time.time() - start:.2f} seconds")
+        logger.info(f"Done with heave corrections in {time.time() - start:.2f} seconds")
         return new_vel, heave_corr, seapath_out
     except KeyError:
-        print(f"No input Velocities found! Cannot correct Doppler Velocity.\n Returning only heave_corr array!")
-        print(f"Done with heave correction calculation only in {time.time() - start:.2f} seconds")
+        logger.info(f"No input Velocities found! Cannot correct Doppler Velocity.\n Returning only heave_corr array!")
+        logger.info(f"Done with heave correction calculation only in {time.time() - start:.2f} seconds")
         new_vel = ["I'm an empty list!"]  # create an empty list to return the same number of variables
         return new_vel, heave_corr, seapath_out
 
@@ -490,7 +490,7 @@ def heave_correction_spectra(data, date,
     # Data Read in
     ####################################################################################################################
     start = time.time()
-    print(f"Starting heave correction for {date:%Y-%m-%d}")
+    logger.info(f"Starting heave correction for {date:%Y-%m-%d}")
     seapath = read_seapath(date, path_to_seapath)
 
     ####################################################################################################################
@@ -537,11 +537,11 @@ def heave_correction_spectra(data, date,
 
                 new_spectra[iT, iR, :] = new_spec
 
-        print(f"Done with heave corrections in {time.time() - start:.2f} seconds")
+        logger.info(f"Done with heave corrections in {time.time() - start:.2f} seconds")
         return new_spectra, heave_corr, n_dopp_bins_shift, seapath_out
     except KeyError:
-        print(f"No input spectra found! Cannot shift spectra.\n Returning only heave_corr and n_dopp_bins_shift array!")
-        print(f"Done with heave correction calculation only in {time.time() - start:.2f} seconds")
+        logger.info(f"No input spectra found! Cannot shift spectra.\n Returning only heave_corr and n_dopp_bins_shift array!")
+        logger.info(f"Done with heave correction calculation only in {time.time() - start:.2f} seconds")
         new_spectra = ["I'm an empty list!"]  # create an empty list to return the same number of variables
         return new_spectra, heave_corr, n_dopp_bins_shift, seapath_out
 
@@ -579,7 +579,7 @@ def calc_sensitivity_curve(program, campaign, rain_flag=True):
     rain_flag_dwd_ip = {}
 
     for p in program:
-        print(f"Calculating sensitivity curve for program {p}")
+        logger.info(f"Calculating sensitivity curve for program {p}")
         begin_dt = begin_dts[p]
         end_dt = end_dts[p]
         t1 = time.time()
@@ -588,7 +588,7 @@ def calc_sensitivity_curve(program, campaign, rain_flag=True):
         # Note: The sensitivity and the total noise are combined in V-channel. Thus SLV = 4 * SLV - SLH
         # see mattermost LIMRAD94 channel #sensitivity for details
         slv[p]['var'] = 4 * slv[p]['var'] - slh[p]['var']
-        print(f"Read in sensitivity limits in {time.time() - t1:.2f} seconds")
+        logger.info(f"Read in sensitivity limits in {time.time() - t1:.2f} seconds")
 
         if rain_flag and campaign == 'eurec4a':
             # DWD rain flag
@@ -605,7 +605,7 @@ def calc_sensitivity_curve(program, campaign, rain_flag=True):
             rain_flag_dwd_ip[p] = f(np.asarray(slv[p]['ts']))
             # adjust rainflag to sensitivity limit dimensions
             rain_flag_dwd_ip[p] = np.tile(rain_flag_dwd_ip[p], (slv[p]['var'].shape[1], 1)).swapaxes(0,1).copy()
-            print(f"Read in and interpolated DWD rainflag in {time.time() - t1:.2f} seconds")
+            logger.info(f"Read in and interpolated DWD rainflag in {time.time() - t1:.2f} seconds")
         else:
             rain_flag = False
 
@@ -635,9 +635,9 @@ def calc_sensitivity_curve(program, campaign, rain_flag=True):
             stats['max_slv_f'][p] = np.max(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slv[p]['var']), axis=0)
             stats['max_slh_f'][p] = np.max(np.ma.masked_where(rain_flag_dwd_ip[p] == 1, slh[p]['var']), axis=0)
 
-    print(f"Calculated statistics of sensitivity limits for rain filtered and non filtered data in "
+    logger.info(f"Calculated statistics of sensitivity limits for rain filtered and non filtered data in "
           f"{time.time() - t1:.2f} seconds")
-    print(f"Done with calculate_sensitivity_curve in {time.time() - start:.2f} seconds")
+    logger.info(f"Done with calculate_sensitivity_curve in {time.time() - start:.2f} seconds")
 
     return stats
 
