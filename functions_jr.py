@@ -333,7 +333,7 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
                                   UserWarning)
                 seapath_closest["Heave Rate [m/s]"][idc] = avg_hrate
         except ValueError:
-            logging.info(f"All heave rate values are within 5 standard deviation of the daily mean!")
+            logger.info(f"All heave rate values are within 5 standard deviation of the daily mean!")
 
         # add column with chirp number to distinguish in quality control
         seapath_closest["Chirp_no"] = np.repeat(i + 1, len(seapath_closest.index))
@@ -705,10 +705,10 @@ def calc_time_shift_limrad_seapath(date, version=1, plot_xcorr=False):
 
     """
     start = time.time()
-    logging.info(f"Start time shift analysis between LIMRAD94 mean Doppler velocity and RV Meteor heave rate for "
-                 f"{date:%Y-%m-%d}")
+    logger.info(f"Start time shift analysis between LIMRAD94 mean Doppler velocity and RV Meteor heave rate for "
+                f"{date:%Y-%m-%d}")
     plot_path = "/projekt1/remsens/work/jroettenbacher/Base/tmp"
-    logging.debug(f"plot path: {plot_path}")
+    logger.debug(f"plot path: {plot_path}")
     begin_dt = dt.datetime.combine(date, dt.datetime.min.time())
     end_dt = begin_dt + dt.timedelta(seconds=23 * 60 * 60 + 59 * 60 + 59)
     plot_range = [0, 'max']
@@ -750,7 +750,7 @@ def calc_time_shift_limrad_seapath(date, version=1, plot_xcorr=False):
         try:
             means_ls.append(seapath.loc[ts_id_diff_min])
         except KeyError:
-            logging.info('Timestamp out of bounds of heave rate time series')
+            logger.info('Timestamp out of bounds of heave rate time series')
 
     # concatenate all values into one dataframe with the original header (transpose)
     seapath_closest = pd.concat(means_ls, axis=1).T
@@ -786,7 +786,7 @@ def calc_time_shift_limrad_seapath(date, version=1, plot_xcorr=False):
 
     n = vel_ip.size
     sr = n / (24 * 60 * 60)  # number of samples per day / seconds per day -> sampling rate
-    logging.info(f"Using version {version} for cross correlation...")
+    logger.info(f"Using version {version} for cross correlation...")
     if version == 1:
         xcorr = np.correlate(heave_rate_ip, vel_ip, 'full')
         dt_lags = np.arange(1 - n, n)
@@ -806,11 +806,11 @@ def calc_time_shift_limrad_seapath(date, version=1, plot_xcorr=False):
             plt.savefig(f"{plot_path}/RV-Meteor_cross_corr_version2_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d}.png")
             plt.close()
 
-    logging.debug(f"version: {version}")
+    logger.debug(f"version: {version}")
     # turn time shift in number of time steps
     sr = 1 / (np.median(np.diff(seapath.index)).astype('float') * 10**-9)  # sampling rate in Hertz
     shift = int(np.round(time_shift * sr))
-    logging.info(f"Done with cross correlation, elapsed time = {seconds_to_fstring(time.time() - start)} [min:sec]")
+    logger.info(f"Done with cross correlation, elapsed time = {seconds_to_fstring(time.time() - start)} [min:sec]")
     return time_shift, shift, seapath
 
 
@@ -825,7 +825,7 @@ def shift_seapath(seapath, shift):
 
     """
     start = time.time()
-    logging.info(f"Shifting seapath data by {shift} time steps.")
+    logger.info(f"Shifting seapath data by {shift} time steps.")
     # get day of seapath data
     datetime = seapath.index[0]
     # shift seapath data by shift
@@ -852,7 +852,7 @@ def shift_seapath(seapath, shift):
         seapath_following = seapath_following.reset_index(drop=True).set_index(seapath_shifted.iloc[-shift:, :].index)
         seapath_shifted.update(seapath_following)  # overwrite nan values in shifted data frame
 
-    logging.info(f"Done with shifting seapath data, elapsed time = {seconds_to_fstring(time.time() - start)} [min:sec]")
+    logger.info(f"Done with shifting seapath data, elapsed time = {seconds_to_fstring(time.time() - start)} [min:sec]")
     return seapath_shifted
 
 
@@ -864,7 +864,7 @@ if __name__ == '__main__':
     import pyLARDA
     import numpy as np
 
-    log = logging.getLogger('functions_jr')
+    log = logging.getLogger('__main__')
     log.setLevel(logging.INFO)
     log.addHandler(logging.StreamHandler())
 
