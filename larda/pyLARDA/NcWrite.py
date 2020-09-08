@@ -5,7 +5,7 @@ import netCDF4
 import numpy as np
 import pyLARDA.helpers as h
 import time
-import git
+# import git
 
 
 def export_spectra2nc(data, larda_git_path='', system='', path='', **kwargs):
