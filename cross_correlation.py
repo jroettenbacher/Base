@@ -16,16 +16,16 @@ log = logging.getLogger('__main__')
 log.setLevel(logging.INFO)
 log.addHandler(logging.StreamHandler())
 
-dt = dt.datetime(2020, 2, 15, 0, 0, 0)
-seapath = jr.read_seapath(dt)
+date = dt.datetime(2020, 2, 15, 0, 0, 0)
+seapath = jr.read_seapath(date)
 seapath = jr.calc_heave_rate(seapath)
 versions = [1, 2]
 for version in versions:
     t_shift, shift, seapath = jr.calc_time_shift_limrad_seapath(seapath, version)
     print(f"Time shift calculated from {dt:%Y-%m-%d}: {t_shift:.4f} with version {version}.")
 
-dt = dt.datetime(2020, 2, 16, 0, 0, 0)
-seapath = jr.read_seapath(dt)
+date = dt.datetime(2020, 2, 16, 0, 0, 0)
+seapath = jr.read_seapath(date)
 seapath = jr.calc_heave_rate(seapath)
 for version in versions:
     t_shift, shift, seapath = jr.calc_time_shift_limrad_seapath(seapath, version)
