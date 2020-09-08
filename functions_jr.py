@@ -15,6 +15,9 @@ sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
 import pyLARDA
 import pyLARDA.helpers as h
+from pyLARDA.SpectraProcessing import seconds_to_fstring
+
+logger = logging.getLogger(__name__)
 
 
 def set_presentation_plot_style():
@@ -807,8 +810,50 @@ def calc_time_shift_limrad_seapath(date, version=1, plot_xcorr=False):
     # turn time shift in number of time steps
     sr = 1 / (np.median(np.diff(seapath.index)).astype('float') * 10**-9)  # sampling rate in Hertz
     shift = int(np.round(time_shift * sr))
-    logging.info(f"Done with cross correlation, elapsed time = {h.seconds_to_fstring(time.time() - start)} [min:sec]")
+    logging.info(f"Done with cross correlation, elapsed time = {seconds_to_fstring(time.time() - start)} [min:sec]")
     return time_shift, shift, seapath
+
+
+def shift_seapath(seapath, shift):
+    """Shift seapath values by given shift
+
+    Args:
+        seapath (pd.Dataframe): Dataframe with heave motion of RV-Meteor
+        shift (int): number of time steps to shift data
+
+    Returns: shifted Dataframe
+
+    """
+    start = time.time()
+    logging.info(f"Shifting seapath data by {shift} time steps.")
+    # get day of seapath data
+    datetime = seapath.index[0]
+    # shift seapath data by shift
+    seapath_shifted = seapath.shift(periods=shift)
+
+    # replace Nans at start with data from the previous day or from following day
+    if shift > 0:
+        datetime_previous = datetime - dt.timedelta(1)  # get date of previous day
+        skiprows = np.arange(1, len(seapath) - shift + 2)  # define rows to skip on read in
+        # read in one more row for heave rate calculation
+        seapath_previous = read_seapath(datetime_previous, nrows=shift + 1, skiprows=skiprows)
+        seapath_previous = calc_heave_rate(seapath_previous)
+        seapath_previous = seapath_previous.iloc[1:, :]  # remove first row (=nan)
+        # remove index and replace with index from original data frame
+        seapath_previous = seapath_previous.reset_index(drop=True).set_index(seapath_shifted.iloc[0:shift, :].index)
+        seapath_shifted.update(seapath_previous)  # overwrite nan values in shifted data frame
+    else:
+        datetime_following = datetime + dt.timedelta(1)  # get date from following day
+        seapath_following = read_seapath(datetime_following, nrows=shift)
+        seapath_following = calc_heave_rate(seapath_following)
+        # overwrite nan values
+        # leaves in one NaN value because the heave rate of the first time step of a day cannot be calculated
+        # one nan is better than many (shift) though, so this is alright
+        seapath_following = seapath_following.reset_index(drop=True).set_index(seapath_shifted.iloc[-shift:, :].index)
+        seapath_shifted.update(seapath_following)  # overwrite nan values in shifted data frame
+
+    logging.info(f"Done with shifting seapath data, elapsed time = {seconds_to_fstring(time.time() - start)} [min:sec]")
+    return seapath_shifted
 
 
 if __name__ == '__main__':
@@ -818,6 +863,10 @@ if __name__ == '__main__':
     sys.path.append('.')
     import pyLARDA
     import numpy as np
+
+    log = logging.getLogger('functions_jr')
+    log.setLevel(logging.INFO)
+    log.addHandler(logging.StreamHandler())
 
     # larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
     # begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
@@ -836,26 +885,5 @@ if __name__ == '__main__':
 
     # time shift analysis
     date = dt.date(2020, 2, 16)
-    datetime = dt.datetime.combine(date, dt.datetime.min.time())
     t_shift, shift, seapath = calc_time_shift_limrad_seapath(date)
-
-    # shift seapath data by shift
-    seapath_shifted = seapath.shift(periods=shift)
-
-    # replace Nans at start with data from the previous day
-    if shift > 0:
-        datetime_previous = datetime - dt.timedelta(1)
-        skiprows = np.arange(1, len(seapath) - shift + 2)
-        seapath_previous = read_seapath(datetime_previous, nrows=shift + 1, skiprows=skiprows)
-        seapath_previous = calc_heave_rate(seapath_previous)
-        seapath_previous = seapath_previous.iloc[1:, :]
-        # overwrite nan values
-        seapath_shifted.iloc[0:shift, :] = seapath_previous
-    else:
-        datetime_following = datetime + dt.timedelta(1)
-        seapath_following = read_seapath(datetime_following, nrows=shift)
-        seapath_following = calc_heave_rate(seapath_following)
-        # overwrite nan values
-        # leaves in one NaN value because the heave rate of the first time step of a day cannot be calculated
-        # one nan is better than 19 though so this is alright
-        seapath_shifted.iloc[-shift:, :] = seapath_following
+    seapath_shifted = shift_seapath(seapath, shift)
