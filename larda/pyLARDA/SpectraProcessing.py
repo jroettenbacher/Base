@@ -1486,24 +1486,24 @@ def shift_seapath(seapath, shift):
     start = time.time()
     logger.info(f"Shifting seapath data by {shift} time steps.")
     # get day of seapath data
-    datetime = seapath.index[0]
+    dt = seapath.index[0]
     # shift seapath data by shift
     seapath_shifted = seapath.shift(periods=shift)
 
     # replace Nans at start with data from the previous day or from following day
     if shift > 0:
-        datetime_previous = datetime - datetime.timedelta(1)  # get date of previous day
+        dt_previous = dt - datetime.timedelta(1)  # get date of previous day
         skiprows = np.arange(1, len(seapath) - shift + 2)  # define rows to skip on read in
         # read in one more row for heave rate calculation
-        seapath_previous = read_seapath(datetime_previous, nrows=shift + 1, skiprows=skiprows)
+        seapath_previous = read_seapath(dt_previous, nrows=shift + 1, skiprows=skiprows)
         seapath_previous = calc_heave_rate(seapath_previous)
         seapath_previous = seapath_previous.iloc[1:, :]  # remove first row (=nan)
         # remove index and replace with index from original data frame
         seapath_previous = seapath_previous.reset_index(drop=True).set_index(seapath_shifted.iloc[0:shift, :].index)
         seapath_shifted.update(seapath_previous)  # overwrite nan values in shifted data frame
     else:
-        datetime_following = datetime + datetime.timedelta(1)  # get date from following day
-        seapath_following = read_seapath(datetime_following, nrows=np.abs(shift))
+        dt_following = dt + datetime.timedelta(1)  # get date from following day
+        seapath_following = read_seapath(dt_following, nrows=np.abs(shift))
         seapath_following = calc_heave_rate(seapath_following)
         # overwrite nan values
         # leaves in one NaN value because the heave rate of the first time step of a day cannot be calculated
