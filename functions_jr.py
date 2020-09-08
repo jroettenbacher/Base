@@ -693,7 +693,7 @@ def get_chirp_table_names(program):
     return {p: program_names[p] for p in program}
 
 
-def calc_time_shift_limrad_seapath(seapath, version=1, plot_xcorr=False):
+def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
     """Calculate time shift between LIMRAD94 mean Doppler veloctiy and heave rate of RV Meteor
 
     Average the mean Doppler velocity over the whole range and interpolate the heave rate onto the radar time.
@@ -711,6 +711,7 @@ def calc_time_shift_limrad_seapath(seapath, version=1, plot_xcorr=False):
 
     """
     start = time.time()
+    plot_xcorr = kwargs['plot_xcorr'] if 'plot_xcorr' in kwargs else False
     plot_path = "/projekt1/remsens/work/jroettenbacher/Base/tmp"
     logger.debug(f"plot path: {plot_path}")
     # get date from seapath data
