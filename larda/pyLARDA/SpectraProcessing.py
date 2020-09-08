@@ -292,6 +292,7 @@ def load_spectra_rpgfmcw94(larda, time_span, rpg_radar='LIMRAD94', **kwargs):
     std_above_mean_noise = float(kwargs['noise_factor']) if 'noise_factor' in kwargs else 6.0
     heave_correct = kwargs['heave_correction'] if 'heave_correction' in kwargs else False
     add = kwargs['add'] if 'add' in kwargs else False
+    shift = kwargs['shift'] if 'shift' in kwargs else 0
     dealiasing_flag = kwargs['dealiasing'] if 'dealiasing' in kwargs else False
     ghost_echo_1 = kwargs['ghost_echo_1'] if 'ghost_echo_1' in kwargs else True
     ghost_echo_2 = kwargs['ghost_echo_2'] if 'ghost_echo_2' in kwargs else True
@@ -378,7 +379,8 @@ def load_spectra_rpgfmcw94(larda, time_span, rpg_radar='LIMRAD94', **kwargs):
                                                                   only_heave=False,
                                                                   use_cross_product=True,
                                                                   transform_to_earth=True,
-                                                                  add=add)
+                                                                  add=add, shift=shift)
+
         logger.info(f'Heave correction applied, elapsed time = {seconds_to_fstring(time.time() - tstart)} [min:sec]')
 
     if do_despeckle2D:
@@ -971,7 +973,7 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
 def heave_correction_spectra(data, date,
                              path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
                              mean_hr=True, only_heave=False, use_cross_product=True, transform_to_earth=True, add=False,
-                             shift=19):
+                             **kwargs):
     """Shift Doppler spectra to correct for heave motion of ship (RV-Meteor)
     Calculate heave rate from seapath measurements and create heave correction array. Translate the heave correction to
     a number spectra bins by which to move each spectra. If Spectra are given, shift them and return a 3D array with the
@@ -987,7 +989,7 @@ def heave_correction_spectra(data, date,
         use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
         transform_to_earth (bool): transform cross product to earth coordinate system as described in https://repository.library.noaa.gov/view/noaa/17400
         add (bool): whether to add the heave rate or subtract it
-        shift (int): number of time steps to shift seapath data
+        **shift (int): number of time steps to shift seapath data
 
     Returns: A number of variables
         new_spectra (ndarray); corrected Doppler velocities, same shape as data["VHSpec"]["var"] or list if no Doppler
@@ -996,6 +998,8 @@ def heave_correction_spectra(data, date,
         seapath_out (pd.DataFrame): data frame with all heave information from the closest time steps to the chirps
 
     """
+    # unpack kwargs
+    shift = kwargs['shift'] if 'shift' in kwargs else 0
     ####################################################################################################################
     # Data Read in
     ####################################################################################################################
@@ -1012,7 +1016,10 @@ def heave_correction_spectra(data, date,
     ####################################################################################################################
     # Use calculated time shift between radar mean doppler velocity and heave rate to shift seapath data
     ####################################################################################################################
-    seapath = shift_seapath(seapath, shift)
+    if shift != 0:
+        seapath = shift_seapath(seapath, shift)
+    else:
+        logger.debug(f"Shift is {shift}! Seapath data is not shifted!")
 
     ####################################################################################################################
     # Calculating heave correction array and translate to number of Doppler bin shifts
