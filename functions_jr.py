@@ -802,11 +802,13 @@ def calc_time_shift_limrad_seapath(date, version=1, plot_xcorr=False):
             plt.plot(delay_array, corr)
             plt.savefig(f"{plot_path}/RV-Meteor_cross_corr_version2_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d}.png")
             plt.close()
-    else:
-        print(f"Wrong version selected! {version}")
 
+    logging.debug(f"version: {version}")
+    # turn time shift in number of time steps
+    sr = 1 / (np.median(np.diff(seapath.index)).astype('float') * 10**-9)  # sampling rate in Hertz
+    shift = int(np.round(time_shift * sr))
     logging.info(f"Done with cross correlation, elapsed time = {h.seconds_to_fstring(time.time() - start)} [min:sec]")
-    return time_shift, seapath
+    return time_shift, shift, seapath
 
 
 if __name__ == '__main__':
@@ -817,17 +819,43 @@ if __name__ == '__main__':
     import pyLARDA
     import numpy as np
 
-    larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
-    begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
-    end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
-    plot_range = [0, 'max']
-    mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
-    moments = {"VEL": mdv}
-    for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA', 'DoppLen', 'MaxVel']:
-        print('loading variable from LV1 :: ' + var)
-        moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
-    new_vel, heave_corr, seapath_out = heave_correction(moments, begin_dt, use_cross_product=True)
-    # test without Doppler Velocity input
-    moments.__delitem__('VEL')
-    new_vel, heave_corr, seapath_out = heave_correction(moments, begin_dt, use_cross_product=True)
-    print("Done Testing heave_correction...")
+    # larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
+    # begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
+    # end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
+    # plot_range = [0, 'max']
+    # mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
+    # moments = {"VEL": mdv}
+    # for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA', 'DoppLen', 'MaxVel']:
+    #     print('loading variable from LV1 :: ' + var)
+    #     moments.update({var: larda.read("LIMRAD94", var, [begin_dt, end_dt], [0, 'max'])})
+    # new_vel, heave_corr, seapath_out = heave_correction(moments, begin_dt, use_cross_product=True)
+    # # test without Doppler Velocity input
+    # moments.__delitem__('VEL')
+    # new_vel, heave_corr, seapath_out = heave_correction(moments, begin_dt, use_cross_product=True)
+    # print("Done Testing heave_correction...")
+
+    # time shift analysis
+    date = dt.date(2020, 2, 16)
+    datetime = dt.datetime.combine(date, dt.datetime.min.time())
+    t_shift, shift, seapath = calc_time_shift_limrad_seapath(date)
+
+    # shift seapath data by shift
+    seapath_shifted = seapath.shift(periods=shift)
+
+    # replace Nans at start with data from the previous day
+    if shift > 0:
+        datetime_previous = datetime - dt.timedelta(1)
+        skiprows = np.arange(1, len(seapath) - shift + 2)
+        seapath_previous = read_seapath(datetime_previous, nrows=shift + 1, skiprows=skiprows)
+        seapath_previous = calc_heave_rate(seapath_previous)
+        seapath_previous = seapath_previous.iloc[1:, :]
+        # overwrite nan values
+        seapath_shifted.iloc[0:shift, :] = seapath_previous
+    else:
+        datetime_following = datetime + dt.timedelta(1)
+        seapath_following = read_seapath(datetime_following, nrows=shift)
+        seapath_following = calc_heave_rate(seapath_following)
+        # overwrite nan values
+        # leaves in one NaN value because the heave rate of the first time step of a day cannot be calculated
+        # one nan is better than 19 though so this is alright
+        seapath_shifted.iloc[-shift:, :] = seapath_following
