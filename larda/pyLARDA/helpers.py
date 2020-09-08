@@ -37,12 +37,12 @@ def get_converter_array(string, **kwargs):
         return lambda x: x*60*60 + dt_to_ts(datetime.datetime(2015, 1, 1)), ident
     elif string == 'unix':
         return lambda x: x, ident
-    elif string == 'since19040101':
-        return lambda x: x + dt_to_ts(datetime.datetime(1904, 1, 1)), ident
     elif string == 'since19691231':
         return lambda x: x + dt_to_ts(datetime.datetime(1969, 12, 31, 23)), ident
     elif string == 'since19700101':
         return lambda x: x + dt_to_ts(datetime.datetime(1970, 1, 1)), ident
+    elif string == 'since19040101':
+        return lambda x: x + dt_to_ts(datetime.datetime(1904, 1, 1)), ident
     elif string == 'beginofday':
         if 'ncD' in kwargs.keys():
             return (lambda h: (h.astype(np.float64) * 3600. + \
@@ -202,7 +202,7 @@ def guess_str_to_dict(string):
 
     if "{" in string:
         #probalby already the stringified python format
-        return ast.iteral_eval(string)
+        return ast.literal_eval(string)
 
     elif "\n" in string:
         #the cloudnet format 0: desc\n ....

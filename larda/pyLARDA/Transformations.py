@@ -42,7 +42,7 @@ def join(datadict1, datadict2):
         merged data container
     """
     new_data = {}
-    assert datadict1['dimlabel'] == datadict2['dimlabel']
+    assert datadict1['dimlabel'] == datadict2['dimlabel'], f"{datadict1['dimlabel']} and {datadict2['dimlabel']} do not match"
     new_data['dimlabel'] = datadict1['dimlabel']
     container_type = datadict1['dimlabel']
 
@@ -104,7 +104,9 @@ def join(datadict1, datadict2):
         new_data['vel'] = datadict1['vel']
 
     if 'var_definition' in datadict1:
-        assert np.all(datadict1['var_definition'] == datadict2['var_definition']), "var_definition arrays not equal"
+        if datadict1['var_definition'] != datadict2['var_definition']:
+            logger.warning('var_definition {} {}'.format(str(datadict1['var_definition']), str(datadict2['var_definition'])))
+        #assert np.all(datadict1['var_definition'] == datadict2['var_definition']), "var_definition arrays not equal"
         new_data['var_definition'] = datadict1['var_definition']
     assert datadict1['var_unit'] == datadict2['var_unit']
     new_data['var_unit'] = datadict1['var_unit']
@@ -121,6 +123,7 @@ def join(datadict1, datadict2):
 
     if container_type == ['time', 'range'] \
             or container_type == ['time', 'range', 'vel'] \
+            or container_type == ['time', 'range', 'cat'] \
             or container_type == ['time', 'range', 'dict']:
         new_data['rg'] = datadict1['rg']
         new_data['ts'] = np.hstack((datadict1['ts'], datadict2['ts']))
@@ -149,13 +152,14 @@ def join(datadict1, datadict2):
     return new_data
 
 
-def interpolate1d(data, mask_thres=0.1,**kwargs):
+def interpolate1d(data, mask_thres=0.0,**kwargs):
     """
     same as interpolate2d but for 1d containers (time or range dimension must be len 1)
     Args:
         data: larda data container to be interpolated in its 1d-dimension
         **kwargs:
-
+        new_time (for interpolation in time dimension) : new time vector to which data should be interpolated
+        new_range (for interpolation in range dimension): new range vector to which data should be interpolated
     Returns:
 
     """
@@ -181,9 +185,10 @@ def interpolate1d(data, mask_thres=0.1,**kwargs):
     interp_var = scipy.interpolate.interp1d(vector, var, fill_value="extrapolate")
     interp_mask = scipy.interpolate.interp1d(vector, data['mask'].squeeze(), fill_value="extrapolate")
     new_var = interp_var(xnew)
+    # extrapolation is often erroneous
     new_mask = interp_mask(xnew) > mask_thres
     interp_data = {**data}
-
+    new_mask = np.logical_or(np.logical_or(xnew < min(vector), xnew > max(vector)), new_mask)
     if 'ts' in data: interp_data['ts'] = data['ts'] if len(data['ts']) == 1 else xnew
     if 'rg' in data: interp_data['rg'] = data['rg'] if len(data['rg']) == 1 else xnew
     interp_data['var'] = new_var
@@ -754,6 +759,7 @@ def plot_barbs_timeheight(u_wind, v_wind, *args, **kwargs):
             **all_data: True/False, default is False (plot only every third height bin)
             **z_lim: min/max velocity for plot (default is 0, 25 m/s)
             **labelsize: size of the axis labels (default 12)
+            **barb_length: length of the barb (default 5)
             **flip_barb: bool to flip the barb for the SH  (default is false (=NH))
 
         Returns:
@@ -764,6 +770,7 @@ def plot_barbs_timeheight(u_wind, v_wind, *args, **kwargs):
     fig_size = kwargs['fig_size'] if 'fig_size' in kwargs else [10, 5.7]
     labelsize = kwargs['labelsize'] if 'labelsize' in kwargs else 14
     flip_barb = kwargs['flip_barb'] if 'flip_barb' in kwargs else False
+    barb_length = kwargs['barb_length'] if 'barb_length' in kwargs else 5
     fraction_color_bar = 0.13
     colormap = u_wind['colormap']
     zlim = kwargs['z_lim'] if 'z_lim' in kwargs else [0, 25]
@@ -810,7 +817,7 @@ def plot_barbs_timeheight(u_wind, v_wind, *args, **kwargs):
         c_bar.set_label('m/s')
     else:
         barb_plot = ax.barbs(x, y, u_knots, v_knots, vel, rounding=False, cmap=colormap, clim=zlim,
-                         sizes=dict(emptybarb=0), length=5, flip_barb=flip_barb)
+                         sizes=dict(emptybarb=0), length=barb_length, flip_barb=flip_barb)
 
         c_bar = fig.colorbar(barb_plot, fraction=fraction_color_bar, pad=0.025)
         c_bar.set_label('Advection Speed [m/s]', fontsize=15)
@@ -857,7 +864,7 @@ def plot_barbs_timeheight(u_wind, v_wind, *args, **kwargs):
 
             barb_plot.sounding = ax.barbs(at_x, at_y, u_sounding, v_sounding,
                                           vel_sounding, rounding=False, cmap=colormap, clim=zlim,
-                                          sizes=dict(emptybarb=0), length=5)
+                                          sizes=dict(emptybarb=0), length=barb_length)
 
     plt.subplots_adjust(right=0.99)
     return fig, ax
@@ -885,7 +892,7 @@ def plot_scatter(data_container1, data_container2, identity_line=True, **kwargs)
         **scale (string): 'lin' or 'log' --> if you get a ValueError from matplotlib.colors
                           try setting scale to lin, log does not work for negative values!
         **cmap (string) : colormap
-        **nbins (int) : number of bins for histograms
+        **Nbins (int) : number of bins for histograms
 
     Returns:
         ``fig, ax``
@@ -916,7 +923,17 @@ def plot_scatter(data_container1, data_container2, identity_line=True, **kwargs)
     fig_size[0] = fig_size[0]+2 if 'colorbar' in kwargs and kwargs['colorbar'] else fig_size[0]
     fontweight =  kwargs['fontweight'] if 'fontweight' in kwargs else'semibold'
     fontsize = kwargs['fontsize'] if 'fontsize' in kwargs else 15
-    Nbins = kwargs['Nbins'] if 'Nbins' in kwargs else 120
+    try:
+        Nbins = kwargs['Nbins'] if 'Nbins' in kwargs else int(round((np.nanmax(var1) - np.nanmin(var1)) /
+                                                                (2*(np.nanquantile(var1, 0.75) -
+                                                                    np.nanquantile(var1, 0.25)) *len(var1)**(-1/3))))
+    except OverflowError:
+        print(f'var1 {var1_tmp["name"]}: len is {len(var1)}, '
+              f'IQR is {np.nanquantile(var1, 0.75)} - {np.nanquantile(var1, 0.25)},'
+              f'max is {np.nanmax(var1)}, min is {np.nanmin(var1)}')
+        Nbins = 100
+    # Freedman-Diaconis rule: h=2×IQR×n−1/3. number of bins is (max−min)/h, where n is the number of observations
+    # https://stats.stackexchange.com/questions/798/calculating-optimal-number-of-bins-in-a-histogram
 
     # create histogram plot
     s, i, r, p, std_err = stats.linregress(var1, var2)
@@ -952,14 +969,15 @@ def plot_scatter(data_container1, data_container2, identity_line=True, **kwargs)
     X, Y = np.meshgrid(xedges, yedges)
     fig, ax = plt.subplots(1, figsize=fig_size)
 
-    c_lim = kwargs['c_lim'] if 'c_lim' in kwargs else [1, round(H.max(), int(np.log10(max(np.nanmax(H), 10.))))]
+    c_lim = kwargs['c_lim'] if 'c_lim' in kwargs else [1, round(np.nanmax(H), int(np.log10(max(np.nanmax(H), 10.))))]
 
     if 'scale' in kwargs and kwargs['scale'] == 'lin':
-        formstring = "%.2d"
-        pcol = ax.pcolormesh(X, Y, np.transpose(H), vmin=c_lim[0], vmax=c_lim[1])
+        formstring = "%.2f"
+        pcol = ax.pcolormesh(X, Y, np.transpose(H), vmin=c_lim[0], vmax=c_lim[1], cmap=colormap)
     else:
         formstring = "%.2E"
-        pcol = ax.pcolormesh(X, Y, np.transpose(H), norm=matplotlib.colors.LogNorm(vmin=c_lim[0], vmax=c_lim[1]))
+        pcol = ax.pcolormesh(X, Y, np.transpose(H), norm=matplotlib.colors.LogNorm(vmin=c_lim[0], vmax=c_lim[1]),
+                             cmap=colormap)
 
     if 'info' in kwargs and kwargs['info']:
         ax.text(0.01, 0.93, 'slope = {:5.3f}\nintercept = {:5.3f}\nR^2 = {:5.3f}'.format(s, i, r ** 2),
@@ -983,14 +1001,14 @@ def plot_scatter(data_container1, data_container2, identity_line=True, **kwargs)
     ax.yaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator())
 
     if 'colorbar' in kwargs and kwargs['colorbar']:
-        cmap = copy(plt.get_cmap('viridis'))
+        cmap = copy(plt.get_cmap(colormap))
         cmap.set_under('white', 1.0)
         cbar = fig.colorbar(pcol, use_gridspec=True, extend='min', extendrect=True, extendfrac=0.01, shrink=0.8, format=formstring)
         if 'color_by' in kwargs:
             cbar.set_label(label="median {} [{}]".format(kwargs['color_by']['name'], kwargs['color_by']['var_unit']), fontweight=fontweight, fontsize=fontsize)
         else:
             cbar.set_label(label="frequency of occurrence", fontweight=fontweight, fontsize=fontsize)
-        cbar.set_clim(c_lim)
+        cbar.mappable.set_clim(c_lim)
         cbar.aspect = 50
 
     if 'title' in kwargs:
@@ -2179,3 +2197,41 @@ def plot_spectra_cwt(data, scalesmatr, iT=0, iR=0, legend=True, **kwargs):
         ax[2].xaxis.set_ticks_position('top')
 
     return fig, ax
+
+
+def container2DataArray(container):
+    """convert the data_container to a xarray Dataset
+
+    Args:
+        data (dict): data_container
+
+    Returns:
+        ``xarray.DataArray``
+    """
+
+    import xarray as xr
+
+    dimlabel = container['dimlabel']
+    var = container['var']
+
+    # the dimlabel is not always named exactly as the key of the dimension
+    #
+    label2coord = {'time': 'ts', 'range': 'rg', 'vel': 'vel'}
+
+    coords = [container[label2coord[l]] for l in container['dimlabel']]
+
+    name = container['system'] + ' ' + container['name']
+
+    # strip off the actual arrays from the attrs
+    attrs = {**container}
+    attrs.pop('var', None)
+    attrs.pop('mask', None)
+    attrs.pop('dimlabel', None)
+    [attrs.pop(label2coord[l], None) for l in container['dimlabel']]
+
+    da = xr.DataArray(data=var,
+                      dims=dimlabel,
+                      name=name,
+                      coords=coords,
+                      attrs=attrs)
+    return da

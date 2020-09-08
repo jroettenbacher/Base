@@ -16,6 +16,7 @@ import pyLARDA.ParameterInfo as ParameterInfo
 #import pyLARDA.MeteoReader as MeteoReader
 #import pyLARDA.Spec as Spec
 import pyLARDA.peakTree as peakTree
+import pyLARDA.trace_reader as trace_reader
 import pyLARDA.helpers as h
 import pyLARDA.Transformations as Transf
 
@@ -62,8 +63,13 @@ def convert_to_datestring(datepattern, f):
     Returns:
         datetime
     """
-    dt = convert_regex_date_to_dt(
-        re.search(datepattern, f).groupdict())
+    try:
+        dt = convert_regex_date_to_dt(
+            re.search(datepattern, f).groupdict())
+    except AttributeError:
+        logger.warning(f'No matching data pattern "{datepattern}" in file: "{f}"')
+        return -1
+
     return dt.strftime("%Y%m%d-%H%M%S")
 
 
@@ -84,6 +90,8 @@ def setupreader(paraminfo):
         reader = NcReader.scanreader_mira(paraminfo) 
     elif paraminfo['ncreader'] == 'peakTree':
         reader = peakTree.peakTree_reader(paraminfo)
+    elif paraminfo['ncreader'] == 'trace':
+        reader = trace_reader.trace_reader(paraminfo)
     elif paraminfo["ncreader"] == 'pollyraw':
         reader = NcReader.reader_pollyraw(paraminfo)
     elif paraminfo["ncreader"] == 'mrrpro_spec':
@@ -155,7 +163,11 @@ class Connector_remote:
         # if resp_format == 'bin':
         #     data_container = cbor2.loads(resp.content)
         if resp_format == 'msgpack':
-            data_container = msgpack.loads(content, encoding='utf-8')
+            logger.info("msgpack version {}".format(msgpack.version))
+            if msgpack.version[0] < 1:
+                data_container = msgpack.loads(content, encoding='utf-8')
+            else:
+                data_container = msgpack.loads(content, strict_map_key=False)
         elif resp_format == 'json':
             data_container = resp.json()
 
@@ -210,9 +222,10 @@ class Connector:
         filehandler = {}
         for key, pathinfo in pathdict.items():
             all_files = []
+            current_regex = pathinfo['matching_subdirs'] if 'matching_subdirs' in pathinfo else ''
+
             for root, dirs, files in os.walk(pathinfo['base_dir']):
                 #print(root, dirs, len(files), files[:5], files[-5:] )
-                current_regex = pathinfo['matching_subdirs']
                 abs_filepaths = [root + f if (root[-1] == '/') else root + '/' + f for f in files if
                                  re.search(current_regex, root + '/' + f)]
                 logger.debug("valid_files {} {}".format(root, [f for f in files if re.search(current_regex, root + "/" + f)]))
@@ -224,7 +237,7 @@ class Connector:
             # remove basedir (not sure if that is a good idea)
             all_files = [p.replace(pathinfo['base_dir'], "./") for p in all_files]
             logger.debug('filelist {} {}'.format(len(all_files), all_files[:10]))
-    
+
             dates = [convert_to_datestring(pathinfo["date_in_filename"], f)\
                      for f in all_files]
             all_files = [f for _, f in sorted(zip(dates, all_files), key=lambda pair: pair[0])]
@@ -235,10 +248,10 @@ class Connector:
                     guessed_duration = (datetime.datetime.strptime(dates[-1],'%Y%m%d-%H%M%S') - 
                         datetime.datetime.strptime(dates[-2],'%Y%m%d-%H%M%S'))
                 else:
-                    guessed_duration = datetime.timedelta(hours=24)
+                    guessed_duration = datetime.timedelta(seconds=(23*60*60)-1)
                 # quick fix guessed duration not longer than 24 h
-                if guessed_duration > datetime.timedelta(hours=24):
-                    guessed_duration = datetime.timedelta(hours=24)
+                if guessed_duration >= datetime.timedelta(hours=24):
+                    guessed_duration = datetime.timedelta(seconds=(24*60*60)-1)
                 last_data = (
                     datetime.datetime.strptime(dates[-1],'%Y%m%d-%H%M%S') + guessed_duration
                 ).strftime("%Y%m%d-%H%M%S")
