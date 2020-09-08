@@ -500,6 +500,12 @@ def heave_correction_spectra(data, date,
                               transform_to_earth=transform_to_earth)
 
     ####################################################################################################################
+    # Calculating time shift between seapath and radar time, shift seapath data by calculated shift
+    ####################################################################################################################
+    time_shift, shift, _ = calc_time_shift_limrad_seapath(seapath)
+    seapath = shift_seapath(seapath, shift)
+
+    ####################################################################################################################
     # Calculating heave correction array and translate to number of Doppler bin shifts
     ####################################################################################################################
     # make input container for calc_heave_corr function
@@ -687,7 +693,7 @@ def get_chirp_table_names(program):
     return {p: program_names[p] for p in program}
 
 
-def calc_time_shift_limrad_seapath(date, version=1, plot_xcorr=False):
+def calc_time_shift_limrad_seapath(seapath, version=1, plot_xcorr=False):
     """Calculate time shift between LIMRAD94 mean Doppler veloctiy and heave rate of RV Meteor
 
     Average the mean Doppler velocity over the whole range and interpolate the heave rate onto the radar time.
@@ -697,7 +703,7 @@ def calc_time_shift_limrad_seapath(date, version=1, plot_xcorr=False):
     Both versions return the same time shift to the 3rd decimal.
 
     Args:
-        date (datetime.date): date for which to calculate time shift
+        seapath (pd.DataFrame): data frame with heave rate of RV-Meteor
         version (int): which version to use 1 or 2
         plot_xcorr (bool): plot cross correlation function in temporary plot folder
 
@@ -709,7 +715,8 @@ def calc_time_shift_limrad_seapath(date, version=1, plot_xcorr=False):
                 f"{date:%Y-%m-%d}")
     plot_path = "/projekt1/remsens/work/jroettenbacher/Base/tmp"
     logger.debug(f"plot path: {plot_path}")
-    begin_dt = dt.datetime.combine(date, dt.datetime.min.time())
+    # get date from seapath data
+    begin_dt = seapath.index[0]
     end_dt = begin_dt + dt.timedelta(seconds=23 * 60 * 60 + 59 * 60 + 59)
     plot_range = [0, 'max']
     larda = pyLARDA.LARDA().connect('eurec4a')
@@ -730,11 +737,6 @@ def calc_time_shift_limrad_seapath(date, version=1, plot_xcorr=False):
     vel = np.asarray(vel)  # convert to ndarray
     # average of mean doppler velocity over height
     vel_mean = np.nanmean(vel, axis=1)
-
-    # read in DSHIP data
-    seapath = read_seapath(begin_dt)
-    # add heave rate to data frame
-    seapath = calc_heave_rate(seapath)
 
     ####################################################################################################################
     # select closest seapath values to each radar time step
