@@ -734,8 +734,7 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
 
     # set masked values in var to nan
     vel = radar_vel['var']
-    vel[vel.mask] = np.nan
-    vel = np.asarray(vel)  # convert to ndarray
+    vel[radar_vel['mask']] = np.nan
     # average of mean doppler velocity over height
     vel_mean = np.nanmean(vel, axis=1)
 
