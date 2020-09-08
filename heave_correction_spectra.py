@@ -204,14 +204,14 @@ plt.close()
 print(f'figure saved :: {fig_name}')
 
 # plot differently zoomed plots of corrected and uncorrected MDV (spectra) 25.01.2020
-begin_dt = dt.datetime(2020,  2, 5, 0, 0, 0)
-end_dt = dt.datetime(2020, 2, 5, 20, 0, 0)
+begin_dt = dt.datetime(2020,  2, 10, 18, 0, 0)
+end_dt = dt.datetime(2020, 2, 10, 23, 59, 59)
 plot_range = [0, 'max']
 mdv = larda.read('LIMRAD94_cni_hc', 'Vel', [begin_dt, end_dt], plot_range)
 mdv['var_lims'] = [-7, 7]
 mdv_uncor = larda.read('LIMRAD94_cni', 'Vel', [begin_dt, end_dt], plot_range)
 mdv_uncor['var_lims'] = [-7, 7]
-hours = [12, 6, 3, 1, 0.5]  # different time range
+hours = [6, 3, 1, 0.5]  # different time range
 max_ranges = [3000, 6000, 10000]  # different height range
 # # testing
 # hour = hours[-1]
