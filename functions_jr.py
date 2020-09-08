@@ -724,7 +724,7 @@ def calc_time_shift_limrad_seapath(seapath, version=1, plot_xcorr=False):
     # read in data
     ####################################################################################################################
     # read in radar doppler velocity
-    radar_vel = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
+    radar_vel = larda.read("LIMRAD94", "Vel", [begin_dt, end_dt], plot_range)
     # needed if time shift should be calculated for each chirp separately, leave in for now
     # data = dict()
     # for var in ['C1Range', 'C2Range', 'C3Range']:
@@ -887,9 +887,9 @@ if __name__ == '__main__':
     # new_vel, heave_corr, seapath_out = heave_correction(moments, begin_dt, use_cross_product=True)
     # print("Done Testing heave_correction...")
 
-    # # time shift analysis
-    # date = dt.datetime(2020, 2, 16)
-    # seapath = read_seapath(date)
-    # seapath = calc_heave_rate(seapath)
-    # t_shift, shift, seapath = calc_time_shift_limrad_seapath(seapath)
-    # seapath_shifted = shift_seapath(seapath, -shift)
+    # time shift analysis
+    date = dt.datetime(2020, 2, 10)
+    seapath = read_seapath(date)
+    seapath = calc_heave_rate(seapath)
+    t_shift, shift, seapath = calc_time_shift_limrad_seapath(seapath)
+    seapath_shifted = shift_seapath(seapath, -shift)
