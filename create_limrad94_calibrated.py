@@ -82,7 +82,7 @@ if __name__ == '__main__':
     limrad94_settings.update({'NF': float(kwargs['NF']) if 'NF' in kwargs else 6.0})
     site_ = kwargs['site'] if 'site' in kwargs else 'rv-meteor'
     limrad94_settings.update({'site': site_})
-    PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_corrected'
+    PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/tmp'
 
     log.info(f'Date: {begin_dt:%Y-%m-%d, %H:%M:%S} - {end_dt:%H:%M:%S}')
     TIME_SPAN_ = [begin_dt, end_dt]
