@@ -794,8 +794,10 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
         dt_lags = np.arange(1 - n, n)
         time_shift = float(dt_lags[xcorr.argmax()]) / sr
         if plot_xcorr:
+            figname = f"{plot_path}/RV-Meteor_cross_corr_version1_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d}.png"
             plt.plot(dt_lags, xcorr)
-            plt.savefig(f"{plot_path}/RV-Meteor_cross_corr_version1_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d}.png")
+            plt.savefig(figname)
+            logger.info(f"Figure saved to: {figname}")
             plt.close()
     elif version == 2:
         y2 = heave_rate_ip
@@ -804,8 +806,10 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
         delay_array = np.linspace(-0.5 * n / sr, 0.5 * n / sr, n)
         time_shift = float(delay_array[np.argmax(corr)])
         if plot_xcorr:
+            figname = f"{plot_path}/RV-Meteor_cross_corr_version2_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d}.png"
             plt.plot(delay_array, corr)
-            plt.savefig(f"{plot_path}/RV-Meteor_cross_corr_version2_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d}.png")
+            plt.savefig(figname)
+            logger.info(f"Figure saved to: {figname}")
             plt.close()
 
     logger.debug(f"version: {version}")
