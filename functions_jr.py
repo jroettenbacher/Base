@@ -812,6 +812,7 @@ def calc_time_shift_limrad_seapath(seapath, version=1, plot_xcorr=False):
     # turn time shift in number of time steps
     sr = 1 / (np.median(np.diff(seapath.index)).astype('float') * 10**-9)  # sampling rate in Hertz
     shift = int(np.round(time_shift * sr))
+    logger.info(f"Found time shift to be {time_shift:.3f} seconds")
     logger.info(f"Done with cross correlation, elapsed time = {seconds_to_fstring(time.time() - start)} [min:sec]")
     return time_shift, shift, seapath
 
@@ -846,12 +847,12 @@ def shift_seapath(seapath, shift):
         seapath_shifted.update(seapath_previous)  # overwrite nan values in shifted data frame
     else:
         datetime_following = datetime + dt.timedelta(1)  # get date from following day
-        seapath_following = read_seapath(datetime_following, nrows=shift)
+        seapath_following = read_seapath(datetime_following, nrows=np.abs(shift))
         seapath_following = calc_heave_rate(seapath_following)
         # overwrite nan values
         # leaves in one NaN value because the heave rate of the first time step of a day cannot be calculated
         # one nan is better than many (shift) though, so this is alright
-        seapath_following = seapath_following.reset_index(drop=True).set_index(seapath_shifted.iloc[-shift:, :].index)
+        seapath_following = seapath_following.reset_index(drop=True).set_index(seapath_shifted.iloc[shift:, :].index)
         seapath_shifted.update(seapath_following)  # overwrite nan values in shifted data frame
 
     logger.info(f"Done with shifting seapath data, elapsed time = {seconds_to_fstring(time.time() - start)} [min:sec]")
@@ -865,6 +866,7 @@ if __name__ == '__main__':
     sys.path.append('.')
     import pyLARDA
     import numpy as np
+    import logging
 
     log = logging.getLogger('__main__')
     log.setLevel(logging.INFO)
@@ -886,6 +888,8 @@ if __name__ == '__main__':
     # print("Done Testing heave_correction...")
 
     # time shift analysis
-    date = dt.date(2020, 2, 16)
-    t_shift, shift, seapath = calc_time_shift_limrad_seapath(date)
-    seapath_shifted = shift_seapath(seapath, shift)
+    date = dt.datetime(2020, 2, 16)
+    seapath = read_seapath(date)
+    seapath = calc_heave_rate(seapath)
+    t_shift, shift, seapath = calc_time_shift_limrad_seapath(seapath)
+    seapath_shifted = shift_seapath(seapath, -shift)
