@@ -1060,12 +1060,14 @@ def heave_correction_spectra(data, date,
         return new_spectra, heave_corr, n_dopp_bins_shift, seapath_out
 
 
-def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP"):
+def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
+                 **kwargs):
     """
     Read in Seapath measurements from RV Meteor from .dat files to a pandas.DataFrame
     Args:
         date (datetime.datetime): object with date of current file
         path (str): path to seapath files
+        kwargs for read_csv
 
     Returns:
         seapath (DataFrame): DataFrame with Seapath measurements
@@ -1073,18 +1075,21 @@ def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-
     """
     # Seapath attitude and heave data 1 or 10 Hz, choose file depending on date
     start = time.time()
+    # unpack kwargs
+    nrows = kwargs['nrows'] if 'nrows' in kwargs else None
+    skiprows = kwargs['skiprows'] if 'skiprows' in kwargs else (1, 2)
     if date < datetime.datetime(2020, 1, 27):
         file = f"{date:%Y%m%d}_DSHIP_seapath_1Hz.dat"
     else:
         file = f"{date:%Y%m%d}_DSHIP_seapath_10Hz.dat"
     # set encoding and separator, skip the rows with the unit and type of measurement
-    seapath = pd.read_csv(f"{path}/{file}", encoding='windows-1252', sep="\t", skiprows=(1, 2),
-                          index_col='date time')
+    seapath = pd.read_csv(f"{path}/{file}", encoding='windows-1252', sep="\t", skiprows=skiprows,
+                          index_col='date time', nrows=nrows)
     # transform index to datetime
     seapath.index = pd.to_datetime(seapath.index, infer_datetime_format=True)
     seapath.index.name = 'datetime'
     seapath.columns = ['Heading [°]', 'Heave [m]', 'Pitch [°]', 'Roll [°]']  # rename columns
-    logger.info(f"Done reading in Seapath data in {time.time() - start:.2f} seconds")
+    print(f"Done reading in Seapath data in {time.time() - start:.2f} seconds")
     return seapath
 
 
