@@ -793,24 +793,19 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
         xcorr = np.correlate(heave_rate_ip, vel_ip, 'full')
         dt_lags = np.arange(1 - n, n)
         time_shift = float(dt_lags[xcorr.argmax()]) / sr
-        if plot_xcorr:
-            figname = f"{plot_path}/RV-Meteor_cross_corr_version1_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d}.png"
-            plt.plot(dt_lags, xcorr)
-            plt.savefig(figname)
-            logger.info(f"Figure saved to: {figname}")
-            plt.close()
     elif version == 2:
         y2 = heave_rate_ip
         y1 = vel_ip
-        corr = correlate(y2, y1, mode='same') / np.sqrt(correlate(y1, y1, mode='same')[int(n / 2)] * correlate(y2, y2, mode='same')[int(n / 2)])
-        delay_array = np.linspace(-0.5 * n / sr, 0.5 * n / sr, n)
-        time_shift = float(delay_array[np.argmax(corr)])
-        if plot_xcorr:
-            figname = f"{plot_path}/RV-Meteor_cross_corr_version2_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d}.png"
-            plt.plot(delay_array, corr)
-            plt.savefig(figname)
-            logger.info(f"Figure saved to: {figname}")
-            plt.close()
+        xcorr = correlate(y2, y1, mode='same') / np.sqrt(correlate(y1, y1, mode='same')[int(n / 2)] * correlate(y2, y2, mode='same')[int(n / 2)])
+        dt_lags = np.linspace(-0.5 * n / sr, 0.5 * n / sr, n)
+        time_shift = float(dt_lags[np.argmax(xcorr)])
+
+    if plot_xcorr:
+        figname = f"{plot_path}/RV-Meteor_cross_corr_version{version}_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d}-{end_dt:%Y-%m-%d}.png"
+        plt.plot(dt_lags, xcorr)
+        plt.savefig(figname)
+        logger.info(f"Figure saved to: {figname}")
+        plt.close()
 
     logger.debug(f"version: {version}")
     # turn time shift in number of time steps
