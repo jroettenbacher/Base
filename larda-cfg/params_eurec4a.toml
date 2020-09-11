@@ -631,9 +631,9 @@
     var_units = '-'
     var_lims = []
 
-[LIMRAD94_cni_hc_dea_shift]
+[LIMRAD94_tmp]
   [LIMRAD94_cni_hc_dea_shift.path.nc]
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_shifted_heave_cor_dealiased/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/tmp/'
     matching_subdirs = '(.*\d{8}-.*-limrad94.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   [LIMRAD94_cni_hc_dea_shift.generic]
