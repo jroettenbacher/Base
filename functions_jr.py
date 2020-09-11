@@ -800,10 +800,14 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
         dt_lags = np.linspace(-0.5 * n / sr, 0.5 * n / sr, n)
         time_shift = float(dt_lags[np.argmax(xcorr)])
 
+    if int(time_shift) == 0:
+        logger.info(f"Time shift was found to be {time_shift}, trying argmin()")
+        time_shift = float(dt_lags[np.argmin(xcorr)])
+
     if plot_xcorr:
         figname = f"{plot_path}/RV-Meteor_cross_corr_version{version}_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d_%H%M}-{end_dt:%H%M}.png"
         plt.plot(dt_lags, xcorr)
-        plt.xlim([-10, 10])
+        plt.xlim((-10, 10))
         plt.ylabel("Cross correlation coefficient")
         plt.xlabel("Artifical Time")
         plt.savefig(figname)
