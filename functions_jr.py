@@ -743,19 +743,19 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
     ####################################################################################################################
     seapath_ts = seapath.index.values.astype(np.float64) / 10 ** 9  # convert datetime index to seconds since 1970-01-01
     id_diff_mins = []  # initialize list for indices of the time steps with minimum difference
-    means_ls = []  # initialize list for heave rate value closest to each radar time step
+    closest_ls = []  # initialize list for heave rate value closest to each radar time step
     for t in radar_vel['ts']:
         id_diff_min = h.argnearest(seapath_ts, t)  # find index of nearest seapath time step to radar time step
         id_diff_mins.append(id_diff_min)
         # get time stamp of closest index
         ts_id_diff_min = seapath.index[id_diff_min]
         try:
-            means_ls.append(seapath.loc[ts_id_diff_min])
+            closest_ls.append(seapath.loc[ts_id_diff_min])
         except KeyError:
             logger.warning('Timestamp out of bounds of heave rate time series')
 
     # concatenate all values into one dataframe with the original header (transpose)
-    seapath_closest = pd.concat(means_ls, axis=1).T
+    seapath_closest = pd.concat(closest_ls, axis=1).T
 
     ####################################################################################################################
     # interpolate heave rate to radar time
@@ -787,7 +787,7 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
         vel_ip = vel_mean
 
     n = vel_ip.size
-    sr = n / (radar_time[-1] - radar_time[0])  # number of samples per day / seconds per day -> sampling rate
+    sr = n / (radar_time[-1] - radar_time[0])  # number of samples / seconds -> sampling rate
     logger.info(f"Using version {version} for cross correlation...")
     if version == 1:
         xcorr = np.correlate(heave_rate_ip, vel_ip, 'full')
