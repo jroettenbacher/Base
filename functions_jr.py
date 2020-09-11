@@ -801,7 +801,7 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
         time_shift = float(dt_lags[np.argmax(xcorr)])
 
     if plot_xcorr:
-        figname = f"{plot_path}/RV-Meteor_cross_corr_version{version}_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d_%H:%M}-{end_dt:%Y-%m-%d_%H:%M}.png"
+        figname = f"{plot_path}/RV-Meteor_cross_corr_version{version}_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d_%H%M}-{end_dt:%H%M}.png"
         plt.plot(dt_lags, xcorr)
         plt.savefig(figname)
         logger.info(f"Figure saved to: {figname}")
