@@ -711,12 +711,12 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
 
     """
     start = time.time()
+    # read in kwargs
     plot_xcorr = kwargs['plot_xcorr'] if 'plot_xcorr' in kwargs else False
-    plot_path = "/projekt1/remsens/work/jroettenbacher/Base/tmp"
+    begin_dt = kwargs['begin_dt'] if 'begin_dt' in kwargs else seapath.index[0]
+    end_dt = kwargs['end_dt'] if 'end_dt' in kwargs else begin_dt + dt.timedelta(seconds=23 * 60 * 60 + 59 * 60 + 59)
+    plot_path = "/projekt1/remsens/work/jroettenbacher/Base/tmp"  # define plot path
     logger.debug(f"plot path: {plot_path}")
-    # get date from seapath data
-    begin_dt = seapath.index[0]
-    end_dt = begin_dt + dt.timedelta(seconds=23 * 60 * 60 + 59 * 60 + 59)
     logger.info(f"Start time shift analysis between LIMRAD94 mean Doppler velocity and RV Meteor heave rate for "
                 f"{begin_dt:%Y-%m-%d}")
     plot_range = [0, 'max']
@@ -752,7 +752,7 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
         try:
             means_ls.append(seapath.loc[ts_id_diff_min])
         except KeyError:
-            logger.info('Timestamp out of bounds of heave rate time series')
+            logger.warning('Timestamp out of bounds of heave rate time series')
 
     # concatenate all values into one dataframe with the original header (transpose)
     seapath_closest = pd.concat(means_ls, axis=1).T
