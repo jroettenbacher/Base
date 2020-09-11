@@ -801,6 +801,7 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
         time_shift = float(dt_lags[np.argmax(xcorr)])
 
     if int(time_shift) == 0:
+        # armin doesn't make sense, since the signals are positively correlated
         logger.info(f"Time shift was found to be {time_shift}, trying argmin()")
         time_shift = float(dt_lags[np.argmin(xcorr)])
 
