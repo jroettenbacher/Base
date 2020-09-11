@@ -632,11 +632,11 @@
     var_lims = []
 
 [LIMRAD94_tmp]
-  [LIMRAD94_cni_hc_dea_shift.path.nc]
+  [LIMRAD94_tmp.path.nc]
     base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/tmp/'
     matching_subdirs = '(.*\d{8}-.*-limrad94.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
-  [LIMRAD94_cni_hc_dea_shift.generic]
+  [LIMRAD94_tmp.generic]
     # this general settings need to be handed down to the params
     colormap = "gist_rainbow"
     which_path = 'nc'
@@ -653,51 +653,51 @@
     identifier_var_unit = 'Units'
     fill_value = -999.0
     description_file = 'limrad94_general.rst'
-  [LIMRAD94_cni_hc_dea_shift.params.Ze]
+  [LIMRAD94_tmp.params.Ze]
     variable_name = 'Zh'
     var_unit = 'mm^6/m^3'
     colormap = 'jet'
     var_lims = [ -40, 20 ]
-  [LIMRAD94_cni_hc_dea_shift.params.Vel]
+  [LIMRAD94_tmp.params.Vel]
     variable_name = 'v'
     colormap = 'jet'
     var_unit = 'm/s'
     var_lims = [-4, 3]
-  [LIMRAD94_cni_hc_dea_shift.params.ldr]
+  [LIMRAD94_tmp.params.ldr]
     variable_name = 'ldr'
     colormap = 'LDR'
     var_lims = [-30, 0]
-  [LIMRAD94_cni_hc_dea_shift.params.skew]
+  [LIMRAD94_tmp.params.skew]
     variable_name = 'Skew'
     colormap = 'jet'
     var_unit = '-'
     var_lims = [-1, 1]
-  [LIMRAD94_cni_hc_dea_shift.params.kurt]
+  [LIMRAD94_tmp.params.kurt]
     variable_name = 'kurt'
     colormap = 'jet'
     var_unit = '-'
     var_lims = [0, 3]
-  [LIMRAD94_cni_hc_dea_shift.params.bt]
+  [LIMRAD94_tmp.params.bt]
     variable_name = 'bt'
     ncreader = 'time'
     var_unit = 'K'
     var_lims = []
-  [LIMRAD94_cni_hc_dea_shift.params.LWP]
+  [LIMRAD94_tmp.params.LWP]
     variable_name = 'lwp'
     ncreader = 'time'
     var_unit = 'g/m^2'
     var_lims = [-100, 1000]
-  [LIMRAD94_cni_hc_dea_shift.params.rr]
+  [LIMRAD94_tmp.params.rr]
     variable_name = 'rain'
     ncreader = 'time'
     var_unit = 'mm/h'
     var_lims = [0, 500]
-  [LIMRAD94_cni_hc_dea_shift.params.SurfRelHum]
+  [LIMRAD94_tmp.params.SurfRelHum]
     variable_name = 'SurfRelHum'
     ncreader = 'time'
     var_unit = '%'
     var_lims = [0, 100]
-  [LIMRAD94_cni_hc_dea_shift.params.range_offset]
+  [LIMRAD94_tmp.params.range_offset]
     variable_name = 'range_offset'
     ncreader = 'aux'
     var_units = '-'
