@@ -787,7 +787,7 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
         vel_ip = vel_mean
 
     n = vel_ip.size
-    sr = n / (24 * 60 * 60)  # number of samples per day / seconds per day -> sampling rate
+    sr = n / (radar_time[-1] - radar_time[0])  # number of samples per day / seconds per day -> sampling rate
     logger.info(f"Using version {version} for cross correlation...")
     if version == 1:
         xcorr = np.correlate(heave_rate_ip, vel_ip, 'full')
