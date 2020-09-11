@@ -803,6 +803,9 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
     if plot_xcorr:
         figname = f"{plot_path}/RV-Meteor_cross_corr_version{version}_mean-V-dop_heave-rate_{begin_dt:%Y-%m-%d_%H%M}-{end_dt:%H%M}.png"
         plt.plot(dt_lags, xcorr)
+        plt.xlim([-10, 10])
+        plt.ylabel("Cross correlation coefficient")
+        plt.xlabel("Artifical Time")
         plt.savefig(figname)
         logger.info(f"Figure saved to: {figname}")
         plt.close()
