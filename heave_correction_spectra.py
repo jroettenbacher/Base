@@ -18,18 +18,10 @@ import matplotlib.pyplot as plt
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 
 # define test cases
-# begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
-# end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
-# begin_dt_zoom = dt.datetime(2020, 2, 5, 9, 25, 0)
-# end_dt_zoom = dt.datetime(2020, 2, 5, 9, 35, 0)
 # begin_dt = dt.datetime(2020, 1, 28, 0, 0, 5)
 # end_dt = dt.datetime(2020, 1, 28, 23, 59, 55)
 # begin_dt_zoom = dt.datetime(2020, 1, 28, 17, 12, 0)
 # end_dt_zoom = dt.datetime(2020, 1, 28, 17, 22, 0)
-begin_dt = dt.datetime(2020, 2, 10, 0, 0, 5)
-end_dt = dt.datetime(2020, 2, 10, 23, 59, 55)
-begin_dt_zoom = dt.datetime(2020, 2, 10, 22, 10, 0)
-end_dt_zoom = dt.datetime(2020, 2, 10, 22, 20, 0)
 # begin_dt = dt.datetime(2020, 2, 2, 0, 0, 5)
 # end_dt = dt.datetime(2020, 2, 2, 23, 59, 55)
 # begin_dt_zoom = dt.datetime(2020, 2, 2, 11, 0, 0)
@@ -38,6 +30,18 @@ end_dt_zoom = dt.datetime(2020, 2, 10, 22, 20, 0)
 # end_dt = dt.datetime(2020, 2, 3, 23, 59, 55)
 # begin_dt_zoom = dt.datetime(2020, 2, 3, 18, 0, 0)
 # end_dt_zoom = dt.datetime(2020, 2, 3, 18, 20, 0)
+# begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
+# end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
+# begin_dt_zoom = dt.datetime(2020, 2, 5, 9, 25, 0)
+# end_dt_zoom = dt.datetime(2020, 2, 5, 9, 35, 0)
+# begin_dt = dt.datetime(2020, 2, 10, 0, 0, 5)
+# end_dt = dt.datetime(2020, 2, 10, 23, 59, 55)
+# begin_dt_zoom = dt.datetime(2020, 2, 10, 22, 10, 0)
+# end_dt_zoom = dt.datetime(2020, 2, 10, 22, 20, 0)
+begin_dt = dt.datetime(2020, 2, 16, 0, 0, 5)
+end_dt = dt.datetime(2020, 2, 16, 23, 59, 55)
+begin_dt_zoom = dt.datetime(2020, 2, 16, 16, 30, 0)
+end_dt_zoom = dt.datetime(2020, 2, 16, 17, 0, 0)
 
 plot_range = [0, 'max']
 # read in heave corrected velocity
@@ -203,11 +207,12 @@ fig.savefig(fig_name, dpi=250)
 plt.close()
 print(f'figure saved :: {fig_name}')
 
-# plot differently zoomed plots of corrected and uncorrected MDV (spectra) 25.01.2020
-begin_dt = dt.datetime(2020,  2, 10, 18, 0, 0)
-end_dt = dt.datetime(2020, 2, 10, 23, 59, 59)
+# plot differently zoomed plots of corrected and uncorrected MDV (spectra)
+begin_dt = dt.datetime(2020,  2, 16, 16, 0, 0)
+end_dt = dt.datetime(2020, 2, 16, 23, 59, 59)
 plot_range = [0, 'max']
-mdv = larda.read('LIMRAD94_cni_hc', 'Vel', [begin_dt, end_dt], plot_range)
+plot_path = "/projekt1/remsens/work/jroettenbacher/plots/heave_correction_spectra"
+mdv = larda.read('LIMRAD94_tmp', 'Vel', [begin_dt, end_dt], plot_range)
 mdv['var_lims'] = [-7, 7]
 mdv_uncor = larda.read('LIMRAD94_cni', 'Vel', [begin_dt, end_dt], plot_range)
 mdv_uncor['var_lims'] = [-7, 7]
