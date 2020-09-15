@@ -462,7 +462,8 @@ def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/
 
 def heave_correction_spectra(data, date,
                              path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
-                             mean_hr=True, only_heave=False, use_cross_product=True, transform_to_earth=True, add=False):
+                             mean_hr=True, only_heave=False, use_cross_product=True, transform_to_earth=True, add=False,
+                             **kwargs):
     """Shift Doppler spectra to correct for heave motion of ship (RV-Meteor)
     Calculate heave rate from seapath measurements and create heave correction array. Translate the heave correction to
     a number spectra bins by which to move each spectra. If Spectra are given, shift them and return a 3D array with the
@@ -478,6 +479,7 @@ def heave_correction_spectra(data, date,
         use_cross_product (bool): whether to use the cross product like Hannes Griesche https://doi.org/10.5194/amt-2019-434
         transform_to_earth (bool): transform cross product to earth coordinate system as described in https://repository.library.noaa.gov/view/noaa/17400
         add (bool): whether to add the heave rate or subtract it
+        **shift (int): number of time steps to shift seapath data
 
     Returns: A number of variables
         new_spectra (ndarray); corrected Doppler velocities, same shape as data["VHSpec"]["var"] or list if no Doppler
@@ -486,6 +488,8 @@ def heave_correction_spectra(data, date,
         seapath_out (pd.DataFrame): data frame with all heave information from the closest time steps to the chirps
 
     """
+    # unpack kwargs
+    shift = kwargs['shift'] if 'shift' in kwargs else 0
     ####################################################################################################################
     # Data Read in
     ####################################################################################################################
@@ -500,10 +504,12 @@ def heave_correction_spectra(data, date,
                               transform_to_earth=transform_to_earth)
 
     ####################################################################################################################
-    # Calculating time shift between seapath and radar time, shift seapath data by calculated shift
+    # Use calculated time shift between radar mean doppler velocity and heave rate to shift seapath data
     ####################################################################################################################
-    time_shift, shift, _ = calc_time_shift_limrad_seapath(seapath)
-    seapath = shift_seapath(seapath, shift)
+    if shift != 0:
+        seapath = shift_seapath(seapath, shift)
+    else:
+        logger.debug(f"Shift is {shift}! Seapath data is not shifted!")
 
     ####################################################################################################################
     # Calculating heave correction array and translate to number of Doppler bin shifts
