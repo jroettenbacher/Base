@@ -1514,7 +1514,6 @@ def shift_seapath(seapath, shift):
     return seapath_shifted
 
 
-
 def spectra2polarimetry(ZSpec, paraminfo, **kwargs):
     """
     This routine calculates the

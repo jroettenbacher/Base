@@ -19,6 +19,8 @@ After no success with the mean Doppler velocity, the correction is directly appl
 To detect a possible time shift between the two signals, a cross correlation is performed between the mean Doppler velocity averaged over height and the heave rate interpolated to the same time resolution. For P07 a shift of **1.9** seconds and for P09 a shift of **1.6** seconds was detected and needs to be corrected for.
 The result with shifting the heave rate by 19 time steps don't look good. Thus, the next try is shifting by -19 time steps .
 
+After the heave correction the Doppler spectra are also dealiased.
+
 **Correction:** 
 
 | Real MDV [m/s] <br />measured in Radar CS | Heave Rate [m/s] <br />measured in Ship CS | Measured MDV [m/s] | Corrected MDV [m/s] |

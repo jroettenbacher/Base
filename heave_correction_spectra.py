@@ -208,7 +208,7 @@ plt.close()
 print(f'figure saved :: {fig_name}')
 
 # plot differently zoomed plots of corrected and uncorrected MDV (spectra)
-begin_dt = dt.datetime(2020,  2, 16, 16, 0, 0)
+begin_dt = dt.datetime(2020,  2, 16, 15, 0, 0)
 end_dt = dt.datetime(2020, 2, 16, 23, 59, 59)
 plot_range = [0, 'max']
 plot_path = "/projekt1/remsens/work/jroettenbacher/plots/heave_correction_spectra"
@@ -233,3 +233,4 @@ for var, name in zip([mdv, mdv_uncor], ['spectra_corrected', 'uncorrected']):
             fig.savefig(fig_name, dpi=250)
             plt.close()
             print(f'figure saved :: {fig_name}')
+
