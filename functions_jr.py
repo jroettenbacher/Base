@@ -872,6 +872,32 @@ def shift_seapath(seapath, shift):
     return seapath_shifted
 
 
+def read_dship(date, **kwargs):
+    """Read in 1 Hz DSHIP data and return pandas DataFrame
+
+    Args:
+        date (str): yyyymmdd (eg. 20200210)
+        **kwargs: kwargs for pd.read_csv (not all implemented) https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html
+
+    Returns: pd.DataFrame with 1 Hz DSHIP data
+
+    """
+    tstart = time.time()
+    path = kwargs['path'] if 'path' in kwargs else "/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP"
+    skiprows = kwargs['skiprows'] if 'skiprows' in kwargs else (1, 2)
+    nrows = kwargs['nrows'] if 'nrows' in kwargs else None
+    cols = kwargs['cols'] if 'cols' in kwargs else None
+    file = f"{path}/{date}_DSHIP_all_1Hz.dat"
+    # set encoding and separator, skip the rows with the unit and type of measurement, set index column
+    df = pd.read_csv(file, encoding='windows-1252', sep="\t", skiprows=skiprows, index_col='date time', nrows=nrows,
+                     usecols=cols)
+    df.index = pd.to_datetime(df.index, infer_datetime_format=True)
+
+    logger.info(f"Done reading in DSHIP data in {time.time() - tstart:.2f} seconds")
+
+    return df
+
+
 if __name__ == '__main__':
     import sys, time
     import datetime as dt
@@ -885,6 +911,7 @@ if __name__ == '__main__':
     log.setLevel(logging.INFO)
     log.addHandler(logging.StreamHandler())
 
+    # # test heave correction
     # larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
     # begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
     # end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
@@ -900,9 +927,13 @@ if __name__ == '__main__':
     # new_vel, heave_corr, seapath_out = heave_correction(moments, begin_dt, use_cross_product=True)
     # print("Done Testing heave_correction...")
 
-    # time shift analysis
-    date = dt.datetime(2020, 2, 10)
-    seapath = read_seapath(date)
-    seapath = calc_heave_rate(seapath)
-    t_shift, shift, seapath = calc_time_shift_limrad_seapath(seapath)
-    seapath_shifted = shift_seapath(seapath, -shift)
+    # # time shift analysis
+    # date = dt.datetime(2020, 2, 10)
+    # # seapath = read_seapath(date)
+    # seapath = calc_heave_rate(seapath)
+    # t_shift, shift, seapath = calc_time_shift_limrad_seapath(seapath)
+    # seapath_shifted = shift_seapath(seapath, -shift)
+
+    # # test read in of DSHIP data
+    # date = '20200125'
+    # dhsip = read_dship(date)
