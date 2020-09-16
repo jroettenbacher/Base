@@ -1088,6 +1088,32 @@ def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-
     return seapath
 
 
+def read_dship(date, **kwargs):
+    """Read in 1 Hz DSHIP data and return pandas DataFrame
+
+    Args:
+        date (str): yyyymmdd (eg. 20200210)
+        **kwargs: kwargs for pd.read_csv (not all implemented) https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_csv.html
+
+    Returns: pd.DataFrame with 1 Hz DSHIP data
+
+    """
+    tstart = time.time()
+    path = kwargs['path'] if 'path' in kwargs else "/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP"
+    skiprows = kwargs['skiprows'] if 'skiprows' in kwargs else (1, 2)
+    nrows = kwargs['nrows'] if 'nrows' in kwargs else None
+    cols = kwargs['cols'] if 'cols' in kwargs else None
+    file = f"{path}/{date}_DSHIP_all_1Hz.dat"
+    # set encoding and separator, skip the rows with the unit and type of measurement, set index column
+    df = pd.read_csv(file, encoding='windows-1252', sep="\t", skiprows=skiprows, index_col='date time', nrows=nrows,
+                     usecols=cols)
+    df.index = pd.to_datetime(df.index, infer_datetime_format=True)
+
+    logger.info(f"Done reading in DSHIP data in {time.time() - tstart:.2f} seconds")
+
+    return df
+
+
 def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave=False, use_cross_product=True,
                     transform_to_earth=True):
     """
