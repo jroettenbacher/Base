@@ -1037,7 +1037,11 @@ def heave_correction_spectra(data, date,
                 # loop through range gates
                 # TODO: check if mask is True and skip, although masked shifted spectra do not introduce any error,
                 # this might speed up things...
-                shift = int(n_dopp_bins_shift[iT, iR])
+                try:
+                    shift = int(n_dopp_bins_shift[iT, iR])
+                except ValueError:
+                    logger.debug(f"shift at [{iT}, {iR}] is NaN, set to zero")
+                    shift = 0
                 spectrum = spectra[iT, iR, :]
                 if add:
                     new_spec = np.roll(spectrum, shift)
