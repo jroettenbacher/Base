@@ -1287,7 +1287,7 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
                 # select rows from closest time stamp to end of integration time and average, append to list
                 means_ls.append(seapath[ts_id_diff_min:ts_id_diff_min+int_time].mean())
             else:
-                means_ls.append(seapath[ts_id_diff_min])
+                means_ls.append(seapath.loc[ts_id_diff_min])
 
         # concatenate all means into one dataframe with the original header (transpose)
         seapath_closest = pd.concat(means_ls, axis=1).T
