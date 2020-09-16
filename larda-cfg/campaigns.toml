@@ -1,7 +1,7 @@
 [eurec4a]
     location = "RV-Meteor"
     coordinates = [13.0, -57.7]
-    altitude = 15
+    altitude = 16
     duration = [["20200114", "20200229"]]
     systems = ["LIMRAD94",  "HATPRO", "CEILO", "LIMRAD94_cn_input", "LIMRAD94_cni", "LIMRAD94_cni_hc", "LIMRAD94_cni_hc_dea", "LIMRAD94_30s", "LIMRAD94_tmp"]
     mira_azi_zero = -999
