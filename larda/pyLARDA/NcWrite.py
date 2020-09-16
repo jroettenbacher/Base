@@ -469,7 +469,7 @@ def rpg_radar2nc_eurec4a(data, path, **kwargs):
     site_name = kwargs['site'] if 'site' in kwargs else 'no-site'
     hour_bias = kwargs['hour_bias'] if 'hour_bias' in kwargs else 0
     cn_version = kwargs['version'] if 'version' in kwargs else 'pyhon'
-    ds_name = f'{path}/{h.ts_to_dt(data["Ze"]["ts"][0]):%Y%m%d}-{site_name}-limrad94.nc'
+    ds_name = f'{path}/{site_name}_cloudradar_{h.ts_to_dt(data["Ze"]["ts"][0]):%Y%m%d}.nc'
     ncvers = '4'
 
     with netCDF4.Dataset(ds_name, 'w', format=f'NETCDF{ncvers}') as ds:
@@ -477,7 +477,7 @@ def rpg_radar2nc_eurec4a(data, path, **kwargs):
         ds.location = data['Ze']['paraminfo']['location']
         ds.system = data['Ze']['paraminfo']['system']
         ds.version = f'Variable names and dimensions prepared for upload to Aeris data center'
-        ds.title = 'LIMRAD94 (SLDR) Doppler Cloud Radar, calibrated Input for Cloudnet'
+        ds.title = 'LIMRAD94 (SLDR) Doppler Cloud Radar, calibrated file'
         ds.institution = 'Leipzig Institute for Meteorology (LIM), Leipzig, Germany'
         ds.contact = 'heike.kalesse@uni-leipzig.de'
         ds.source = '94 GHz Cloud Radar LIMRAD94\nRadar type: Frequency Modulated Continuous Wave,\nTransmitter power 1.5 W typical (solid state ' \
