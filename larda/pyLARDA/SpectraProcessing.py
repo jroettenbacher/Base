@@ -1102,7 +1102,7 @@ def read_dship(date, **kwargs):
     path = kwargs['path'] if 'path' in kwargs else "/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP"
     skiprows = kwargs['skiprows'] if 'skiprows' in kwargs else (1, 2)
     nrows = kwargs['nrows'] if 'nrows' in kwargs else None
-    cols = [0].append(kwargs['cols']) if 'cols' in kwargs else None  # always keep the 0th column (datetime column)
+    cols = kwargs['cols'] if 'cols' in kwargs else None  # always keep the 0th column (datetime column)
     file = f"{path}/{date}_DSHIP_all_1Hz.dat"
     # set encoding and separator, skip the rows with the unit and type of measurement, set index column
     df = pd.read_csv(file, encoding='windows-1252', sep="\t", skiprows=skiprows, index_col='date time', nrows=nrows,
