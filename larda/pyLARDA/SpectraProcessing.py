@@ -1540,6 +1540,36 @@ def shift_seapath(seapath, shift):
     return seapath_shifted
 
 
+def find_closest_timesteps(df, ts):
+    """Find closest time steps in a dataframe to a time series
+
+    Args:
+        df (pd.DataFrame): DataFrame with DatetimeIndex
+        ts (ndarray): array with time stamps in unix format (seconds since 1-1-1970)
+
+    Returns: pd.DataFrame with only the closest time steps to ts
+
+    """
+    tstart = time.time()
+    try:
+        assert df.index.inferred_type == 'datetime64', "Dataframe Index is not a DatetimeIndex trying to turn into one"
+    except AssertionError:
+        df.index = pd.to_datetime(df.index, infer_datetime_format=True)
+
+    df_ts = df.index.values.astype(np.float64) / 10 ** 9  # convert datetime index to seconds since 1970-01-01
+    df_list = []  # initialize lsit to append df rows closest to input time steps to
+    for t in ts:
+        id_diff_min = argnearest(df_ts, t)  # find index of nearest dship time step to input time step
+        ts_id_diff_min = df.index[id_diff_min]  # get time stamp of closest index
+        df_list.append(df.loc[ts_id_diff_min])  # append row to list
+
+    # concatenate all rows into one dataframe with the original header (transpose)
+    df_closest = pd.concat(df_list, axis=1).T
+    logger.info(f"Done finding closest time steps in {time.time() - tstart:.2f} seconds")
+
+    return df_closest
+
+
 def spectra2polarimetry(ZSpec, paraminfo, **kwargs):
     """
     This routine calculates the

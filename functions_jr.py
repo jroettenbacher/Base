@@ -903,14 +903,14 @@ def find_closest_timesteps(df, ts):
 
     Args:
         df (pd.DataFrame): DataFrame with DatetimeIndex
-        ts (ndarray): array with time stamps
+        ts (ndarray): array with time stamps in unix format (seconds since 1-1-1970)
 
     Returns: pd.DataFrame with only the closest time steps to ts
 
     """
     tstart = time.time()
     try:
-        assert df.index.inferred_type == 'datetime64', "Dataframe Index is not a DatetimeIndex trying to turn into on"
+        assert df.index.inferred_type == 'datetime64', "Dataframe Index is not a DatetimeIndex trying to turn into one"
     except AssertionError:
         df.index = pd.to_datetime(df.index, infer_datetime_format=True)
 
