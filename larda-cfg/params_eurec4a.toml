@@ -16,7 +16,7 @@
     chirp_variable = 'Chirp'
     time_millisec_variable = 'Timems'
     time_conversion = 'since20010101'
-    range_conversion = 'none'
+    range_conversion = 'sealevel2range'
     var_conversion = 'none'
     # currently a special reader is needed just for limrad
     # this one stacks the chirps and loads the range form lvl0
@@ -323,7 +323,6 @@
     range_variable = 'range'
     # time_millisec_variable = 'Timems'
     time_conversion = 'since20010101'
-    #TODO: range conversion from sea level to Navi Deck
     range_conversion = 'none'
     var_conversion = 'none'
     ncreader = 'timeheight'
@@ -428,7 +427,6 @@
     range_variable = 'range'
     # time_millisec_variable = 'Timems'
     time_conversion = 'beginofday'
-    #TODO: range conversion from sea level to Navi Deck
     range_conversion = 'none'
     var_conversion = 'none'
     ncreader = 'timeheight'
@@ -500,7 +498,6 @@
     range_variable = 'range'
     # time_millisec_variable = 'Timems'
     time_conversion = 'beginofday'
-    #TODO: range conversion from sea level to Navi Deck
     range_conversion = 'none'
     var_conversion = 'none'
     ncreader = 'timeheight'
@@ -572,7 +569,6 @@
     range_variable = 'range'
     # time_millisec_variable = 'Timems'
     time_conversion = 'beginofday'
-    #TODO: range conversion from sea level to Navi Deck
     range_conversion = 'none'
     var_conversion = 'none'
     ncreader = 'timeheight'
@@ -644,7 +640,6 @@
     range_variable = 'range'
     # time_millisec_variable = 'Timems'
     time_conversion = 'beginofday'
-    #TODO: range conversion from sea level to Navi Deck
     range_conversion = 'none'
     var_conversion = 'none'
     ncreader = 'timeheight'
@@ -717,7 +712,6 @@
     range_variable = 'range'
     # time_millisec_variable = 'Timems'
     time_conversion = 'since20010101'
-    #TODO: range conversion from sea level to Navi Deck
     range_conversion = 'none'
     var_conversion = 'none'
     ncreader = 'timeheight'
@@ -768,7 +762,7 @@
     # be converted (strings defined in pyLARDA.helpers)
     #time_conversion = 'since19691231'
     time_conversion = 'unix'
-    range_conversion = 'none'
+    range_conversion = 'sealevel2range'
     var_conversion = 'none'
     ncreader = 'timeheight'
     # if identifier is given read from ncfile, else define here
@@ -814,7 +808,7 @@
     # define how the values from the nc file have to
     # be converted (strings defined in pyLARDA.helpers)
     time_conversion = 'since19040101'
-    range_conversion = 'none'
+    range_conversion = 'sealevel2range'
     var_conversion = 'none'
     ncreader = 'time'
     # if identifier is given read from ncfile, else define here
