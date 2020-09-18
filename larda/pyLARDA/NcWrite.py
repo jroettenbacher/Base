@@ -615,8 +615,8 @@ def rpg_radar2nc_eurec4a(data, path, **kwargs):
 
         # 2D variables
         dims_2d = ('time', 'latitude', 'longitude')
-        nc_add_variable(ds, val=data['bt']['var'], dimension=dims_2d,
-                        var_name='bt', type=np.float32, long_name='Direct detection brightness temperature', units='K')
+        # nc_add_variable(ds, val=data['bt']['var'], dimension=dims_2d,
+        #                 var_name='bt', type=np.float32, long_name='Direct detection brightness temperature', units='K')
 
         nc_add_variable(ds, val=data['LWP']['var'], dimension=dims_2d,
                         var_name='lwp', type=np.float32, long_name='Liquid water path', units='g m-2')
