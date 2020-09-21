@@ -20,6 +20,30 @@ import matplotlib.pyplot as plt
 logger = logging.getLogger(__name__)
 
 
+def read_device_action_log(path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
+                           **kwargs):
+    """Read in the device action log
+
+    Args:
+        path (str): path to file
+        **kwargs:
+            begin_dt (datetime.datetime): start of file, keep only rows after this date
+            end_dt (datetime.datetime): end of file, keep only rows before that date
+    Returns: Data frame with the device action log
+
+    """
+    begin_dt = kwargs['begin_dt'] if 'begin_dt' in kwargs else datetime.datetime(2020, 1, 18)
+    end_dt = kwargs['end_dt'] if 'end_dt' in kwargs else datetime.datetime(2020, 3, 1)
+    # Action Log, read in action log of CTD actions
+    rv_meteor_action = pd.read_csv(f"{path}/20200117-20200301_RV-Meteor_device_action_log.dat", encoding='windows-1252',
+                                   sep='\t')
+    # set index to date column for easier indexing
+    rv_meteor_action.index = pd.to_datetime(rv_meteor_action["Date/Time (Start)"], format="%Y/%m/%d %H:%M:%S")
+    rv_meteor_action = rv_meteor_action.loc[begin_dt:end_dt]
+
+    return rv_meteor_action
+
+
 def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
                  **kwargs):
     """
@@ -291,6 +315,8 @@ if __name__ == "__main__":
     log.setLevel(logging.INFO)
     log.addHandler(logging.StreamHandler())
 
+    # read in action log for whole campaign
+    action_log = read_device_action_log(begin_dt=datetime.datetime(2020, 1, 17), end_dt=datetime.datetime(2020, 2, 20))
     versions = [1, 2]
     # read in radar data with larda
     # TODO: read in radar data your way
