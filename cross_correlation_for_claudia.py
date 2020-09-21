@@ -181,7 +181,7 @@ def calc_time_shift_radar_ship(seapath, radar_vel, ts, version=1, **kwargs):
 
     Args:
         seapath (pd.DataFrame): data frame with heave rate of ship
-        radar_vel (ndarray): time-height array of mean Doppler velocity with nan for missing data
+        radar_vel (ndarray): time x height array of mean Doppler velocity with nan for missing data
         ts (ndarray): time stamps from the radar in unix time (seconds since 1970-01-01)
         version (int): which version to use 1 or 2
         **kwargs:
@@ -229,7 +229,7 @@ def calc_time_shift_radar_ship(seapath, radar_vel, ts, version=1, **kwargs):
     ####################################################################################################################
     # extract heave rate
     heave_rate = seapath_closest['Heave Rate [m/s]']
-    radar_time = radar_vel['ts']
+    radar_time = ts
     seapath_time = np.asarray([dt_to_ts(t) for t in seapath_closest.index])
     heave_rate_rts = np.interp(radar_time, seapath_time, heave_rate.values)  # heave rate at radar time
 
