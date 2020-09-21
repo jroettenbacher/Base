@@ -100,6 +100,31 @@ def find_bases_tops(mask, rg_list):
     return cloud_prop, cloud_mask
 
 
+def read_device_action_log(path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
+                           **kwargs):
+    """Read in the device action log
+
+    Args:
+        path (str): path to file
+        **kwargs:
+            begin_dt (datetime.datetime): start of file, keep only rows after this date
+            end_dt (datetime.datetime): end of file, keep only rows before that date
+    Returns: Data frame with the device action log
+
+    """
+    # TODO: change filepath
+    begin_dt = kwargs['begin_dt'] if 'begin_dt' in kwargs else datetime.datetime(2020, 1, 18)
+    end_dt = kwargs['end_dt'] if 'end_dt' in kwargs else datetime.datetime(2020, 3, 1)
+    # Action Log, read in action log of CTD actions
+    rv_meteor_action = pd.read_csv(f"{path}/20200117-20200301_RV-Meteor_device_action_log.dat", encoding='windows-1252',
+                                   sep='\t')
+    # set index to date column for easier indexing
+    rv_meteor_action.index = pd.to_datetime(rv_meteor_action["Date/Time (Start)"], format="%Y/%m/%d %H:%M:%S")
+    rv_meteor_action = rv_meteor_action.loc[begin_dt:end_dt]
+
+    return rv_meteor_action
+
+
 def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
                  **kwargs):
     """
@@ -711,7 +736,8 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
     Args:
         seapath (pd.DataFrame): data frame with heave rate of RV-Meteor
         version (int): which version to use 1 or 2
-        plot_xcorr (bool): plot cross correlation function in temporary plot folder
+        **kwargs:
+            plot_xcorr (bool): plot cross correlation function in temporary plot folder
 
     Returns: time shift in seconds between the two timeseries
 
@@ -968,14 +994,14 @@ if __name__ == '__main__':
     # date = '20200125'
     # dship = read_dship(date)
 
-    # test find_closest_timesteps
-    larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
-    begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
-    end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
-    plot_range = [0, 'max']
-    mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
-    ts = mdv["ts"]
-    date = begin_dt.strftime("%Y%m%d")
-    dship = read_dship(date, cols=[0, 5, 6])
-    dship_closest = find_closest_timesteps(dship, ts)
+    # # test find_closest_timesteps
+    # larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
+    # begin_dt = dt.datetime(2020, 2, 5, 0, 0, 5)
+    # end_dt = dt.datetime(2020, 2, 5, 23, 59, 55)
+    # plot_range = [0, 'max']
+    # mdv = larda.read("LIMRAD94_cn_input", "Vel", [begin_dt, end_dt], plot_range)
+    # ts = mdv["ts"]
+    # date = begin_dt.strftime("%Y%m%d")
+    # dship = read_dship(date, cols=[0, 5, 6])
+    # dship_closest = find_closest_timesteps(dship, ts)
 

@@ -32,6 +32,7 @@ def read_device_action_log(path="/projekt2/remsens/data_new/site-campaign/rv_met
     Returns: Data frame with the device action log
 
     """
+    # TODO: change filepath
     begin_dt = kwargs['begin_dt'] if 'begin_dt' in kwargs else datetime.datetime(2020, 1, 18)
     end_dt = kwargs['end_dt'] if 'end_dt' in kwargs else datetime.datetime(2020, 3, 1)
     # Action Log, read in action log of CTD actions
