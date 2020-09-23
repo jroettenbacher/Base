@@ -551,27 +551,6 @@ def rpg_radar2nc_eurec4a(data, path, **kwargs):
             units='m'
         )
 
-        # coordinates
-        nc_add_variable(
-            ds,
-            val=data['lat'],
-            dimension=('latitude',),
-            var_name='latitude',
-            type=np.float32,
-            long_name='latitude',
-            units='degrees_north'
-        )
-
-        nc_add_variable(
-            ds,
-            val=data['lon'],
-            dimension=('longitude',),
-            var_name='longitude',
-            type=np.float32,
-            long_name='longitude',
-            units='degrees_east'
-        )
-
         if 'version' in kwargs and cn_version == 'python':
             nc_add_variable(
                 ds,
@@ -605,11 +584,11 @@ def rpg_radar2nc_eurec4a(data, path, **kwargs):
 
         # latitude, longitude variables
         nc_add_variable(ds, val=data['lat'], dimension=('time',), var_name='latitude', type=np.float64,
-                        long_name='Latitude in Degrees North',
-                        units='degrees North')
+                        long_name='Latitude',
+                        units='degrees_north')
         nc_add_variable(ds, val=data['lon'], dimension=('time',), var_name='longitude', type=np.float64,
-                        long_name='Latitude in Degrees East',
-                        units='degrees East')
+                        long_name='Longitude',
+                        units='degrees_east')
 
         # chirp dependent variables
         nc_add_variable(ds, val=data['MaxVel']['var'][0], dimension=('chirp',),
