@@ -499,14 +499,12 @@ def rpg_radar2nc_eurec4a(data, path, **kwargs):
         Ze_str = 'Zh' if cn_version == 'python' else 'Ze'
         vel_str = 'v' if cn_version == 'python' else 'vm'
         width_str = 'width' if cn_version == 'python' else 'sigma'
-        dim_tupel = ('time', 'range', 'latitude', 'longitude') if cn_version == 'python' else ('range', 'time', 'latitude', 'longitude')
+        dim_tupel = ('time', 'range') if cn_version == 'python' else ('range', 'time')
 
         n_chirps = len(data['no_av'])
         ds.createDimension('chirp', n_chirps)
         ds.createDimension('time', data['Ze']['ts'].size)
         ds.createDimension('range', data['Ze']['rg'].size)
-        ds.createDimension('latitude', data['lat'].size)
-        ds.createDimension('longitude', data['lon'].size)
 
         if cn_version == 'matlab':
             for ivar in ['Ze', 'VEL', 'sw', 'ldr', 'kurt', 'skew']:
@@ -600,9 +598,18 @@ def rpg_radar2nc_eurec4a(data, path, **kwargs):
         else:
             raise ValueError('Wrong version selected! version to "matlab" or "python"!')
 
-        nc_add_variable(ds, val=ts, dimension=('time',), var_name='time', type=np.float64, long_name=ts_str, units=ts_unit)
+        nc_add_variable(ds, val=ts, dimension=('time',), var_name='time', type=np.float64, long_name=ts_str,
+                        units=ts_unit)
         nc_add_variable(ds, val=rg, dimension=('range',), var_name='range', type=np.float32,
                         long_name='Range from antenna to the centre of each range gate', units='m')
+
+        # latitude, longitude variables
+        nc_add_variable(ds, val=data['lat'], dimension=('time',), var_name='latitude', type=np.float64,
+                        long_name='Latitude in Degrees North',
+                        units='degrees North')
+        nc_add_variable(ds, val=data['lon'], dimension=('time',), var_name='longitude', type=np.float64,
+                        long_name='Latitude in Degrees East',
+                        units='degrees East')
 
         # chirp dependent variables
         nc_add_variable(ds, val=data['MaxVel']['var'][0], dimension=('chirp',),
@@ -613,21 +620,21 @@ def rpg_radar2nc_eurec4a(data, path, **kwargs):
                         var_name='range_offsets', type=np.uint32,
                         long_name='chirp sequences start index array in altitude layer array', units='-')
 
-        # 2D variables
-        dims_2d = ('time', 'latitude', 'longitude')
-        # nc_add_variable(ds, val=data['bt']['var'], dimension=dims_2d,
-        #                 var_name='bt', type=np.float32, long_name='Direct detection brightness temperature', units='K')
+        # 1D variables
+        dims_1d = ('time',)
+        nc_add_variable(ds, val=data['bt']['var'], dimension=dims_1d,
+                        var_name='bt', type=np.float32, long_name='Direct detection brightness temperature', units='K')
 
-        nc_add_variable(ds, val=data['LWP']['var'], dimension=dims_2d,
+        nc_add_variable(ds, val=data['LWP']['var'], dimension=dims_1d,
                         var_name='lwp', type=np.float32, long_name='Liquid water path', units='g m-2')
 
-        nc_add_variable(ds, val=data['rr']['var'], dimension=dims_2d,
+        nc_add_variable(ds, val=data['rr']['var'], dimension=dims_1d,
                         var_name='rain', type=np.float32, long_name='Rain rate from weather station', units='mm h-1')
 
-        nc_add_variable(ds, val=data['SurfRelHum']['var'], dimension=dims_2d,
+        nc_add_variable(ds, val=data['SurfRelHum']['var'], dimension=dims_1d,
                         var_name='SurfRelHum', type=np.float32, long_name='Relative humidity from weather station', units='%')
 
-        # 3D variables
+        # 2D variables
         nc_add_variable(ds, val=data['Ze']['var'], dimension=dim_tupel, var_name=Ze_str, type=np.float32,
                         long_name='Radar reflectivity factor', units='mm6 m-3', plot_range=data['Ze']['var_lims'], plot_scale='linear',
                         comment='Calibrated reflectivity. Calibration convention: in the absence of attenuation, '
