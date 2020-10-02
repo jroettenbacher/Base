@@ -113,8 +113,8 @@ def read_device_action_log(path="/projekt2/remsens/data_new/site-campaign/rv_met
 
     """
     # TODO: change filepath
-    begin_dt = kwargs['begin_dt'] if 'begin_dt' in kwargs else datetime.datetime(2020, 1, 18)
-    end_dt = kwargs['end_dt'] if 'end_dt' in kwargs else datetime.datetime(2020, 3, 1)
+    begin_dt = kwargs['begin_dt'] if 'begin_dt' in kwargs else dt.datetime(2020, 1, 18)
+    end_dt = kwargs['end_dt'] if 'end_dt' in kwargs else dt.datetime(2020, 3, 1)
     # Action Log, read in action log of CTD actions
     rv_meteor_action = pd.read_csv(f"{path}/20200117-20200301_RV-Meteor_device_action_log.dat", encoding='windows-1252',
                                    sep='\t')
@@ -954,6 +954,14 @@ def find_closest_timesteps(df, ts):
     return df_closest
 
 
+def read_rainrate(path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DWD"):
+    """Read in rain rate from RV-Meteor during Eurec4a"""
+    file = "20200114_M161_Nsl.CSV"
+    rr = pd.read_csv(f'{path}/{file}', sep=';', index_col='Timestamp', parse_dates=True,
+                     usecols=['Timestamp', '   Dauer', 'RR_WS100_h', 'Nabs_WS100'])
+    rr.columns = ['Dauer', 'RR_WS100_h', 'Nabs_WS100']
+    return rr
+
 if __name__ == '__main__':
     import sys, time
     import datetime as dt
@@ -962,6 +970,7 @@ if __name__ == '__main__':
     import pyLARDA
     import numpy as np
     import logging
+    import pandas as pd
 
     log = logging.getLogger('__main__')
     log.setLevel(logging.INFO)
@@ -1005,3 +1014,5 @@ if __name__ == '__main__':
     # dship = read_dship(date, cols=[0, 5, 6])
     # dship_closest = find_closest_timesteps(dship, ts)
 
+    # test read rain rate
+    rr = read_rainrate()
