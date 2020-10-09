@@ -13,3 +13,4 @@ Thumbs.db
 /__pycache__/
 /.ipynb_checkpoints/
 /quality_control/
+plot_one_spectrum.py
