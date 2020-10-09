@@ -38,6 +38,6 @@ if __name__ == '__main__':
                          mean_slv=stats_sl['mean_slv'], mean_slv_f=stats_sl['mean_slv_f'],
                          median_slh=stats_sl['median_slh'], median_slh_f=stats_sl['median_slh_f'],
                          median_slv=stats_sl['median_slv'], median_slv_f=stats_sl['median_slv_f'])
-        csv_name = f"{output}/RV-Meteor_cloudradar_sensitivity-limit_{begin_dts[p]:%Y%m%d}-{end_dts[p]:%Y%m%d}.csv"
+        csv_name = f"{out_path}/RV-Meteor_cloudradar_sensitivity-limit_{begin_dts[p]:%Y%m%d}-{end_dts[p]:%Y%m%d}.csv"
         pd.DataFrame(output[p]).to_csv(csv_name, index=False, sep=',')
         log.info(f"saved {csv_name}")

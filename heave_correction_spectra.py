@@ -208,7 +208,7 @@ plt.close()
 print(f'figure saved :: {fig_name}')
 
 # plot differently zoomed plots of corrected and uncorrected MDV (spectra)
-begin_dt = dt.datetime(2020,  2, 16, 15, 0, 0)
+begin_dt = dt.datetime(2020,  2, 16, 13, 20, 0)
 end_dt = dt.datetime(2020, 2, 16, 23, 59, 59)
 plot_range = [0, 'max']
 plot_path = "/projekt1/remsens/work/jroettenbacher/plots/heave_correction_spectra"
@@ -216,8 +216,8 @@ mdv = larda.read('LIMRAD94_tmp', 'Vel', [begin_dt, end_dt], plot_range)
 mdv['var_lims'] = [-7, 7]
 mdv_uncor = larda.read('LIMRAD94_cni', 'Vel', [begin_dt, end_dt], plot_range)
 mdv_uncor['var_lims'] = [-7, 7]
-hours = [6, 3, 1, 0.5]  # different time range
-max_ranges = [3000, 6000, 10000]  # different height range
+hours = [1, 0.5, 0.25]  # different time range
+max_ranges = [3000]  # different height range
 # # testing
 # hour = hours[-1]
 # max_range = max_ranges[0]
