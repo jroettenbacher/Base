@@ -25,6 +25,7 @@ def calc_freq_of_occurrence_reflectivity(radar_ze, indices, bin_width=1):
 
     Args:
         radar_ze (larda container): linear reflectivity factor as read in with larda
+        indices (list): list of time indices which to include in calculation, useful to only take e.g. 0-3 UTC values
         bin_width (int): which bin width should be used (optional, default=1)
 
     Returns: foc_array, hist_bins
@@ -44,8 +45,7 @@ def calc_freq_of_occurrence_reflectivity(radar_ze, indices, bin_width=1):
     density = False  # compute the probability density function
     for i in range(radar_ze['var'].shape[1]):
         h_bin = h.lin2z(radar_ze['var'][indices, i])  # select height bin and convert to dBZ
-        mask = radar_ze['mask'][indices, i]  # get mask for height bin
-        h_bin[mask] = np.nan  # set -999 to nan
+        h_bin[h_bin.mask] = np.nan  # set masked values (negative values in linear units) to nan
         tmp_hist, _ = np.histogram(h_bin[~np.isnan(h_bin)], bins=hist_bins, range=hist_range, density=density)
         hist.append(tmp_hist)
 
@@ -139,12 +139,12 @@ def plot_frequency_of_occurence_limrad94(program, step, stats_sl, plot_path, lar
             im = ax.pcolormesh(foc_array, cmap='jet', norm=LogNorm())
             ax.plot(mean_slh, np.arange(len(height)), "-", color='green', label="Mean Horizontal Polarization")
             ax.plot(median_slh, np.arange(len(height)), "-", color='cyan', label="Median Horizontal Polarization")
-            ax.plot(max_slh, np.arange(len(height)), "-", color='olive', label="Max Horizontal Polarization")
-            ax.plot(min_slh, np.arange(len(height)), "-", color='lime', label="Min Horizontal Polarization")
+            # ax.plot(max_slh, np.arange(len(height)), "-", color='olive', label="Max Horizontal Polarization")
+            # ax.plot(min_slh, np.arange(len(height)), "-", color='lime', label="Min Horizontal Polarization")
             ax.plot(mean_slv, np.arange(len(height)), "-", color='red', label="Mean Vertical Polarization")
             ax.plot(median_slv, np.arange(len(height)), "-", color='magenta', label="Median Vertical Polarization")
-            ax.plot(max_slv, np.arange(len(height)), "-", color='darkred', label="Max Vertical Polarization")
-            ax.plot(min_slv, np.arange(len(height)), "-", color='tomato', label="Min Vertical Polarization")
+            # ax.plot(max_slv, np.arange(len(height)), "-", color='darkred', label="Max Vertical Polarization")
+            # ax.plot(min_slv, np.arange(len(height)), "-", color='tomato', label="Min Vertical Polarization")
             fig.colorbar(im, ax=ax)
             fig.legend(title="Sensitivity Limits", bbox_to_anchor=(0.5, -0.01), loc="lower center",
                        bbox_transform=fig.transFigure, ncol=2, fontsize='small')
@@ -168,8 +168,8 @@ def plot_frequency_of_occurence_limrad94(program, step, stats_sl, plot_path, lar
 
 if __name__ == '__main__':
     # leave out P06 because it has no values for the stepped plots
-    program = ['P07', 'P09']
-    steps = [3, 24]
+    program = ['P09']
+    steps = [24]
     plot_path = "../plots/foc_LIMRAD94"
     larda_systems = ["LIMRAD94", "LIMRAD94_cn_input"]
     campaign = 'eurec4a'
