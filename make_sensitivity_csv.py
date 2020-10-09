@@ -42,9 +42,10 @@ if __name__ == '__main__':
         csv_name = f"{out_path}/RV-Meteor_cloudradar_sensitivity-limit_{begin_dts[p]:%Y%m%d}-{end_dts[p]:%Y%m%d}.csv"
         df = pd.DataFrame(output[p])
         df.to_csv(csv_name, index=False, sep=',')
+        log.info(f"saved {csv_name}")
         # transform linear units to dBZ
         for var in df.columns[1:]:
             df[var] = lin2z(df[var].values)
         csv_name2 = f"{out_path}/RV-Meteor_cloudradar_sensitivity-limit_dBZ_{begin_dts[p]:%Y%m%d}-{end_dts[p]:%Y%m%d}.csv"
         df.to_csv(csv_name2, index=False, sep=',')
-        log.info(f"saved {csv_name}")
+        log.info(f"saved {csv_name2}")
