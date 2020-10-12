@@ -630,7 +630,7 @@
 [LIMRAD94_tmp]
   [LIMRAD94_tmp.path.nc]
     base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/tmp/'
-    matching_subdirs = '(.*\d{8}-.*-limrad94.nc)'
+    matching_subdirs = '(.*\rv-meteor_cloudradar_d{8}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   [LIMRAD94_tmp.generic]
     # this general settings need to be handed down to the params
