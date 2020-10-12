@@ -639,7 +639,7 @@
     time_variable = 'time'
     range_variable = 'range'
     # time_millisec_variable = 'Timems'
-    time_conversion = 'beginofday'
+    time_conversion = 'since20200101'
     range_conversion = 'none'
     var_conversion = 'none'
     ncreader = 'timeheight'
