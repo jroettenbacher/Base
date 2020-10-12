@@ -46,7 +46,7 @@ if __name__ == '__main__':
     # read out height bins from each chirp and concat them to use as y-axis
     heights = dict()
     for p in programs:
-        c1 = larda.read(system, "C2Range", [begin_dts[p]])['var'].data
+        c1 = larda.read(system, "C1Range", [begin_dts[p]])['var'].data
         c2 = larda.read(system, "C2Range", [begin_dts[p]])['var'].data
         c3 = larda.read(system, "C3Range", [begin_dts[p]])['var'].data
         heights[p] = np.concatenate((c1, c2, c3))
