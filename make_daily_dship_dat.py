@@ -3,9 +3,6 @@
 author: Johannes Roettenbacher"""
 
 import dask.dataframe as dd
-import pandas as pd
-import datetime
-import numpy as np
 
 path = "/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP"
 filename = "DSHIP_all_1Hz.dat"
