@@ -13,7 +13,9 @@ c = cdsapi.Client()
 years = range(2010, 2017)  # set years to retrieve
 months = range(1, 13)  # set months to retrieve
 times = [f'{hour:02}:00' for hour in range(0, 24)]  # set hours to retrieve
-area = [51.5, 12.25, 51.25, 12.5]  # set area, N W S E
+# area = [51.5, 12.25, 51.25, 12.5]  # set area, N W S E, leipzig
+area = [35.0, 33.0, 34.5, 33.25]  # set area, N W S E, limassol
+# area = [51.5, 12.25, 51.25, 12.5]  # set area, N W S E, cabauw
 p_levels = [str(z) for z in ([1, 50] + list(range(100, 300, 25))
                              + list(range(300, 750, 50))
                              + list(range(750, 1025, 25)))]  # set pressure levels to retrieve
