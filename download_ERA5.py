@@ -10,7 +10,7 @@ from functions_jr import days_of_month
 import os
 import time
 c = cdsapi.Client()
-location = "limassol"  # can be leipzig, limassol, cabauw
+location = "cabauw"  # can be leipzig, limassol, cabauw
 months = range(1, 13)  # set months to retrieve
 times = [f'{hour:02}:00' for hour in range(0, 24)]  # set hours to retrieve
 if location == "leipzig":
