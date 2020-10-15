@@ -918,6 +918,7 @@ def read_dship(date, **kwargs):
     df = pd.read_csv(file, encoding='windows-1252', sep="\t", skiprows=skiprows, index_col='date time', nrows=nrows,
                      usecols=cols, na_values='-999.0')
     df.index = pd.to_datetime(df.index, format="%Y-%m-%d %H:%M:%S")
+    df.index.rename('datetime', inplace=True)
 
     logger.info(f"Done reading in DSHIP data in {time.time() - tstart:.2f} seconds")
 
