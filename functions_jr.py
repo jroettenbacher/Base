@@ -913,11 +913,11 @@ def read_dship(date, **kwargs):
     skiprows = kwargs['skiprows'] if 'skiprows' in kwargs else (1, 2)
     nrows = kwargs['nrows'] if 'nrows' in kwargs else None
     cols = kwargs['cols'] if 'cols' in kwargs else None  # always keep the 0th column (datetime column)
-    file = f"{path}/{date}_DSHIP_all_1Hz.dat"
+    file = f"{path}/RV-Meteor_DSHIP_all_1Hz_{date}.dat"
     # set encoding and separator, skip the rows with the unit and type of measurement, set index column
     df = pd.read_csv(file, encoding='windows-1252', sep="\t", skiprows=skiprows, index_col='date time', nrows=nrows,
-                     usecols=cols)
-    df.index = pd.to_datetime(df.index, format="%d/%m/%Y %H:%M:%S")
+                     usecols=cols, na_values='-999.0')
+    df.index = pd.to_datetime(df.index, format="%Y-%m-%d %H:%M:%S")
 
     logger.info(f"Done reading in DSHIP data in {time.time() - tstart:.2f} seconds")
 
@@ -999,9 +999,9 @@ if __name__ == '__main__':
     # t_shift, shift, seapath = calc_time_shift_limrad_seapath(seapath)
     # seapath_shifted = shift_seapath(seapath, -shift)
 
-    # # test read in of DSHIP data
-    # date = '20200125'
-    # dship = read_dship(date)
+    # test read in of DSHIP data
+    date = '20200125'
+    dship = read_dship(date)
 
     # # test find_closest_timesteps
     # larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
@@ -1015,4 +1015,7 @@ if __name__ == '__main__':
     # dship_closest = find_closest_timesteps(dship, ts)
 
     # test read rain rate
-    rr = read_rainrate()
+    # rr = read_rainrate()
+
+    # test read action log
+    # action_log = read_device_action_log()
