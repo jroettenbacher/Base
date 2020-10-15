@@ -42,6 +42,7 @@ ddf = dd.read_csv(f"{path}/{filename}", skiprows=[1, 2], sep='\t',
 ddf['date time'] = dd.to_datetime(ddf['date time'])
 ddf.head()
 for date in ddf['date time'].dt.date.unique().compute():
-    filename = f"{path}/RV-Meteor_DSHIP_all_1Hz_{date:%Y%m%d}.csv"
+    filename = f"{path}/RV-Meteor_DSHIP_all_1Hz_{date:%Y%m%d}.dat"
     tmp_df = ddf.loc[ddf['date time'].dt.date == date]  # select only rows which match the current date
-    tmp_df.to_csv(filename, index=False, single_file=True, sep="\t", encoding='windows-1252')  # save to csv
+    tmp_df.to_csv(filename, index=False, single_file=True, sep="\t", encoding='windows-1252')  # save to dat
+    print(f"saved {filename}")
