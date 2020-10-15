@@ -11,15 +11,18 @@ import os
 import time
 c = cdsapi.Client()
 location = "limassol"  # can be leipzig, limassol, cabauw
-years = range(2010, 2017)  # set years to retrieve
 months = range(1, 13)  # set months to retrieve
 times = [f'{hour:02}:00' for hour in range(0, 24)]  # set hours to retrieve
 if location == "leipzig":
     area = [51.5, 12.25, 51.25, 12.5]  # set area, N W S E, leipzig
+    years = range(2010, 2017)  # set years to retrieve
 elif location == "limassol":
     area = [35.0, 33.0, 34.5, 33.25]  # set area, N W S E, limassol
+    years = range(2016, 2019)  # set years to retrieve
 elif location == "cabauw":
     area = [51.5, 12.25, 51.25, 12.5]  # set area, N W S E, cabauw
+    years = range(2014, 2015)  # set years to retrieve
+    months = range(9, 12)
 p_levels = [str(z) for z in ([1, 50] + list(range(100, 300, 25))
                              + list(range(300, 750, 50))
                              + list(range(750, 1025, 25)))]  # set pressure levels to retrieve
