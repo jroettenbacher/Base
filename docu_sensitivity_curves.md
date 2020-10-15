@@ -35,6 +35,6 @@ During EUREC4A four different chirp tables were used. For the three most importa
 
 ![RV-Meteor_LIMRAD94_sensitivity_curves_all_chirptables_filtered-unfiltered](C:\Users\Johannes\PycharmProjects\Base\plots\sensitivity\RV-Meteor_LIMRAD94_sensitivity_curves_all_chirptables_filtered-unfiltered.png)
 
-Up to -6 dBZ difference can be observed between the filtered and the unfiltered sensitivity limits. Thus it can be said, that the sensitivity limit in non rainy conditions is lower, meaning more negative, than in rainy conditions. This is especially true for the lower range gates.
+Up to -8 dBZ difference can be observed between the filtered and the unfiltered sensitivity limits. Thus it can be said, that the sensitivity limit in non rainy conditions is lower, meaning more negative, than in rainy conditions. This is especially true for the lower range gates.
 
 Chirp table Cu_small_Tint does not show any difference because it wasn't raining during its operation period. The different polarization channels also show different sensitivity changes due to rain. The vertical channel seems to be more affected than the horizontal channel.
