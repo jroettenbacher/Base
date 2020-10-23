@@ -963,6 +963,24 @@ def read_rainrate(path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec
     rr.columns = ['Dauer', 'RR_WS100_h', 'Nabs_WS100']
     return rr
 
+
+def add_season_to_df(df):
+    """Add a column with season to a dataframe containing a date index
+
+    Args:
+        df (pd.DataFrame): dataframe with date index
+
+    Returns: DataFrame as input with new column season
+
+    """
+    lookup = {11: 'Winter', 12: 'Winter', 1: 'Winter', 2: 'Spring', 3: 'Spring', 4: 'Spring', 5: 'Summer', 6: 'Summer',
+              7: 'Summer', 8: 'Autumn', 9: 'Autumn', 10: 'Autumn'}
+    df['date'] = df.index
+    df['season'] = df['date'].apply(lambda x: lookup[x.month])
+    df = df.drop('date', 1)
+    return df
+
+
 if __name__ == '__main__':
     import sys, time
     import datetime as dt
