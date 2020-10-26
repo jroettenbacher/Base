@@ -117,9 +117,9 @@ def read_device_action_log(path="/projekt2/remsens/data_new/site-campaign/rv_met
     end_dt = kwargs['end_dt'] if 'end_dt' in kwargs else dt.datetime(2020, 3, 1)
     # Action Log, read in action log of CTD actions
     rv_meteor_action = pd.read_csv(f"{path}/20200117-20200301_RV-Meteor_device_action_log.dat", encoding='windows-1252',
-                                   sep='\t')
+                                   sep='\t', parse_dates=["Date/Time (Start)", "Date/Time (End)"])
     # set index to date column for easier indexing
-    rv_meteor_action.index = pd.to_datetime(rv_meteor_action["Date/Time (Start)"], format="%Y/%m/%d %H:%M:%S")
+    rv_meteor_action.index = rv_meteor_action["Date/Time (Start)"]
     rv_meteor_action = rv_meteor_action.loc[begin_dt:end_dt]
 
     return rv_meteor_action
@@ -1019,8 +1019,8 @@ if __name__ == '__main__':
     # seapath_shifted = shift_seapath(seapath, -shift)
 
     # test read in of DSHIP data
-    date = '20200125'
-    dship = read_dship(date)
+    # date = '20200125'
+    # dship = read_dship(date)
 
     # # test find_closest_timesteps
     # larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
@@ -1037,4 +1037,4 @@ if __name__ == '__main__':
     # rr = read_rainrate()
 
     # test read action log
-    # action_log = read_device_action_log()
+    action_log = read_device_action_log()
