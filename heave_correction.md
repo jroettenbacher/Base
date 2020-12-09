@@ -17,7 +17,7 @@ Correct the mean Doppler velocity of each chirp by the heave rate, calculated fr
 After no success with the mean Doppler velocity, the correction is directly applied to the spectra, which are shifted by a number of bins, corresponding to the heave rate.
 
 To detect a possible time shift between the two signals, a cross correlation is performed between the mean Doppler velocity averaged over height and the heave rate interpolated to the same time resolution. For P07 a shift of **1.9** seconds and for P09 a shift of **1.6** seconds was detected and needs to be corrected for.
-The result with shifting the heave rate by 19 time steps don't look good. Thus, the next try is shifting by -19 time steps .
+Radar time lacks behind the ship time, therefore the ship time is shifted back in time.
 
 After the heave correction the Doppler spectra are also dealiased.
 
@@ -107,17 +107,32 @@ $v_{C_z} = v_{R_z}^{E} + v_{P_{T,z}}$
 
 **Results**
 
-see PowerPoint
+see PowerPoint $\rightarrow$ this approach is used
 
 ## 3. Step by Step
 
+The main program, which can be run via the command line, is called `create_limrad_calibrated_eurec4a.py`. It reads in the Doppler spectra from the LV0 hourly nc files via larda. For this it uses the function `load_spectra_rpgfmcw94()` from `SpectraProcessing.py`. In this script all other following functions can also be found, with detailed explanations regarding their arguments. The following gives a overview, which steps are covered by which functions. They are all called within the function described in 3.5.
+
 ### 3.1 Calculate heave rate for corresponding day
+```python
+def calc_heave_rate(seapath, only_heave=False, use_cross_product=True, transform_to_earth=True)
+```
 Three components:
-* heave rate
+* heave
 * pitch induced heave
 * roll induced heave
 
+**Options**:
+
+* only_heave (bool): use only the heave and neglect pitch and roll induced heave
+* use_cross_product (bool): use the cross product approach as mentioned above
+* transform_to_earth (bool): transform cross product into earth coordinates
+
 ### 3.2 Calculate heave correction for each chirp 
+
+```python
+def calc_heave_corr(container, date, seapath, mean_hr=True)
+```
 
 **Note**: the radar timestamp corresponds to the end of the chirp sequence with 0.1s accuracy  
 
@@ -138,6 +153,10 @@ Duration of each chirp in seconds by chirp table:
 * filter heave rates greater 5 standard deviations away from the daily mean and replace by average of the mean heave rate before and after
 * create an array with the same dimension as the mean Doppler velocity
 
+**Options**:
+
+* mean_hr (bool): use the mean heave rate over the integration time of each chirp
+
 ### 3.3 Check for time shift between radar and ship
 
 ```python
@@ -152,11 +171,20 @@ def calc_time_shift_limrad_seapath(seapath, version=1, **kwargs):
 
 ### 3.4 Apply heave correction to mean Doppler velocity $\rightarrow$ unsuccessful
 
+```python
+def heave_correction(moments, date, path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP", mean_hr=True, only_heave=False, use_cross_product=True, transform_to_earth=True, add=False)
+```
+
 * decide whether to add or subtract heave rate
 * return new array with corrected mean Doppler velocity
 
 ### 3.5 Apply heave correction to Doppler spectra
 
+```python
+def heave_correction_spectra(data, date, path_to_seapath="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP", mean_hr=True, only_heave=False, use_cross_product=True, transform_to_earth=True, add=False, **kwargs)
+```
+
+* calls all of the above functions
 * shift heave rate by given time steps (eg. 19 or 16)
 * calculate Doppler resolution
 * translate heave rate into Doppler bins
