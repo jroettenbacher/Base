@@ -64,7 +64,7 @@ if __name__ == '__main__':
     else:
         date = '20200201'
         begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
-        end_dt = datetime.datetime.strptime(date + ' 23:59:55', '%Y%m%d %H:%M:%S')
+        end_dt = datetime.datetime.strptime(date + ' 02:59:55', '%Y%m%d %H:%M:%S')
 
     limrad94_settings = {
         'despeckle': True,  # 2D convolution (5x5 window), removes single non-zero values, very slow!
