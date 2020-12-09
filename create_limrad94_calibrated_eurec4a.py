@@ -110,7 +110,7 @@ if __name__ == '__main__':
     radarMoments['Ze']['var_unit'] = 'dBZ'
 
     # read in lat lon time series from RV Meteor
-    dship = sp.read_dship(begin_dt.strftime("%Y%m%d"), cols=[0, 5, 6])
+    dship = sp.read_dship(begin_dt.strftime("%Y%m%d"), cols=[0, 4, 5])
     dship_closest = sp.find_closest_timesteps(dship, radarMoments['Ze']['ts'])
     # extract lat lon arrays and save to dictionary to hand over to NcWrite.rpg_radar2nc_eurec4a()
     radarMoments['lat'] = dship_closest["SYS.STR.PosLat"].values
