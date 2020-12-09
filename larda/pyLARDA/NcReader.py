@@ -634,7 +634,8 @@ def specreader_rpgfmcw(paraminfo):
             else:
                 data['var'] = varconverter(var[tuple(slicer)])
 
-
+            if isinstance(data['mask'], np.ma.MaskedArray):
+                data['mask'] = data['mask'].data
             assert not isinstance(data['mask'], np.ma.MaskedArray), \
                "mask array shall not be np.ma.MaskedArray, but of plain booltype"
 
