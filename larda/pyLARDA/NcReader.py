@@ -472,6 +472,9 @@ def timeheightreader_rpgfmcw(paraminfo):
             else:
                 data['mask'] = ~np.isfinite(var[tuple(slicer)].data)
 
+            if isinstance(data['mask'], np.ma.MaskedArray):
+                data['mask'] = data['mask'].data
+            
             assert not isinstance(data['mask'], np.ma.MaskedArray), \
                "mask array shall not be np.ma.MaskedArray, but of plain booltype"
             data['var'] = varconverter(var[tuple(slicer)].data)
