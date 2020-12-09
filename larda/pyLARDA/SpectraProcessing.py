@@ -1107,7 +1107,7 @@ def read_dship(date, **kwargs):
     skiprows = kwargs['skiprows'] if 'skiprows' in kwargs else (1, 2)
     nrows = kwargs['nrows'] if 'nrows' in kwargs else None
     cols = kwargs['cols'] if 'cols' in kwargs else None  # always keep the 0th column (datetime column)
-    file = f"{path}/{date}_DSHIP_all_1Hz.dat"
+    file = f"{path}/RV-Meteor_DSHIP_all_1Hz_{date}.dat"
     # set encoding and separator, skip the rows with the unit and type of measurement, set index column
     df = pd.read_csv(file, encoding='windows-1252', sep="\t", skiprows=skiprows, index_col='date time', nrows=nrows,
                      usecols=cols)
