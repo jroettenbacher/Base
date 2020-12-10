@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     limrad94_settings = {
         'despeckle': True,  # 2D convolution (5x5 window), removes single non-zero values, very slow!
-        'estimate_noise': True,  # estimating noise in spectra, when no fill_value is encountered
+        'estimate_noise': False,  # estimating noise in spectra, when no fill_value is encountered
         'noise_factor': 6.0,  # noise_threshold = mean(noise) + noise_factor * std(noise)
         'despeckle2D': True,  # 2D convolution (5x5 window), removes single non-zero values,
         'ghost_echo_1': False,  # reduces the domain (Nyquist velocity) by ± 2.5 [m/s], when signal > 0 [dBZ] within 200m above antenna
