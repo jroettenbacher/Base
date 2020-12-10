@@ -3,7 +3,7 @@
 
 import pyLARDA.Connector as Connector
 import pyLARDA.ParameterInfo as ParameterInfo
-
+import pyLARDA.spec2mom_limrad94 as spec2mom_limrad94
 import datetime, os, calendar, copy, time
 import numpy as np
 import csv
@@ -14,6 +14,8 @@ import json
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger(__name__)
+
+os.environ["HDF5_USE_FILE_LOCKING"] = 'FALSE'
 
 class LARDA :
     """init a new larda instance
