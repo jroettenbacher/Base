@@ -318,8 +318,7 @@ def rpg_radar2nc(data, path, larda_git_path, **kwargs):
         ds.reference = 'W Band Cloud Radar LIMRAD94\nDocumentation and User Manual provided by manufacturer RPG Radiometer Physics GmbH\n' \
                        'Information about system also available at https://www.radiometer-physics.de/'
         ds.calibrations = f'remove Precip. ghost: {kwargs["ghost_echo_1"]}\n, remove curtain ghost: {kwargs["ghost_echo_2"]}\n' \
-                          f'despeckle: {kwargs["despeckle"]}\n, number of standard deviations above noise: {kwargs["NF"]}\n' \
-                          f'spectra heave corrected: {kwargs["heave_correction"]}'
+                          f'despeckle: {kwargs["despeckle"]}\n, number of standard deviations above noise: {kwargs["NF"]}\n'
 
         # ds.git_description = f'GIT commit ID  {sha}'
         ds.description = 'Concatenated data files of LIMRAD 94GHz - FMCW Radar, used as input for Cloudnet processing, ' \
@@ -426,7 +425,7 @@ def rpg_radar2nc(data, path, larda_git_path, **kwargs):
             ts = np.subtract(data['Ze']['ts'], datetime.datetime(dt_start.year, dt_start.month, dt_start.day, 0, 0, 0, tzinfo=timezone.utc).timestamp()) / 3600
             ts_str = 'Decimal hours from midnight UTC to the middle of each day'
             ts_unit = f'hours since {dt_start:%Y-%m-%d} 00:00:00 +00:00 (UTC)'
-            rg = data['Ze']['rg']
+            rg = data['Ze']['rg'] / 1000.0
         elif cn_version == 'matlab':
             ts = np.subtract(data['Ze']['ts'], datetime.datetime(2001, 1, 1, 0, 0, 0, tzinfo=timezone.utc).timestamp())
             ts_str = 'Seconds since 1st January 2001 00:00 UTC'
@@ -437,7 +436,7 @@ def rpg_radar2nc(data, path, larda_git_path, **kwargs):
 
         nc_add_variable(ds, val=ts, dimension=('time',), var_name='time', type=np.float64, long_name=ts_str, units=ts_unit)
         nc_add_variable(ds, val=rg, dimension=('range',), var_name='range', type=np.float32,
-                        long_name='Range from antenna to the centre of each range gate', units='m')
+                        long_name='Range from antenna to the centre of each range gate', units='km')
         nc_add_variable(ds, val=data['Azm']['var'], dimension=('time',), var_name='azimuth', type=np.float32,
                         long_name='Azimuth angle from north', units='degree')
         nc_add_variable(ds, val=data['Elv']['var'], dimension=('time',), var_name='elevation', type=np.float32,
@@ -509,7 +508,6 @@ def rpg_radar2nc_eurec4a(data, path, **kwargs):
 
     h.make_dir(path)
     site_name = kwargs['site'] if 'site' in kwargs else 'no-site'
-    hour_bias = kwargs['hour_bias'] if 'hour_bias' in kwargs else 0
     cn_version = kwargs['version'] if 'version' in kwargs else 'pyhon'
     ds_name = f'{path}/{site_name}_cloudradar_{h.ts_to_dt(data["Ze"]["ts"][0]):%Y%m%d}.nc'
     ncvers = '4'
@@ -607,12 +605,12 @@ def rpg_radar2nc_eurec4a(data, path, **kwargs):
         # time and range variable
         # convert to time since start of year
         if cn_version == 'python':
-            ts = np.subtract(data['Ze']['ts'], datetime.datetime(2020, 1, 1, hour_bias, 0, 0).timestamp())
+            ts = np.subtract(data['Ze']['ts'], datetime.datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc).timestamp())
             ts_str = 'seconds since 2020-01-01 00:00:00 UTC'
             ts_unit = f'seconds since 2020-01-01 00:00:00 +00:00 (UTC)'
             rg = data['Ze']['rg']
         elif cn_version == 'matlab':
-            ts = np.subtract(data['Ze']['ts'], datetime.datetime(2001, 1, 1, hour_bias, 0, 0).timestamp())
+            ts = np.subtract(data['Ze']['ts'], datetime.datetime(2001, 1, 1, 0, 0, 0, tzinfo=timezone.utc).timestamp())
             ts_str = 'Seconds since 1st January 2001 00:00 UTC'
             ts_unit = 'sec'
             rg = data['Ze']['rg']
