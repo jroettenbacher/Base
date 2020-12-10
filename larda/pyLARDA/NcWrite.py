@@ -1,5 +1,3 @@
-import subprocess
-
 import datetime
 from datetime import timezone
 import netCDF4
