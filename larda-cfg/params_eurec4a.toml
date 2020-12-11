@@ -30,7 +30,7 @@
     variable_name = 'ZE'
     var_unit = 'mm^6/m^3'
     colormap = 'jet'
-    var_lims = [ -40, 20 ]
+    var_lims = [ 1.0e-5, 1.0e2 ]
   [LIMRAD94.params.VEL]
     variable_name = 'MeanVel'
     colormap = 'jet'
@@ -81,7 +81,7 @@
   [LIMRAD94.params.ldr]
     variable_name = 'SLDR'
     colormap = 'LDR'
-    var_lims = []
+    var_lims = [-30, 0]
   [LIMRAD94.params.LWP]
     variable_name = 'LWP'
     ncreader = 'time'
@@ -118,8 +118,19 @@
     variable_name = 'MaxVel'
     ncreader = 'aux'
     var_lims = []
+  [LIMRAD94.params.ChirpFFTSize]
+    which_path = 'l0'
+    variable_name = 'ChirpFFTSize'
+    ncreader = 'aux'
+    var_unit = '-'
+    var_lims = []
   [LIMRAD94.params.AvgNum]
     variable_name = 'AvgNum'
+    ncreader = 'aux'
+    var_unit = '-'
+    var_lims = []
+  [LIMRAD94.params.DoppLen]
+    variable_name = 'DoppLen'
     ncreader = 'aux'
     var_unit = '-'
     var_lims = []
@@ -128,21 +139,10 @@
     ncreader = 'aux'
     var_unit = 's'
     var_lims = [0, 2]
-  [LIMRAD94.params.DoppLen]
-    variable_name = 'DoppLen'
-    ncreader = 'aux'
-    var_unit = '-'
-    var_lims = []
   [LIMRAD94.params.RangeRes]
     variable_name = 'RangeRes'
     ncreader = 'aux'
     var_lims = []
-  [LIMRAD94.params.ChirpFFTSize]
-    which_path = 'l0'
-    variable_name = 'ChirpFFTSize'
-    ncreader = 'aux'
-    var_lims = []
-    var_unit = '-'
   [LIMRAD94.params.Inc_El]
     variable_name = 'Inc_El'
     ncreader = 'time'
@@ -181,14 +181,74 @@
     var_unit = 'm'
     ncreader = 'aux'
     var_lims = []
+  [LIMRAD94.params.C1ReVHSpec]
+    which_path = 'l0'
+    variable_name = 'C1ReVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C1Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C2ReVHSpec]
+    which_path = 'l0'
+    variable_name = 'C2ReVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C2Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C3ReVHSpec]
+    which_path = 'l0'
+    variable_name = 'C3ReVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C3Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C1ImVHSpec]
+    which_path = 'l0'
+    variable_name = 'C1ImVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C1Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C2ImVHSpec]
+    which_path = 'l0'
+    variable_name = 'C2ImVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C2Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C3ImVHSpec]
+    which_path = 'l0'
+    variable_name = 'C3ImVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C3Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
   [LIMRAD94.params.C1HSpec]
     which_path = 'l0'
     variable_name = 'C1HSpec'
     vel_ext_variable = ['MaxVel','0']
     range_variable = 'C1Range'
     ncreader = 'spec'
-    var_unit = 'Z m-1 s'
-    var_lims = [-50, 20]
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
     var_conversion = 'none'
   [LIMRAD94.params.C2HSpec]
@@ -197,8 +257,8 @@
     vel_ext_variable = ['MaxVel','1']
     range_variable = 'C2Range'
     ncreader = 'spec'
-    var_unit = 'Z m-1 s'
-    var_lims = [-50, 20]
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
     var_conversion = 'none'
   [LIMRAD94.params.C3HSpec]
@@ -207,8 +267,8 @@
     vel_ext_variable = ['MaxVel','2']
     range_variable = 'C3Range'
     ncreader = 'spec'
-    var_unit = 'Z m-1 s'
-    var_lims = [-50, 20]
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
     var_conversion = 'none'
   [LIMRAD94.params.C1VSpec]
@@ -217,8 +277,8 @@
     vel_ext_variable = ['MaxVel','0']
     range_variable = 'C1Range'
     ncreader = 'spec'
-    var_unit = 'Z m-1 s'
-    var_lims = [-50, 20]
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
     var_conversion = 'none'
   [LIMRAD94.params.C2VSpec]
@@ -227,8 +287,8 @@
     vel_ext_variable = ['MaxVel','1']
     range_variable = 'C2Range'
     ncreader = 'spec'
-    var_unit = 'Z m-1 s'
-    var_lims = [-50, 20]
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
     var_conversion = 'none'
   [LIMRAD94.params.C3VSpec]
@@ -237,8 +297,8 @@
     vel_ext_variable = ['MaxVel','2']
     range_variable = 'C3Range'
     ncreader = 'spec'
-    var_unit = 'Z m-1 s'
-    var_lims = [-50, 20]
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
     var_conversion = 'none'
   [LIMRAD94.params.HSpec]
@@ -247,68 +307,96 @@
     vel_ext_variable = ['MaxVel','0']
     range_variable = 'Range'
     ncreader = 'spec_limrad94'
-    var_unit = 'Z m-1 s'
-    var_lims = [-50, 20]
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
-    var_conversion = 'divideby2'
+    var_conversion = 'keepNyquist'
+    #var_conversion = 'divideby2'
   [LIMRAD94.params.VSpec]
     which_path = 'l0'
     variable_name = 'VSpec'
     vel_ext_variable = ['MaxVel','0']
     range_variable = 'Range'
     ncreader = 'spec_limrad94'
-    var_unit = 'Z m-1 s'
-    var_lims = [-50, 20]
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
-    var_conversion = 'divideby2'
+    var_conversion = 'keepNyquist'
+  [LIMRAD94.params.ReVHSpec]
+    which_path = 'l0'
+    variable_name = 'ReVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'Range'
+    ncreader = 'spec_limrad94'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'keepNyquist'
+  [LIMRAD94.params.ImVHSpec]
+    which_path = 'l0'
+    variable_name = 'ImVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'Range'
+    ncreader = 'spec_limrad94'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'keepNyquist'
   [LIMRAD94.params.C1VNoisePow]
     which_path = 'l0'
     variable_name = 'C1VNoisePow'
+    range_variable = 'C3Range'
     var_unit = 'm^6 m^-3'
-    var_lims = [-50, 20]
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
   [LIMRAD94.params.C2VNoisePow]
     which_path = 'l0'
     variable_name = 'C2VNoisePow'
+    range_variable = 'C3Range'
     var_unit = 'm^6 m^-3'
-    var_lims = [-50, 20]
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
   [LIMRAD94.params.C3VNoisePow]
     which_path = 'l0'
     variable_name = 'C3VNoisePow'
+    range_variable = 'C3Range'
     var_unit = 'm^6 m^-3'
-    var_lims = [-50, 20]
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
   [LIMRAD94.params.VNoisePow]
     which_path = 'l0'
     variable_name = 'VNoisePow'
+    range_variable = 'C3Range'
     var_unit = 'mm^6/m^3'
-    colormap = 'jet'
-    var_lims = [ -50, 20 ]
+    colormap = 'cloudnet_jet'
+    var_lims = [ -60, 20 ]
   [LIMRAD94.params.C1HNoisePow]
     which_path = 'l0'
     variable_name = 'C1HNoisePow'
+    range_variable = 'C3Range'
     var_unit = 'm^6 m^-3'
-    var_lims = [-50, 20]
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
   [LIMRAD94.params.C2HNoisePow]
     which_path = 'l0'
     variable_name = 'C2HNoisePow'
+    range_variable = 'C3Range'
     var_unit = 'm^6 m^-3'
-    var_lims = [-50, 20]
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
   [LIMRAD94.params.C3HNoisePow]
     which_path = 'l0'
     variable_name = 'C3HNoisePow'
+    range_variable = 'C3Range'
     var_unit = 'm^6 m^-3'
-    var_lims = [-50, 20]
+    var_lims = [1.0e-6, 1.0e2]
     rg_unit = 'm'
   [LIMRAD94.params.HNoisePow]
     which_path = 'l0'
     variable_name = 'HNoisePow'
     var_unit = 'mm^6/m^3'
     colormap = 'jet'
-    var_lims = [-50, 20]
+    var_lims = [1.0e-6, 1.0e2]
 
 [LIMRAD94_cn_input]
   [LIMRAD94_cn_input.path.nc]
