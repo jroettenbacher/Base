@@ -30,7 +30,7 @@
     variable_name = 'ZE'
     var_unit = 'mm^6/m^3'
     colormap = 'jet'
-    var_lims = [-60, 20]
+    var_lims = [ 1.0e-5, 1.0e2 ]
   [LIMRAD94.params.VEL]
     variable_name = 'MeanVel'
     colormap = 'jet'
