@@ -866,7 +866,8 @@
     which_path = 'lv2_clwvi'
     variable_name = 'flag'
     ncreader = 'time'
-    #var_lims = [-25, 500]
+    var_unit = 'binary'
+    var_lims = [0, 8]
   [HATPRO.params.ABSH]
     which_path = 'lv2_hua'
     variable_name = 'hua'
