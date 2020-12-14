@@ -29,7 +29,7 @@ larda = pyLARDA.LARDA().connect('eurec4a')
 # set date
 dates = pd.date_range(dt.date(2020, 1, 17), dt.date(2020, 2, 29))
 for begin_dt in dates:
-    begin_dt = dt.datetime(2020, 2, 16)
+    # begin_dt = dt.datetime(2020, 2, 16)
     end_dt = begin_dt + dt.timedelta(1)
     time_interval = [begin_dt, end_dt]
 
@@ -38,6 +38,10 @@ for begin_dt in dates:
     hatpro_flag = larda.read("HATPRO", "flag", time_interval)
     hatpro_lwp['var'] = hatpro_lwp['var'] * 1000  # conversion to g/m2
     hatpro_lwp['var_unit'] = 'g m-2'
+    # use data of flag, ignore mask set by larda, necessary at days where no flag was set
+    if isinstance(hatpro_flag['var'], np.ma.MaskedArray):
+        hatpro_flag['var'] = np.copy(hatpro_flag['var'].data)
+        hatpro_flag['mask'] = ~hatpro_flag['mask']
 
     # interpolate HATPRO data on radar time
     hatpro_lwp_ip = trans.interpolate1d(hatpro_lwp, new_time=radar_lwp['ts'])
@@ -71,11 +75,13 @@ for begin_dt in dates:
                      markersize=1, alpha=h_pdata['alpha'], label="LWP HATPRO")
     ax1.plot(matplotlib.dates.date2num(r_pdata['dt'][:]), r_pdata['var'][:], '.',
              markersize=1, alpha=r_pdata['alpha'], label="LWP LIMRAD94")
-    for x in matplotlib.dates.date2num(vlines[:-1]):
-        ax1.axvline(x, alpha=0.5, color='red')
-    # add the last line with label to add to legend
-    ax1.axvline(vlines[-1], alpha=0.5, color='red', label='HATPRO flag')
-    ax1.legend()
+    # check if a flag is available for this day
+    if len(vlines) > 0:
+        for x in matplotlib.dates.date2num(vlines[:-1]):
+            ax1.axvline(x, alpha=0.5, color='red')
+        # add the last line with label to add to legend
+        ax1.axvline(vlines[-1], alpha=0.5, color='red', label='HATPRO flag')
+        ax1.legend()
     ax1, _ = trans._format_axis(fig, ax1, line1, h_pdata)
     ax1.grid()
     ax1.set_xlabel("")
@@ -89,4 +95,3 @@ for begin_dt in dates:
     plt.savefig(f"../plots/eurec4a_comp_LWP/{figname}")
     plt.close()
     logger.info(f"Saved {figname}")
-
