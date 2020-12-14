@@ -30,17 +30,17 @@
     variable_name = 'ZE'
     var_unit = 'mm^6/m^3'
     colormap = 'jet'
-    var_lims = [ 1.0e-5, 1.0e2 ]
+    var_lims = [-60, 20]
   [LIMRAD94.params.VEL]
     variable_name = 'MeanVel'
     colormap = 'jet'
     var_unit = 'm/s'
-    var_lims = [-4, 3]
+    var_lims = [-7, 7]
   [LIMRAD94.params.sw]
     variable_name = 'SpecWidth'
     colormap = 'jet'
     var_unit = 'm/s'
-    var_lims = [0.01, 2.0]
+    var_lims = [0.01, 3.0]
   [LIMRAD94.params.skew]
     variable_name = 'Skew'
     colormap = 'jet'
