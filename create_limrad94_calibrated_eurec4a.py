@@ -92,9 +92,6 @@ if __name__ == '__main__':
     radarZSpec = sp.load_spectra_rpgfmcw94(larda, TIME_SPAN_, **limrad94_settings)
     radarMoments = sp.spectra2moments(radarZSpec, larda.connectors['LIMRAD94'].system_info['params'], **limrad94_settings)
 
-    import matplotlib.pyplot as plt
-    fig, ax = pyLARDA.Transformations.plot_timeheight2(radarMoments['skew'])
-    plt.savefig("tmp/plot.png")
     # load additional variables
     radarMoments.update({
         var: larda.read("LIMRAD94", var, TIME_SPAN_, range_) for var in [
