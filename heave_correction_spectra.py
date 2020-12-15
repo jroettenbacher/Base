@@ -213,10 +213,10 @@ end_dt = dt.datetime(2020, 2, 16, 23, 59, 59)
 plot_range = [0, 'max']
 plot_path = "/projekt1/remsens/work/jroettenbacher/plots/heave_correction_spectra"
 mdv = larda.read('LIMRAD94_tmp', 'Vel', [begin_dt, end_dt], plot_range)
-mdv['var_lims'] = [-7, 7]
+mdv['var_lims'] = [-6, 4]
 mdv_uncor = larda.read('LIMRAD94_cni', 'Vel', [begin_dt, end_dt], plot_range)
-mdv_uncor['var_lims'] = [-7, 7]
-hours = [1, 0.5, 0.25]  # different time range
+mdv_uncor['var_lims'] = [-6, 4]
+hours = [0.15]  # different time range
 max_ranges = [3000]  # different height range
 # # testing
 # hour = hours[-1]
@@ -229,8 +229,7 @@ for var, name in zip([mdv, mdv_uncor], ['spectra_corrected', 'uncorrected']):
             fig, _ = pyLARDA.Transformations.plot_timeheight(var, rg_converter=False, title=True,
                                                              time_interval=[begin_dt, end_dt_plot],
                                                              range_interval=plot_range)
-            fig_name = f"{plot_path}/{begin_dt:%Y%m%d_%H%M}-{end_dt_plot:%Y%m%d_%H%M}_{max_range/1000:.0f}km_MDV_{name}.png"
+            fig_name = f"{plot_path}/{begin_dt:%Y%m%d_%H%M}-{end_dt_plot:%Y%m%d_%H%M}_{max_range/1000:.0f}km_MDV_{name}_no_timeshift.png"
             fig.savefig(fig_name, dpi=250)
             plt.close()
             print(f'figure saved :: {fig_name}')
-
