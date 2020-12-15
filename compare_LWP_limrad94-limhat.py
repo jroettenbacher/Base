@@ -71,26 +71,35 @@ for begin_dt in dates:
 
     # make plot
     fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=[10, 6])
-    line1 = ax1.plot(matplotlib.dates.date2num(h_pdata['dt'][:]), h_pdata['var'][:], '.',
+    dot1, = ax1.plot(matplotlib.dates.date2num(h_pdata['dt'][:]), h_pdata['var'][:], '.',
                      markersize=1, alpha=h_pdata['alpha'], label="LWP HATPRO")
-    ax1.plot(matplotlib.dates.date2num(r_pdata['dt'][:]), r_pdata['var'][:], '.',
-             markersize=1, alpha=r_pdata['alpha'], label="LWP LIMRAD94")
+    dot2, = ax1.plot(matplotlib.dates.date2num(r_pdata['dt'][:]), r_pdata['var'][:], '.',
+                     markersize=1, alpha=r_pdata['alpha'], label="LWP LIMRAD94")
+
     # check if positions for vertical lines are available
     if len(vlines) > 0:
         for x in matplotlib.dates.date2num(vlines[:-1]):
             ax1.axvline(x, alpha=0.1, color='red')
         # add the last line with label to add to legend
-        ax1.axvline(vlines[-1], alpha=0.1, color='red', label='HATPRO flag')
+        vline = ax1.axvline(vlines[-1], alpha=0.1, color='red', label='HATPRO flag')
 
-    ax1.legend(bbox_to_anchor=(1.01, 1), loc='upper left')
-    ax1, _ = trans._format_axis(fig, ax1, line1, h_pdata)
+    # generate more visible legend entries
+    hatpro_lgd, = plt.plot([], '.', markersize=5, label=dot1.get_label(), color=dot1.get_color())
+    limrad_lgd, = plt.plot([], '.', markersize=5, label=dot2.get_label(), color=dot2.get_color())
+    flag_lgd = Line2D([], [], label=vline.get_label(), color=vline.get_color())
+
+    # add legends and aesthetics
+    ax1.legend(handles=[hatpro_lgd, limrad_lgd, flag_lgd], bbox_to_anchor=(1.01, 1), loc='upper left')
+    ax1, _ = trans._format_axis(fig, ax1, dot1, h_pdata)
     ax1.grid()
-    ax1.set_xlabel("")
-    line2 = ax2.plot(matplotlib.dates.date2num(diff_pdata['dt'][:]), diff_pdata['var'][:], 'g',
-                     label='LIMRAD94 - HATPRO')
-    ax2.legend(bbox_to_anchor=(1.01, 0.7))
-    ax2, _ = trans._format_axis(fig, ax2, line2, diff_pdata)
+    ax1.set_xlabel("")  # remove x label
+
+    # plot difference between LIMRAD and HATPRO
+    line1, = ax2.plot(matplotlib.dates.date2num(diff_pdata['dt'][:]), diff_pdata['var'][:], 'g',
+                      label='Difference\nLIMRAD94 - HATPRO')
+    ax2, _ = trans._format_axis(fig, ax2, line1, diff_pdata)
     ax2.grid()
+    ax2.legend(handles=[line1], bbox_to_anchor=(1.01, 1.0))
     fig.suptitle(title, size=16)
     fig.tight_layout()
     figname = f"RV-Meteor_LWP-comp_LIMRAD94-HATPRO_{begin_dt:%Y%m%d}.png"
