@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
     # convert from mm6 m-3 to dBZ
     radarMoments['Ze']['var'] = h.lin2z(radarMoments['Ze']['var'])
-    radarMoments['Ze']['var_unit'] = 'dBZ'
+    radarMoments['Ze'].update({'var_unit': "dBZ", 'var_lims': [-60, 20]})
 
     # read in lat lon time series from RV Meteor
     dship = sp.read_dship(begin_dt.strftime("%Y%m%d"), cols=[0, 4, 5])
