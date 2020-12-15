@@ -86,10 +86,13 @@ for begin_dt in dates:
     # generate more visible legend entries
     hatpro_lgd, = plt.plot([], '.', markersize=5, label=dot1.get_label(), color=dot1.get_color())
     limrad_lgd, = plt.plot([], '.', markersize=5, label=dot2.get_label(), color=dot2.get_color())
-    flag_lgd = Line2D([], [], label=vline.get_label(), color=vline.get_color())
-
-    # add legends and aesthetics
-    ax1.legend(handles=[hatpro_lgd, limrad_lgd, flag_lgd], bbox_to_anchor=(1.01, 1), loc='upper left')
+    try:
+        flag_lgd = Line2D([], [], label=vline.get_label(), color=vline.get_color())
+        # add legends and aesthetics
+        ax1.legend(handles=[hatpro_lgd, limrad_lgd, flag_lgd], bbox_to_anchor=(1.01, 1), loc='upper left')
+    except NameError:
+        logger.debug("No flagged data was found")
+        ax1.legend(handles=[hatpro_lgd, limrad_lgd], bbox_to_anchor=(1.01, 1), loc='upper left')
     ax1, _ = trans._format_axis(fig, ax1, dot1, h_pdata)
     ax1.grid()
     ax1.set_xlabel("")  # remove x label
