@@ -25,7 +25,7 @@ save_fig = True
 # if you choose dates before 27.01.2020 Seapath resolution was only 1Hz, adjust filename, expect errors when trying
 # to read in files from both resolutions
 begin_dt = datetime.datetime(2020, 1, 17, 0, 0, 0)
-end_dt = datetime.datetime(2020, 2, 1, 23, 59, 59)
+end_dt = datetime.datetime(2020, 2, 28, 23, 59, 59)
 
 ########################################################################################################################
 # Data Read In
