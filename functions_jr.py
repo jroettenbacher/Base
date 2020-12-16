@@ -128,7 +128,7 @@ def read_device_action_log(path="/projekt2/remsens/data_new/site-campaign/rv_met
 def read_seapath(date, path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP",
                  **kwargs):
     """
-    Read in Seapath measurements from RV Meteor from .dat files to a pandas.DataFrame
+    Read in daily Seapath measurements from RV Meteor from .dat files to a pandas.DataFrame
     Args:
         date (datetime.datetime): object with date of current file
         path (str): path to seapath files
