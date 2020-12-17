@@ -42,8 +42,8 @@ for f in all_files:
     date_from_file = datetime.datetime.strptime(match.group('date'), '%Y%m%d')
     if begin_dt <= date_from_file <= end_dt:
         file_list.append(f)
-seapath = pd.concat(pd.read_csv(f, encoding='windows-1252', sep="\t", skiprows=(1, 2), index_col='date time')
-                    for f in file_list)
+seapath = pd.concat(pd.read_csv(f, encoding='windows-1252', sep="\t", skiprows=(1, 2), index_col='date time',
+                                na_values=-999) for f in file_list)
 seapath.index = pd.to_datetime(seapath.index, infer_datetime_format=True)
 seapath.index.name = 'datetime'
 seapath.columns = ['Heading [°]', 'Heave [m]', 'Pitch [°]', 'Roll [°]']
