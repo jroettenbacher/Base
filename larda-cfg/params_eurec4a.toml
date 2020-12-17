@@ -867,7 +867,7 @@
     variable_name = 'flag'
     ncreader = 'time'
     var_unit = 'binary'
-    var_lims = [0, 2048]
+    var_lims = [0, 512]
   [HATPRO.params.ABSH]
     which_path = 'lv2_hua'
     variable_name = 'hua'
