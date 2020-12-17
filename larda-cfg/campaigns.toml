@@ -70,7 +70,7 @@
     location = "Lindenberg, MOL"
     coordinates = [52.209433, 14.128580]
     altitude = 104
-    duration = [["20200714", "today"]]
+    duration = [["20200714", "20201020"]]
     systems = ["LIMRAD94",  "HATPRO", "LIMCUBE", "MIRA", "HATPRO-DWD", "CEILO-DWD", "DL-DWD", "LIMRAD24"]
     mira_azi_zero = -999
     cloudnet_stationname = 'lindenberg'
