@@ -26,6 +26,9 @@ logger.addHandler(logging.StreamHandler())
 # connect campaign
 larda = pyLARDA.LARDA().connect('eurec4a')
 
+# set plotting options
+y_lims = None
+
 # set date
 dates = pd.date_range(dt.date(2020, 1, 19), dt.date(2020, 2, 28))
 for begin_dt in dates:
@@ -41,15 +44,18 @@ for begin_dt in dates:
 
     # interpolate HATPRO data on radar time
     hatpro_lwp_ip = trans.interpolate1d(hatpro_lwp, new_time=radar_lwp['ts'])
-    # check if a flag is set on that day
-    if any(hatpro_flag['var'] > 8):
-        hatpro_flag_ip = trans.interpolate1d(hatpro_flag, new_time=radar_lwp['ts'])
-
+    # check for HATPRO quality flags
+    rainflag = hatpro_flag['var'] == 8  # rain flag
+    # flag = hatpro_flag['var'] > 8  # any other flag
+    if any(rainflag):
+        # do not interpolate flags but rather chose closest point to radar time step
+        hatpro_flag_ip = h.select_closest(hatpro_flag, radar_lwp['ts'])
+        rainflag_ip = hatpro_flag_ip['var'] == 8  # create rain flag with radar time
         # mask flagged data
-        hatpro_lwp_ip['var'] = np.ma.masked_where(hatpro_flag_ip['var'] > 8, hatpro_lwp_ip['var'])
-        radar_lwp['var'] = np.ma.masked_where(hatpro_flag_ip['var'] > 8, radar_lwp['var'])
+        hatpro_lwp_ip['var'] = np.ma.masked_where(rainflag_ip, hatpro_lwp_ip['var'])
+        radar_lwp['var'] = np.ma.masked_where(rainflag_ip, radar_lwp['var'])
         # get position of flags for vertical lines in plot
-        vlines = [h.ts_to_dt(t) for t in hatpro_flag_ip['ts'][hatpro_flag_ip['var'] > 8]]
+        vlines = [h.ts_to_dt(t) for t in hatpro_flag_ip['ts'][rainflag_ip]]
     else:
         vlines = []
 
@@ -81,7 +87,7 @@ for begin_dt in dates:
         for x in matplotlib.dates.date2num(vlines[:-1]):
             ax1.axvline(x, alpha=0.1, color='red')
         # add the last line with label to add to legend
-        vline = ax1.axvline(vlines[-1], alpha=0.1, color='red', label='HATPRO flag')
+        vline = ax1.axvline(vlines[-1], alpha=0.1, color='red', label='HATPRO rain flag')
 
     # generate more visible legend entries
     hatpro_lgd, = plt.plot([], '.', markersize=5, label=dot1.get_label(), color=dot1.get_color())
@@ -93,6 +99,10 @@ for begin_dt in dates:
     except NameError:
         logger.debug("No flagged data was found")
         ax1.legend(handles=[hatpro_lgd, limrad_lgd], bbox_to_anchor=(1.01, 1), loc='upper left')
+
+    # format axes
+    # set new y_limits through var_lims
+    h_pdata.update(var_lims=y_lims) if y_lims is not None else h_pdata
     ax1, _ = trans._format_axis(fig, ax1, dot1, h_pdata)
     ax1.grid()
     ax1.set_xlabel("")  # remove x label
@@ -103,6 +113,7 @@ for begin_dt in dates:
     ax2, _ = trans._format_axis(fig, ax2, line1, diff_pdata)
     ax2.grid()
     ax2.legend(handles=[line1], bbox_to_anchor=(1.01, 1.0))
+
     fig.suptitle(title, size=16)
     fig.tight_layout()
     figname = f"RV-Meteor_LWP-comp_LIMRAD94-HATPRO_{begin_dt:%Y%m%d}.png"
