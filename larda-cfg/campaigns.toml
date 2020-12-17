@@ -75,7 +75,7 @@
     mira_azi_zero = -999
     cloudnet_stationname = 'lindenberg'
     param_config_file = 'params_lindenberg.toml'
-    connectordump = '/home/remsens01/code/larda3/larda-connectordump'
+    connectordump = '/projekt1/remsens/work/jroettenbacher/Base/larda-connectordump'
 
 
 
