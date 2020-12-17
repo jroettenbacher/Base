@@ -24,13 +24,16 @@ logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler())
 
 # connect campaign
-larda = pyLARDA.LARDA().connect('eurec4a')
-
+campaign = "lindenberg_mol"
+larda = pyLARDA.LARDA().connect(campaign)
+begin = dt.datetime.strptime(larda.camp.VALID_DATES[0][0], "%Y%m%d")
+end = dt.datetime.strptime(larda.camp.VALID_DATES[0][1], "%Y%m%d")
 # set plotting options
+outpath = f"../plots/{campaign}_comp_LWP"
 y_lims = None
 
 # set date
-dates = pd.date_range(dt.date(2020, 1, 19), dt.date(2020, 2, 28))
+dates = pd.date_range(begin, end)
 for begin_dt in dates:
     # begin_dt = dt.datetime(2020, 1, 19, 0, 0, 5)
     end_dt = begin_dt + dt.timedelta(0.99999)
@@ -73,7 +76,7 @@ for begin_dt in dates:
     diff_pdata['dt'], diff_pdata['var'] = trans._masked_jumps(diff_pdata)
 
     # plot title
-    title = f"Liquid Water Path Comparison LIMRAD94 vs. HATPRO EUREC4A {begin_dt:%Y-%m-%d}"
+    title = f"Liquid Water Path Comparison LIMRAD94 vs. HATPRO {campaign.capitalize()} {begin_dt:%Y-%m-%d}"
 
     # make plot
     fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=[10, 6])
@@ -116,7 +119,11 @@ for begin_dt in dates:
 
     fig.suptitle(title, size=16)
     fig.tight_layout()
-    figname = f"RV-Meteor_LWP-comp_LIMRAD94-HATPRO_{begin_dt:%Y%m%d}.png"
-    plt.savefig(f"../plots/eurec4a_comp_LWP/{figname}")
+
+    # define output name
+    location = radar_lwp['paraminfo']['location']
+    name_append = "" if y_lims is None else "_zoom"
+    figname = f"{location}_LWP-comp_LIMRAD94-HATPRO_{begin_dt:%Y%m%d}{name_append}.png"
+    plt.savefig(f"{outpath}/{figname}")
     plt.close()
     logger.info(f"Saved {figname}")
