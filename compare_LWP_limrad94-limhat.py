@@ -32,7 +32,7 @@ y_lims = None
 # set date
 dates = pd.date_range(dt.date(2020, 1, 19), dt.date(2020, 2, 28))
 for begin_dt in dates:
-    # begin_dt = dt.datetime(2020, 2, 16, 0, 0, 5)
+    # begin_dt = dt.datetime(2020, 1, 19, 0, 0, 5)
     end_dt = begin_dt + dt.timedelta(0.99999)
     time_interval = [begin_dt, end_dt]
 
@@ -51,9 +51,9 @@ for begin_dt in dates:
         # do not interpolate flags but rather chose closest point to radar time step
         hatpro_flag_ip = h.select_closest(hatpro_flag, radar_lwp['ts'])
         rainflag_ip = hatpro_flag_ip['var'] == 8  # create rain flag with radar time
-        # mask flagged data
-        hatpro_lwp_ip['var'] = np.ma.masked_where(rainflag_ip, hatpro_lwp_ip['var'])
-        radar_lwp['var'] = np.ma.masked_where(rainflag_ip, radar_lwp['var'])
+        # mask flagged data, do not use masked array rainflag but the data of it
+        hatpro_lwp_ip['var'] = np.ma.masked_where(rainflag_ip.data, hatpro_lwp_ip['var'])
+        radar_lwp['var'] = np.ma.masked_where(rainflag_ip.data, radar_lwp['var'])
         # get position of flags for vertical lines in plot
         vlines = [h.ts_to_dt(t) for t in hatpro_flag_ip['ts'][rainflag_ip]]
     else:
@@ -102,7 +102,7 @@ for begin_dt in dates:
 
     # format axes
     # set new y_limits through var_lims
-    h_pdata.update(var_lims=y_lims) if y_lims is not None else h_pdata
+    h_pdata['var_lims'] = y_lims if y_lims is not None else h_pdata['var_lims']
     ax1, _ = trans._format_axis(fig, ax1, dot1, h_pdata)
     ax1.grid()
     ax1.set_xlabel("")  # remove x label
