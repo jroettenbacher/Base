@@ -1,0 +1,238 @@
+#
+#[CLOUDNET]
+#  [CLOUDNET.path.categorize]
+#    # mastering regex (here to exclude ppi and stuff)
+#    base_dir = '/Users/hanni/Documents/BARBADOS/products/categorize/'
+#    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+#    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+#  [CLOUDNET.path.productsiwc]
+#    # mastering regex (here to exclude ppi and stuff)
+#    base_dir = '/Users/hanni/Documents/BARBADOS/products/iwc-Z-T-method/'
+#    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+#    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+#  [CLOUDNET.path.productsclass]
+#    # mastering regex (here to exclude ppi and stuff)
+#    base_dir = '/Users/hanni/Documents/BARBADOS/products/BCO/classification/'
+#    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+#    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+#  [CLOUDNET.path.productslwcs]
+#    # mastering regex (here to exclude ppi and stuff)
+#    base_dir = '/Users/hanni/Documents/BARBADOS/products/lwc-scaled-adiabatic/'
+#    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+#    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+#  [CLOUDNET.path.productslwc]
+#    # mastering regex (here to exclude ppi and stuff)
+#    base_dir = '/Users/hanni/Documents/BARBADOS/products/lwc-adiabatic-method/'
+#    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+#    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+#  [CLOUDNET.generic]
+#    # this general settings need to be handed down to the params
+#    time_variable = 'time'
+#    range_variable = 'height'
+#    colormap = "gist_rainbow"
+#    time_conversion = 'beginofday'
+#    range_conversion = 'sealevel2range'
+#    var_conversion = 'none'
+#    ncreader = 'timeheight'
+#    # if identifier is given read from ncfile, else define here
+#    identifier_rg_unit = 'units'
+#    identifier_var_unit = 'units'
+#    identifier_var_lims = 'plot_range'
+#    identifier_fill_value = 'missing_value'
+#    identifier_history = 'history'
+#    #var_lims = [-40, 20]
+#  [CLOUDNET.params.Z]
+#    variable_name = 'Z'
+#    which_path = 'categorize'
+#    var_conversion = 'z2lin'
+#  [CLOUDNET.params.VEL]
+#    variable_name = 'v'
+#    which_path = 'categorize'
+#    var_conversion = 'none'
+#    colormap = 'carbonne'
+#    var_lims = [-3, 3]
+#  [CLOUDNET.params.WIDTH]
+#    variable_name = 'width'
+#    which_path = 'categorize'
+#  [CLOUDNET.params.LDR]
+#    variable_name = 'ldr'
+#    which_path = 'categorize'
+#    var_conversion = 'z2lin'
+#  [CLOUDNET.params.T]
+#    variable_name = 'temperature'
+#    which_path = 'categorize'
+#    range_variable = 'model_height'
+#    interp_rg_join = true
+#  [CLOUDNET.params.q]
+#    variable_name = 'specific_humidity'
+#    which_path = 'categorize'
+#    range_variable = 'model_height'
+#  [CLOUDNET.params.P]
+#    variable_name = 'pressure'
+#    which_path = 'categorize'
+#    range_variable = 'model_height'
+#  [CLOUDNET.params.UWIND]
+#    variable_name = 'uwind'
+#    which_path = 'categorize'
+#    range_variable = 'model_height'
+#  [CLOUDNET.params.VWIND]
+#    variable_name = 'vwind'
+#    which_path = 'categorize'
+#    range_variable = 'model_height'
+#  [CLOUDNET.params.beta]
+#    variable_name = 'beta'
+#    which_path = 'categorize'
+#    colormap = 'cloudnet_jet'
+#  [CLOUDNET.params.depol]
+#    variable_name = 'lidar_depolarisation'
+#    which_path = 'categorize'
+#    var_unit = '%'
+#    var_lims = [0.0, 0.2]
+#    colormap = 'cloudnet_jet'
+#  [CLOUDNET.params.detection_status]
+#    variable_name = 'detection_status'
+#    which_path = 'productsclass'
+#    var_unit = ""
+#    var_lims = [0, 10]
+#    colormap = 'cloudnet_detection_status'
+#    fill_value = -99
+#    identifier_var_def = 'definition'
+#  [CLOUDNET.params.IWC]
+#    variable_name = 'iwc'
+#    which_path = 'productsiwc'
+#  [CLOUDNET.params.CLASS]
+#    variable_name = 'target_classification'
+#    which_path = 'productsclass'
+#    var_unit = ""
+#    var_lims = [0, 10]
+#    colormap = 'cloudnet_target_new'
+#    fill_value = -99
+#    identifier_var_def = 'definition'
+#    interp_rg_join = true
+#  [CLOUDNET.params.LWP]
+#    variable_name = 'lwp'
+#    which_path = 'categorize'
+#    ncreader = 'time'
+#  [CLOUDNET.params.LWC]
+#    variable_name = 'lwc_adiabatic'
+#    which_path = 'productslwc'
+#  [CLOUDNET.params.LWC_S]
+#    variable_name = 'lwc'
+#    which_path = 'productslwcs'
+#
+#[WBAND]
+#  [WBAND.path.nc]
+#    base_dir = '/Users/hanni/Documents/BARBADOS/products/BCO/W-Band_Radar/'
+#    matching_subdirs = '(\d{6}\/.*W-Band__Spectral_Moments__\d{8}.nc)'
+#    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
+#  [WBAND.generic]
+#    time_variable = 'time'
+#    range_variable = 'range'
+#    colormap = "gist_rainbow"
+#    which_path = 'nc'
+#    time_conversion = 'since19700101'
+#    range_conversion = 'none'
+#    var_conversion = 'none'
+#    ncreader = 'timeheight'
+#    # if identifier is given read from ncfile, else define here
+#    identifier_var_unit = 'Units'
+#    rg_unit = 'm'
+#    fill_value = -999.0
+#  [WBAND.params.Ze]
+#    variable_name = 'Ze'
+#    var_unit = 'mm^6/m^3'
+#    colormap = 'jet'
+#    var_lims = [ -40, 20 ]
+
+[KATRIN]
+  [KATRIN.path.nc]
+    base_dir = '/Users/willi/code/python/local_stuff/johanna_ro/Ka-Band/KATRIN/'
+    matching_subdirs = '(\d{6}\/.*\d{6}.nc)'
+    date_in_filename = '__(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})'
+  [KATRIN.generic]
+    time_variable = 'time'
+    range_variable = 'range'
+    colormap = "gist_rainbow"
+    which_path = 'nc'
+    time_conversion = 'since19700101'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_var_unit = 'Units'
+    rg_unit = 'm'
+    fill_value = -999.0
+  [KATRIN.params.Ze]
+    variable_name = 'Ze'
+    var_unit = 'mm^6/m^3'
+    colormap = 'jet'
+    var_lims = [ -40, 20 ]
+
+#
+#[MMCR__MBR2]
+#  [MMCR__MBR2.path.nc]
+#    base_dir = '/Users/hanni/Documents/BARBADOS/BCO/products/BCO_MMCR_MBR2/'
+#    matching_subdirs = '(\d{6}\/.*\d{6}.nc)'
+#    date_in_filename = '(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})'
+#  [MMCR__MBR2.generic]
+#    time_variable = 'time'
+#    range_variable = 'range'
+#    colormap = "gist_rainbow"
+#    which_path = 'nc'
+#    time_conversion = 'since19700101'
+#    range_conversion = 'none'
+#    var_conversion = 'none'
+#    ncreader = 'timeheight'
+#    # if identifier is given read from ncfile, else define here
+#    identifier_var_unit = 'Units'
+#    rg_unit = 'm'
+#    fill_value = -999.0
+#  [MMCR__MBR2.params.Ze]
+#    variable_name = 'Ze'
+#    var_unit = 'mm^6/m^3'
+#    colormap = 'jet'
+#    var_lims = [ -40, 20 ]
+#
+#[BCO_CHM15k_10s]
+#  [BCO_CHM15k_10s.path.nc]
+#    base_dir = '/Users/hanni/Documents/BARBADOS/BCO/products/BCO_CHM15k_CBH/10s/'
+#    matching_subdirs = '(\d{4}\/.*CEILO__CHM15k_MPI__CBH__10s__\d{6}.nc)'
+#    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})'
+#  [BCO_CHM15k_10s.generic]
+#    time_variable = 'time'
+#    colormap = "gist_rainbow"
+#    which_path = 'nc'
+#    time_conversion = 'since19700101'
+#    var_conversion = 'none'
+#    ncreader = 'time'
+#    # if identifier is given read from ncfile, else define here
+#    identifier_var_unit = 'Units'
+#    fill_value = -999.0
+#  [BCO_CHM15k_10s.params.cbh_1]
+#    variable_name = 'cbh_1'
+#    var_unit = 'm'
+#    colormap = 'jet'
+#    var_lims = [ 0, 15000 ]
+#
+#[BCO_CHM15k_30s]
+#  [BCO_CHM15k_30s.path.nc]
+#    base_dir = '/Users/hanni/Documents/BARBADOS/BCO/products/BCO_CHM15k_CBH/30s/'
+#    matching_subdirs = '(\d{4}\/.*CEILO__CHM15k_MPI__CBH__30s__\d{6}.nc)'
+#    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})'
+#  [BCO_CHM15k_30s.generic]
+#    time_variable = 'time'
+#    colormap = "gist_rainbow"
+#    which_path = 'nc'
+#    time_conversion = 'since19700101'
+#    var_conversion = 'none'
+#    ncreader = 'time'
+#    # if identifier is given read from ncfile, else define here
+#    identifier_var_unit = 'Units'
+#    fill_value = -999.0
+#  [BCO_CHM15k_30s.params.cbh_1]
+#    variable_name = 'cbh_1'
+#    var_unit = 'm'
+#    colormap = 'jet'
+#    var_lims = [ 0, 15000 ]
+#
+#

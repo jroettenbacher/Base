@@ -44,12 +44,15 @@
     variable_name = 'Zg'
     #colormap = 'rainbow'
     #which_path = 'mmclx'
+    plot_varconverter = 'dB'
   [MIRA.params.Ze]
     variable_name = 'Ze'
     #colormap = 'rainbow'
     #which_path = 'mmclx'
+    plot_varconverter = 'dB'
   [MIRA.params.Zmie]
     variable_name = 'Z'
+    plot_varconverter = 'dB'
   [MIRA.params.sw]
     variable_name = 'RMSg'
   [MIRA.params.noiseco]
@@ -62,6 +65,7 @@
   [MIRA.params.LDRg]
     variable_name = 'LDRg'
     colormap = 'LDR'
+    plot_varconverter = 'dB'
   [MIRA.params.Zspec]
     which_path = 'spec'
     variable_name = 'Z'
@@ -72,10 +76,32 @@
     rg_unit = 'm'
     var_conversion = 'transposedim+invert3rd'
     dimorder = [2,1,0] # (velocity, range, time as in the files from alexanders conversion)
+    plot_varconverter = 'dB'
+  [MIRA.params.LDRspec]
+    which_path = 'spec'
+    variable_name = 'LDR'
+    vel_variable = 'velocity'
+    ncreader = 'spec'
+    var_unit = ''
+    var_lims = [-50, 20]
+    rg_unit = 'm'
+    var_conversion = 'transposedim+invert3rd'
+    dimorder = [2,1,0] # (velocity, range, time as in the files from alexanders conversion)
+  [MIRA.params.SNRco]
+    which_path = 'spec'
+    variable_name = 'SNRco'
+    vel_variable = 'velocity'
+    ncreader = 'spec'
+    var_unit = ''
+    var_lims = [-50, 20]
+    rg_unit = 'm'
+    var_conversion = 'transposedim+invert3rd'
+    dimorder = [2,1,0] # (velocity, range, time as in the files from alexanders conversion)
   [MIRA.params.rhi_Zg]
     variable_name = 'Zg'
     which_path = 'rhi'
     ncreader = 'scan_timeheight'
+    plot_varconverter = 'dB'
   [MIRA.params.rhi_LDRg]
     variable_name = 'LDRg'
     which_path = 'rhi'
@@ -94,6 +120,7 @@
     variable_name = 'Zg'
     which_path = 'ppi'
     ncreader = 'scan_timeheight'
+    plot_varconverter = 'dB'
   [MIRA.params.ppi_VELg]
     variable_name = 'VELg'
     which_path = 'ppi'
@@ -154,6 +181,16 @@
     rg_unit = 'm'
     var_lims = [-99, -99]
     var_unit = ''
+  [peakTree.params.no_nodes]
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    var_lims = [0, 10]
+    variable_name = 'no_nodes'
+    var_unit = ''
+    rg_unit = 'm'
+    #colormap = 'rainbow'
 
 
 
@@ -203,6 +240,7 @@
     variable_name = 'Z'
     which_path = 'categorize'
     var_conversion = 'z2lin'
+    plot_varconverter = 'dB'
   [CLOUDNET.params.VEL]
     variable_name = 'v'
     which_path = 'categorize'
@@ -216,6 +254,7 @@
     variable_name = 'ldr'
     which_path = 'categorize'
     var_conversion = 'z2lin'
+    plot_varconverter = 'dB'
   [CLOUDNET.params.T]
     variable_name = 'temperature'
     which_path = 'categorize'
@@ -240,6 +279,7 @@
   [CLOUDNET.params.beta]
     variable_name = 'beta'
     which_path = 'categorize'
+    plot_varconverter = 'log'
   [CLOUDNET.params.depol]
     variable_name = 'lidar_depolarisation'
     which_path = 'categorize'    
@@ -303,6 +343,8 @@
     variable_name = 'Z'
     which_path = 'categorize'
     var_conversion = 'z2lin'
+    plot_varconverter = 'dB'
+    colormapt = 'jet'
   [CLOUDNET_LIMRAD.params.VEL]
     variable_name = 'v'
     which_path = 'categorize'
@@ -313,6 +355,7 @@
     variable_name = 'ldr'
     which_path = 'categorize'
     var_conversion = 'z2lin'
+    plot_varconverter = 'dB'
   [CLOUDNET_LIMRAD.params.T]
     variable_name = 'temperature'
     which_path = 'categorize'
@@ -366,6 +409,7 @@
     var_unit = 'mm^6/m^3'
     colormap = 'jet'
     var_lims = [ -50, 20 ]
+    plot_varconverter = 'dB'
   [LIMRAD94.params.VEL]
     variable_name = 'MeanVel'
     colormap = 'jet'
@@ -407,6 +451,10 @@
     variable_name = 'LWP'
     ncreader = 'time'
     var_lims = [-100, 1000]
+  [LIMRAD94.params.SurfRelHum]
+    variable_name = 'SurfRelHum'
+    ncreader = 'time'
+    var_lims = [0, 100]
   [LIMRAD94.params.SurfTemp]
     variable_name = 'SurfTemp'
     ncreader = 'time'
@@ -592,11 +640,80 @@
     #colormap = 'rainbow'
     var_conversion = 'z2lin'
     var_lims = [-40, 20]
+    plot_varconverter = 'dB'
   [MRRPRO.params.VEL]
     variable_name = 'VEL'
     colormap = 'carbonne'
     var_lims = [-6, 6]
     var_conversion = 'switchsign'
+  [MRRPRO.params.spec]
+     variable_name = 'spectrum_raw'
+     var_conversion = 'z2lin'
+     ncreader = 'mrrpro_spec'
+     var_unit = 'Z m-1 s'
+
+[HATPRO]
+  [HATPRO.path.lv2_prw]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/hatpro/data/pta/data/level2/'
+    matching_subdirs = '(\d{4}\/ioppta_lac_mwr00_l2_prw_v01_\d{14}.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  [HATPRO.path.lv2_hua]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/hatpro/data/pta/data/level2/'
+    matching_subdirs = '(\d{4}\/ioppta_lac_mwr00_l2_hua_v01_\d{14}.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  [HATPRO.path.lv2_clwvi]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/hatpro/data/pta/data/level2/'
+    matching_subdirs = '(\d{4}\/ioppta_lac_mwr00_l2_clwvi_v01_\d{14}.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  [HATPRO.path.lv2_ta]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/hatpro/data/pta/data/level2/'
+    matching_subdirs = '(\d{4}\/ioppta_lac_mwr00_l2_ta_v01_\d{14}.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  # this general settings need to be handed down to the params
+  [HATPRO.generic]
+    time_variable = 'time'
+    range_variable = 'range'
+    colormap = "jet"
+    which_path = 'nc'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    #time_conversion = 'since19691231'
+    time_conversion = 'unix'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    var_lims = [-40, 20]
+  [HATPRO.params.LWP]
+    which_path = 'lv2_clwvi'
+    variable_name = 'clwvi'
+    ncreader = 'time'
+    var_lims = [-25, 500]
+  [HATPRO.params.flag]
+    which_path = 'lv2_clwvi'
+    variable_name = 'flag'
+    ncreader = 'time'
+    var_unit = 'binary'
+    var_lims = [0, 8]
+  [HATPRO.params.ABSH]
+    which_path = 'lv2_hua'
+    variable_name = 'hua'
+    var_lims = [0.0, 0.02]
+  [HATPRO.params.T]
+    which_path = 'lv2_ta'
+    variable_name = 'ta'
+    var_lims = [200, 320]
+  [HATPRO.params.IWV]
+    which_path = 'lv2_prw'
+    variable_name = 'prw'
+    ncreader = 'time'
+    var_lims = [0, 25]
 
 # for some odd reasoning make shaun a own instrument even when it is located
 # within cloudnet calibrated
@@ -634,6 +751,7 @@
     variable_name = 'beta_raw'
     #colormap = 'rainbow'
     var_lims = [1e-7, 1e-4]
+    plot_varconverter = 'log'
   [SHAUN.params.advection_vel]
     variable_name = 'advection'
     range_conversion = 'sealevel2range'
@@ -690,19 +808,23 @@
     identifier_var_unit = 'units'
     identifier_var_lims = 'plot_range'
     identifier_fill_value = 'missing_value'
+    description_file = 'POLLY_attbsc.rst'
   [POLLY.params.attbsc532]
     variable_name = 'att_beta_0532'
     var_unit = 'sr^-1 m^-1'
     rg_unit = 'm'
     colormap = 'cloudnet_jet'
     var_lims = [3e-7, 1e-4]
+    plot_varconverter = 'log'
   [POLLY.params.attbsc1064]
     variable_name = 'att_beta_1064'
     var_unit = 'sr^-1 m^-1'
     rg_unit = 'm'
     colormap = 'cloudnet_jet'
     var_lims = [3e-7, 1e-4]
+    plot_varconverter = 'log'
   [POLLY.params.depol]
+    description_file = 'POLLY_depol.rst'
     variable_name = 'volume_depolarization'
     colormap = 'cloudnet_jet'
     rg_unit = 'm'
@@ -758,53 +880,68 @@
     variable_name = 'attenuated_backscatter_355nm'
     var_lims = [3e-7, 1e-4]
     #auto_mask_scale = false
+    description_file = 'POLLYNET_attbsc.rst'
+    plot_varconverter = 'log'
   [POLLYNET.params.attbsc532]
     which_path = 'attbsc'
     variable_name = 'attenuated_backscatter_532nm'
     var_lims = [3e-7, 1e-4]
     #auto_mask_scale = false
+    description_file = 'POLLYNET_attbsc.rst'
+    plot_varconverter = 'log'
   [POLLYNET.params.attbsc1064]
     which_path = 'attbsc'
     variable_name = 'attenuated_backscatter_1064nm'
     var_lims = [3e-8, 1e-4]
     #auto_mask_scale = false
+    description_file = 'POLLYNET_attbsc.rst'
+    plot_varconverter = 'log'
 
   [POLLYNET.params.voldepol355]
     which_path = 'voldepol'
     variable_name = 'volume_depolarization_ratio_355nm'
     var_lims = [0.0, 0.3]
     #auto_mask_scale = false
+    description_file = 'POLLYNET_voldepol.rst'
   [POLLYNET.params.voldepol532]
     which_path = 'voldepol'
     variable_name = 'volume_depolarization_ratio_532nm'
     var_lims = [0.0, 0.3]
     #auto_mask_scale = false
+    description_file = 'POLLYNET_voldepol532.rst'
 
   [POLLYNET.params.qbsc532]
     which_path = 'quasi'
     variable_name = 'quasi_bsc_532'
     var_lims = [3e-7, 1e-4]
     #auto_mask_scale = false
+    description_file = 'POLLYNET_qbsc.rst'
+    plot_varconverter = 'log'
   [POLLYNET.params.qbsc1064]
     which_path = 'quasi'
     variable_name = 'quasi_bsc_1064'
     var_lims = [3e-8, 1e-4]
     #auto_mask_scale = false
+    description_file = 'POLLYNET_qbsc.rst'
+    plot_varconverter = 'log'
   [POLLYNET.params.qpardepol532]
     which_path = 'quasi'
     variable_name = 'quasi_pardepol_532'
     var_lims = [0.0, 0.3]
     #auto_mask_scale = false
+    description_file = 'POLLYNET_qpardepol532.rst'
   [POLLYNET.params.qang532_1064]
     which_path = 'quasi'
     variable_name = 'quasi_ang_532_1064'
     var_lims = [0.0, 1.0]
     #auto_mask_scale = false
+    description_file = 'POLLYNET_qang532_1064.rst'
   [POLLYNET.params.qflag532]
     which_path = 'quasi'
     variable_name = 'quality_mask_532'
     var_lims = [0.0, 3.0]
     #auto_mask_scale = false
+    description_file = 'POLLYNET_qflag532.rst'
 
   [POLLYNET.params.CLASS]
     which_path = 'class'
@@ -814,13 +951,16 @@
     var_unit = ''
     fill_value = -1
     #auto_mask_scale = false
+    description_file = 'POLLYNET_CLASS.rst'
 
   [POLLYNET.params.wvmr]
     which_path = 'wv'
     variable_name = 'WVMR'
+    description_file = 'POLLYNET_wvmr.rst'
   [POLLYNET.params.rh]
     which_path = 'wv'
     variable_name = 'RH'
+    description_file = 'POLLYNET_rh.rst'
 
 [POLLYNETprofiles]
   [POLLYNETprofiles.path.nc]
@@ -851,41 +991,55 @@
     var_lims = [0, 0]
   [POLLYNETprofiles.params.aerBsc_klett_355]
     variable_name = 'aerBsc_klett_355'
+    description_file = 'POLLYNETprofiles_aerBsc_klett.rst'
   [POLLYNETprofiles.params.aerBsc_klett_532]
     variable_name = 'aerBsc_klett_532'
+    description_file = 'POLLYNETprofiles_aerBsc_klett.rst'
   [POLLYNETprofiles.params.aerBsc_klett_1064]
     variable_name = 'aerBsc_klett_1064'
+    description_file = 'POLLYNETprofiles_aerBsc_klett.rst'
 
   [POLLYNETprofiles.params.aerBsc_raman_355]
     variable_name = 'aerBsc_raman_355'
+    description_file = 'POLLYNETprofiles_aerBsc_raman.rst'
   [POLLYNETprofiles.params.aerBsc_raman_532]
     variable_name = 'aerBsc_raman_532'
+    description_file = 'POLLYNETprofiles_aerBsc_raman.rst'
   [POLLYNETprofiles.params.aerBsc_raman_1064]
     variable_name = 'aerBsc_raman_1064'
+    description_file = 'POLLYNETprofiles_aerBsc_raman.rst'
 
   [POLLYNETprofiles.params.aerExt_raman_355]
     variable_name = 'aerExt_raman_355'
+    description_file = 'POLLYNETprofiles_aerExt_raman.rst'
   [POLLYNETprofiles.params.aerExt_raman_532]
     variable_name = 'aerExt_raman_532'
+    description_file = 'POLLYNETprofiles_aerExt_raman.rst'
 
   [POLLYNETprofiles.params.volDepol_klett_355]
     variable_name = 'volDepol_klett_355'
     var_lims = [0.0, 0.4]
+    description_file = 'POLLYNETprofiles_volDepol_klett.rst'
   [POLLYNETprofiles.params.volDepol_klett_532]
     variable_name = 'volDepol_klett_532'
     var_lims = [0.0, 0.4]
+    description_file = 'POLLYNETprofiles_volDepol_klett.rst'
   [POLLYNETprofiles.params.volDepol_raman_355]
     variable_name = 'volDepol_raman_355'
     var_lims = [0.0, 0.4]
+    description_file = 'POLLYNETprofiles_volDepol_raman.rst'
   [POLLYNETprofiles.params.volDepol_raman_532]
     variable_name = 'volDepol_raman_532'
     var_lims = [0.0, 0.4]
+    description_file = 'POLLYNETprofiles_volDepol_raman.rst'
   [POLLYNETprofiles.params.parDepol_raman_355]
     variable_name = 'parDepol_raman_355'
     var_lims = [0.0, 0.4]
+    description_file = 'POLLYNETprofiles_parDepol_raman.rst'
   [POLLYNETprofiles.params.parDepol_raman_532]
     variable_name = 'parDepol_raman_532'
     var_lims = [0.0, 0.4]
+    description_file = 'POLLYNETprofiles_parDepol_raman.rst'
 
 
 [POLLYraw]
@@ -909,6 +1063,7 @@
     # if identifier is given read from ncfile, else define here
     rg_unit = 'bins'
     var_unit = 'counts'
+    description_file = 'POLLYraw_counts_ch.rst'
 
   [POLLYraw.params.counts_ch1]
     which_path = 'nc'
@@ -1025,9 +1180,17 @@
     identifier_fill_value = '_FillValue'
   [PARSIVEL.params.rainrate]
     variable_name = 'rainfall_rate'
-    var_lims = [0.0, 0.000001]
+    var_lims = [0.0, 10.0]
+    var_unit = 'mm h^-1'
   [PARSIVEL.params.Z]
     variable_name = 'radar_reflectivity'
     var_lims = [0, 40]
     fill_value = -9.999
     var_conversion = 'z2lin'
+    plot_varconverter = 'dB'
+  [PARSIVEL.params.synopWW]
+    variable_name = 'synop_WW'
+    #var_lims = [0, 40]
+  [PARSIVEL.params.synopWaWa]
+    variable_name = 'synop_WaWa'
+    #var_lims = [0, 40]

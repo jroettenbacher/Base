@@ -1,0 +1,473 @@
+
+[LIMRAD94]
+  [LIMRAD94.path.l1]
+    base_dir = '/projekt2/remsens/data_new/campaigns/leipzig/instruments/limrad94/'
+    matching_subdirs = '(Y\d{4}\/M\d{2}\/D\d{2}.*\d{6}_\d{6}.*.LV1.(?i)NC)'
+    date_in_filename = '(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  [LIMRAD94.path.l0]
+    base_dir = '/projekt2/remsens/data_new/campaigns/leipzig/instruments/limrad94/'
+    matching_subdirs = '(Y\d{4}\/M\d{2}\/D\d{2}.*\d{6}_\d{6}.*.LV0.(?i)NC)'
+    date_in_filename = '(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  [LIMRAD94.generic]
+    # this general settings need to be handed down to the params
+    colormap = "gist_rainbow"
+    which_path = 'l1'
+    time_variable = 'Time'
+    chirp_variable = 'Chirp'
+    time_millisec_variable = 'Timems'
+    time_conversion = 'since20010101'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    # currently a special reader is needed just for limrad
+    # this one stacks the chirps and loads the range form lvl0
+    ncreader = 'timeheight_limrad94'
+    # if identifier is given read from ncfile, else define here
+    rg_unit = 'm'
+    identifier_var_unit = 'Units'
+    fill_value = -999.0
+    description_file = 'limrad94_general.rst'
+  [LIMRAD94.params.Ze]
+    variable_name = 'ZE'
+    var_unit = 'mm^6 m^-3'
+    colormap = 'jet'
+    var_lims = [ -50, 20 ]
+  [LIMRAD94.params.VEL]
+    variable_name = 'MeanVel'
+    colormap = 'jet'
+    var_unit = 'm s-1'
+    var_lims = [ -4, 3 ]
+  [LIMRAD94.params.sw]
+    variable_name = 'SpecWidth'
+    colormap = 'jet'
+    var_unit = 'm s-1'
+    var_lims = [ 0.1, 2.0 ]
+  [LIMRAD94.params.skew]
+    variable_name = 'Skew'
+    colormap = 'jet'
+    var_unit = ''
+    var_lims = [ -1, 1 ]
+  [LIMRAD94.params.kurt]
+    variable_name = 'Kurt'
+    colormap = 'jet'
+    var_unit = ''
+    var_lims = [0, 3]
+  [LIMRAD94.params.SLv]
+    variable_name = 'SLv'
+    colormap = 'cloudnet_jet'
+    var_lims = [-60, -30]
+  [LIMRAD94.params.SLh]
+    variable_name = 'SLh'
+    colormap = 'cloudnet_jet'
+    var_lims = [-60, -30]
+  [LIMRAD94.params.DiffAtt]
+    variable_name = 'DiffAtt'
+    colormap = 'jet'
+    var_lims = []
+  [LIMRAD94.params.PhiDP]
+    variable_name = 'PhiDP'
+    colormap = 'jet'
+    var_unit = 'rad'
+    var_lims = [0, 7]
+  [LIMRAD94.params.ldr]
+    variable_name = 'SLDR'
+    colormap = 'LDR'
+    var_lims = [-30, 0]
+  [LIMRAD94.params.LWP]
+    variable_name = 'LWP'
+    ncreader = 'time'
+    var_lims = [-20, 500]
+  [LIMRAD94.params.Azm]
+    variable_name = 'Azm'
+    ncreader = 'time'
+    var_lims = [0, 360]
+  [LIMRAD94.params.Elv]
+    variable_name = 'Elv'
+    ncreader = 'time'
+    var_lims = [0, 90]
+  [LIMRAD94.params.SurfTemp]
+    variable_name = 'SurfTemp'
+    ncreader = 'time'
+    var_lims = [0, 400]
+  [LIMRAD94.params.SurfPres]
+    variable_name = 'SurfPres'
+    ncreader = 'time'
+    var_lims = [900, 1100]
+  [LIMRAD94.params.SurfRelHum]
+    variable_name = 'SurfRelHum'
+    ncreader = 'time'
+    var_lims = [0, 100]
+  [LIMRAD94.params.SurfWS]
+    variable_name = 'SurfWS'
+    ncreader = 'time'
+    var_lims = [0, 25]
+  [LIMRAD94.params.bt]
+    variable_name = 'DDTb'
+    ncreader = 'time'
+    var_lims = []
+  [LIMRAD94.params.rr]
+    variable_name = 'Rain'
+    ncreader = 'time'
+    var_lims = [0, 500]
+  [LIMRAD94.params.MaxVel]
+    variable_name = 'MaxVel'
+    ncreader = 'aux'
+    var_lims = []
+  [LIMRAD94.params.ChirpFFTSize]
+    which_path = 'l0'
+    variable_name = 'ChirpFFTSize'
+    ncreader = 'aux'
+    var_unit = '-'
+    var_lims = []
+  [LIMRAD94.params.AvgNum]
+    variable_name = 'AvgNum'
+    ncreader = 'aux'
+    var_unit = '-'
+    var_lims = []
+  [LIMRAD94.params.DoppLen]
+    variable_name = 'DoppLen'
+    ncreader = 'aux'
+    var_unit = '-'
+    var_lims = []
+  [LIMRAD94.params.RangeRes]
+    variable_name = 'RangeRes'
+    ncreader = 'aux'
+    var_lims = []
+  [LIMRAD94.params.C1Range]
+    which_path = 'l0'
+    variable_name = 'C1Range'
+    var_unit = 'm'
+    ncreader = 'aux'
+    var_lims = []
+  [LIMRAD94.params.C2Range]
+    which_path = 'l0'
+    variable_name = 'C2Range'
+    var_unit = 'm'
+    ncreader = 'aux'
+    var_lims = []
+  [LIMRAD94.params.C3Range]
+    which_path = 'l0'
+    variable_name = 'C3Range'
+    var_unit = 'm'
+    ncreader = 'aux'
+    var_lims = []
+  [LIMRAD94.params.C1ReVHSpec]
+    which_path = 'l0'
+    variable_name = 'C1ReVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C1Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C2ReVHSpec]
+    which_path = 'l0'
+    variable_name = 'C2ReVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C2Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C3ReVHSpec]
+    which_path = 'l0'
+    variable_name = 'C3ReVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C3Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C1ImVHSpec]
+    which_path = 'l0'
+    variable_name = 'C1ImVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C1Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C2ImVHSpec]
+    which_path = 'l0'
+    variable_name = 'C2ImVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C2Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C3ImVHSpec]
+    which_path = 'l0'
+    variable_name = 'C3ImVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C3Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C1HSpec]
+    which_path = 'l0'
+    variable_name = 'C1HSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C1Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C2HSpec]
+    which_path = 'l0'
+    variable_name = 'C2HSpec'
+    vel_ext_variable = ['MaxVel','1']
+    range_variable = 'C2Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C3HSpec]
+    which_path = 'l0'
+    variable_name = 'C3HSpec'
+    vel_ext_variable = ['MaxVel','2']
+    range_variable = 'C3Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C1VSpec]
+    which_path = 'l0'
+    variable_name = 'C1VSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'C1Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C2VSpec]
+    which_path = 'l0'
+    variable_name = 'C2VSpec'
+    vel_ext_variable = ['MaxVel','1']
+    range_variable = 'C2Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.C3VSpec]
+    which_path = 'l0'
+    variable_name = 'C3VSpec'
+    vel_ext_variable = ['MaxVel','2']
+    range_variable = 'C3Range'
+    ncreader = 'spec'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'none'
+  [LIMRAD94.params.HSpec]
+    which_path = 'l0'
+    variable_name = 'HSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'Range'
+    ncreader = 'spec_limrad94'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'keepNyquist'
+    #var_conversion = 'divideby2'
+  [LIMRAD94.params.VSpec]
+    which_path = 'l0'
+    variable_name = 'VSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'Range'
+    ncreader = 'spec_limrad94'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'keepNyquist'
+  [LIMRAD94.params.ReVHSpec]
+    which_path = 'l0'
+    variable_name = 'ReVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'Range'
+    ncreader = 'spec_limrad94'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'keepNyquist'
+  [LIMRAD94.params.ImVHSpec]
+    which_path = 'l0'
+    variable_name = 'ImVHSpec'
+    vel_ext_variable = ['MaxVel','0']
+    range_variable = 'Range'
+    ncreader = 'spec_limrad94'
+    var_unit = 'mm6 m-3 m-1 s'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+    var_conversion = 'keepNyquist'
+  [LIMRAD94.params.C1VNoisePow]
+    which_path = 'l0'
+    variable_name = 'C1VNoisePow'
+    range_variable = 'C3Range'
+    var_unit = 'm^6 m^-3'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+  [LIMRAD94.params.C2VNoisePow]
+    which_path = 'l0'
+    variable_name = 'C2VNoisePow'
+    range_variable = 'C3Range'
+    var_unit = 'm^6 m^-3'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+  [LIMRAD94.params.C3VNoisePow]
+    which_path = 'l0'
+    variable_name = 'C3VNoisePow'
+    range_variable = 'C3Range'
+    var_unit = 'm^6 m^-3'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+  [LIMRAD94.params.VNoisePow]
+    which_path = 'l0'
+    variable_name = 'VNoisePow'
+    range_variable = 'C3Range'
+    var_unit = 'mm^6/m^3'
+    colormap = 'cloudnet_jet'
+    var_lims = [ -60, 20 ]
+  [LIMRAD94.params.C1HNoisePow]
+    which_path = 'l0'
+    variable_name = 'C1HNoisePow'
+    range_variable = 'C3Range'
+    var_unit = 'm^6 m^-3'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+  [LIMRAD94.params.C2HNoisePow]
+    which_path = 'l0'
+    variable_name = 'C2HNoisePow'
+    range_variable = 'C3Range'
+    var_unit = 'm^6 m^-3'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+  [LIMRAD94.params.C3HNoisePow]
+    which_path = 'l0'
+    variable_name = 'C3HNoisePow'
+    range_variable = 'C3Range'
+    var_unit = 'm^6 m^-3'
+    var_lims = [1.0e-6, 1.0e2]
+    rg_unit = 'm'
+  [LIMRAD94.params.HNoisePow]
+    which_path = 'l0'
+    variable_name = 'HNoisePow'
+    var_unit = 'mm^6/m^3'
+    colormap = 'jet'
+    var_lims = [1.0e-6, 1.0e2]
+
+
+[HATPRO]
+  [HATPRO.path.lv2_prw]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/projekt2/remsens/data_new/campaigns/leipzig/instruments/limhat/data/level2/'
+    matching_subdirs = '(\d{4}\/*prw*\d{14}.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  [HATPRO.path.lv2_hua]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/projekt2/remsens/data_new/campaigns/leipzig/instruments/limhat/data/level2/'
+    matching_subdirs = '(\d{4}\/*hua*\d{14}.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  [HATPRO.path.lv2_clwvi]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/projekt2/remsens/data_new/campaigns/leipzig/instruments/limhat/data/level2/'
+    matching_subdirs = '(\d{4}\/*clwvi*\d{14}.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  [HATPRO.path.lv2_ta]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/projekt2/remsens/data_new/campaigns/leipzig/instruments/limhat/data/level2/'
+    matching_subdirs = '(\d{4}\/*ta*\d{14}.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  # this general settings need to be handed down to the params
+  [HATPRO.generic]
+    time_variable = 'time'
+    range_variable = 'range'
+    colormap = "jet"
+    which_path = 'nc'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    #time_conversion = 'since19691231'
+    time_conversion = 'unix'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    var_lims = [-40, 20]
+  [HATPRO.params.LWP]
+    which_path = 'lv2_clwvi'
+    variable_name = 'clwvi'
+    ncreader = 'time'
+    var_lims = [-25, 500]
+  [HATPRO.params.flag]
+    which_path = 'lv2_clwvi'
+    variable_name = 'flag'
+    ncreader = 'time'
+    #var_lims = [-25, 500]
+  [HATPRO.params.ABSH]
+    which_path = 'lv2_hua'
+    variable_name = 'hua'
+    var_lims = [0.0, 0.02]
+  [HATPRO.params.T]
+    which_path = 'lv2_ta'
+    variable_name = 'ta'
+    var_lims = [200, 320]
+  [HATPRO.params.IWV]
+    which_path = 'lv2_prw'
+    variable_name = 'prw'
+    ncreader = 'time'
+    var_lims = [0, 25]
+
+  # for some odd reasoning make shaun a own instrument even when it is located
+# within cloudnet calibrated
+[LIMCUBE]
+  [LIMCUBE.path.nc]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/projekt2/remsens/data_new/campaigns/leipzig/instruments/limcube/data/'
+    matching_subdirs = '(Y\d{4}\/M\d{2}\/\d{4}-\d{2}-\d{2}.nc)'
+    date_in_filename = '(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})'
+#  [LIMCUBE.path.scans]
+#    base_dir = '/media/sdig/leipzig/instruments/limcube_scan/'
+#    matching_subdirs = '(Y\d{4}\/\d{8}.*.nc)'
+#    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
+  # this general settings need to be handed down to the params
+  [LIMCUBE.generic]
+    time_variable = 'time'
+    range_variable = 'level'
+    colormap = "jet"
+    which_path = 'nc'
+    time_conversion = 'hours_since20150101'
+    range_conversion = 'none'
+    # define how the values from the nc file have to
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    rg_unit = 'm'
+    identifier_var_unit = 'units'
+    #identifier_var_lims = 'plot_range'
+    #identifier_fill_value = 'missing_value'
+  [LIMCUBE.params.mean_u]
+    variable_name = 'mean_u'
+    var_lims = [-30, 30]
+    colormap = 'jet'
+  [LIMCUBE.params.mean_v]
+    variable_name = 'mean_v'
+    var_lims = [-30, 30]
+    colormap = 'jet'
+  [LIMCUBE.params.mean_wind]
+    variable_name = 'mean_wind'
+    var_lims = [-30, 30]
+    colormap = 'jet'
+

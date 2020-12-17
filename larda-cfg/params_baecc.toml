@@ -1,0 +1,76 @@
+
+[peakTree]
+  [peakTree.path.nc4]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/lacroshome/colrawi/peakTree_baecc/'
+    matching_subdirs = '(\d{8}_\d{4}_kazrbaecc_peakTree.nc4)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})'
+  # this general settings need to be handed down to the params
+  [peakTree.generic]
+    time_variable = 'timestamp'
+    range_variable = 'range'
+    colormap = "gist_rainbow"
+    which_path = 'nc4'
+    # define how the values from the nc file have to
+    # be converted (strings defined in pyLARDA.helpers)
+    time_conversion = 'unix'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    identifier_var_lims = 'yrange'
+    #var_lims = [-40, 20]
+  [peakTree.params.tree]
+    variable_name = 'tree'
+    ncreader = 'peakTree'
+    rg_unit = 'm'
+    var_lims = [-99, -99]
+    var_unit = ''
+
+[KAZR]
+  [KAZR.path.gem]
+    base_dir = '/lacroshome/remsens_lim/data/baecc/kazr/'
+    matching_subdirs = '(.*geM1.*.cdf)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2}).(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  [KAZR.path.spec]
+    base_dir = '/lacroshome/remsens_lim/data/baecc/kazr/'
+    matching_subdirs = '(.*specc.*.cdf)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2}).(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  [KAZR.path.microarscl]
+    base_dir = '/lacroshome/remsens_lim/data/baecc/kazr'
+    matching_subdirs = '(.*microarscl.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2}).(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
+  [KAZR.generic]
+    time_variable = 'time_offset'
+    base_time_variable = 'base_time'
+    range_variable = 'range'
+    colormap = 'gist_rainbow'
+    which_path = 'gem'
+    time_conversion = 'unix'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    rg_unit = 'm'
+    identifier_rg_unit = 'units'
+    identifier_var_unit = 'units'
+    #identifier_var_lims = 'yrange'
+    var_lims = [0,10]
+  [KAZR.params.Ze]
+    variable_name = 'reflectivity_copol'
+    var_conversion = 'z2lin'
+  [KAZR.params.sw]
+    variable_name = 'spectral_width_copol'
+  [KAZR.params.mdv]
+    variable_name = 'mean_doppler_velocity_copol'
+  [KAZR.params.spec]
+    which_path = 'spec'
+    variable_name = 'spectra'
+    vel_variable = 'velocity_bins'
+    ncreader = 'spec_kazr'
+    mask_var = 'locator_mask'
+    cal_const = 'cal_constant'
+    var_unit = '10* log(mW)'
+    rg_unit = 'm'
+    var_conversion = 'none'
