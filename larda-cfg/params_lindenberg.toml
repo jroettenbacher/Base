@@ -550,22 +550,22 @@
 [HATPRO]
   [HATPRO.path.lv2_prw]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/projekt2/remsens/data_new/site-campaign/lindenberg-dwd/instruments/limhat/data/level2/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/lindenberg-dwd/instruments/limhat/processed/data/level2/'
     matching_subdirs = '(\d{4}.*prw_v00_\d{14}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [HATPRO.path.lv2_hua]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/projekt2/remsens/data_new/site-campaign/lindenberg-dwd/instruments/limhat/data/level2/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/lindenberg-dwd/instruments/limhat/processed/data/level2/'
     matching_subdirs = '(\d{4}.*hua_v00_\d{14}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [HATPRO.path.lv2_clwvi]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/projekt2/remsens/data_new/site-campaign/lindenberg-dwd/instruments/limhat/data/level2/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/lindenberg-dwd/instruments/limhat/processed/data/level2/'
     matching_subdirs = '(\d{4}.*clwvi_v00_\d{14}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [HATPRO.path.lv2_ta]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/projekt2/remsens/data_new/site-campaign/lindenberg-dwd/instruments/limhat/data/level2/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/lindenberg-dwd/instruments/limhat/processed/data/level2/'
     matching_subdirs = '(\d{4}.*ta_v00_\d{14}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   # this general settings need to be handed down to the params
