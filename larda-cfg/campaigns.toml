@@ -67,7 +67,7 @@
     connectordump = '/home/sdig/code/larda3/larda-connectordump'
 
 [lindenberg_mol]
-    location = "Lindenberg, MOL"
+    location = "Lindenberg_MOL"
     coordinates = [52.209433, 14.128580]
     altitude = 104
     duration = [["20200714", "20201020"]]
