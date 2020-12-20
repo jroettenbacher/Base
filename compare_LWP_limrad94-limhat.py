@@ -35,8 +35,8 @@ y_lims = None
 # set date
 dates = pd.date_range(begin, end)
 for begin_dt in dates:
-    # begin_dt = dt.datetime(2020, 1, 19, 0, 0, 5)
-    end_dt = begin_dt + dt.timedelta(0.99999)
+    # begin_dt = dt.datetime(2020, 7, 16, 0, 0, 5)
+    end_dt = begin_dt + dt.timedelta(0.9999)
     time_interval = [begin_dt, end_dt]
 
     radar_lwp = larda.read("LIMRAD94", "LWP", time_interval)
@@ -47,6 +47,8 @@ for begin_dt in dates:
 
     # interpolate HATPRO data on radar time
     hatpro_lwp_ip = trans.interpolate1d(hatpro_lwp, new_time=radar_lwp['ts'])
+    hatpro_lwp_ip['var'][np.isnan(hatpro_lwp_ip['var'])] = 0  # set nan to zero
+    hatpro_lwp_ip['var'][np.isinf(hatpro_lwp_ip['var'])] = 0  # set inf to zero
     # check for HATPRO quality flags
     rainflag = hatpro_flag['var'] == 8  # rain flag
     # flag = hatpro_flag['var'] > 8  # any other flag
@@ -76,7 +78,7 @@ for begin_dt in dates:
     diff_pdata['dt'], diff_pdata['var'] = trans._masked_jumps(diff_pdata)
 
     # plot title
-    title = f"Liquid Water Path Comparison LIMRAD94 vs. HATPRO {campaign.capitalize()} {begin_dt:%Y-%m-%d}"
+    title = f"Liquid Water Path Comparison LIMRAD94 vs. HATPRO {radar_lwp['paraminfo']['location']} {begin_dt:%Y-%m-%d}"
 
     # make plot
     fig, (ax1, ax2) = plt.subplots(nrows=2, figsize=[10, 6])
@@ -121,9 +123,8 @@ for begin_dt in dates:
     fig.tight_layout()
 
     # define output name
-    location = radar_lwp['paraminfo']['location']
     name_append = "" if y_lims is None else "_zoom"
-    figname = f"{location}_LWP-comp_LIMRAD94-HATPRO_{begin_dt:%Y%m%d}{name_append}.png"
+    figname = f"{campaign}_LWP-comp_LIMRAD94-HATPRO_{begin_dt:%Y%m%d}{name_append}.png"
     plt.savefig(f"{outpath}/{figname}")
     plt.close()
     logger.info(f"Saved {figname}")
