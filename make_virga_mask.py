@@ -220,11 +220,14 @@ if save_csv:
 ########################################################################################################################
 if plot_data:
     radar_ze.update(var_unit="dBZ", var_lims=[-60, 20])
-    fig, ax = pyLARDA.Transformations.plot_timeheight2(radar_ze, range_interval=[0, 2000], z_converter='lin2z')
-    for points_b, points_t in zip(virgae['points_b'], virgae['points_t']):
-        # append the top points to the bottom points in reverse order for drawing a polygon
-        points = points_b + points_t[::-1]
-        ax.add_patch(Polygon(points, closed=True, fc='pink', ec='purple', alpha=0.7))
-    figname = f"{csv_outpath}/{location}_radar-Ze_virga-masked_{time_interval[0]:%Y%m%d}.png"
-    fig.savefig(figname)
-    log.info(f"Saved {figname}")
+    t = [begin_dt, begin_dt + dt.timedelta(hours=12), end_dt]
+    for i in range(2):
+        fig, ax = pyLARDA.Transformations.plot_timeheight2(radar_ze, range_interval=[0, 2000],
+                                                           time_interval=[t[i], t[i+1]], z_converter='lin2z')
+        for points_b, points_t in zip(virgae['points_b'], virgae['points_t']):
+            # append the top points to the bottom points in reverse order for drawing a polygon
+            points = points_b + points_t[::-1]
+            ax.add_patch(Polygon(points, closed=True, fc='pink', ec='purple', alpha=0.7))
+        figname = f"{csv_outpath}/{location}_radar-Ze_virga-masked_{time_interval[0]:%Y%m%d}_{i+1}.png"
+        fig.savefig(figname)
+        log.info(f"Saved {figname}")
