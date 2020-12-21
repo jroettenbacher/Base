@@ -190,8 +190,8 @@ for v in virgae['idx']:
         rg = radar_ze['rg']
         thickness.append(rg[v[idx][2]] - rg[v[idx][1]])
     # add stats do dictionary
-    virgae['max_Ze'].append(np.max(virga_ze['var'][mask]))
-    virgae['min_Ze'].append(np.min(virga_ze['var'][mask]))
+    virgae['max_Ze'].append(h.lin2z(np.max(virga_ze['var'][mask])))
+    virgae['min_Ze'].append(h.lin2z(np.min(virga_ze['var'][mask])))
     virgae['avg_height'].append(np.mean(virga_ze['rg']))
     virgae['max_height'].append(np.max(virga_ze['rg']))
     virgae['min_height'].append(np.min(virga_ze['rg']))
@@ -204,7 +204,7 @@ if save_csv:
     # write to csv file
     csv_out = pd.DataFrame(virgae)
     csv_name = f"{csv_outpath}/{location}_virga-collection_{time_interval[0]:%Y%m%d}.csv"
-    csv_out.to_csv(csv_name, sep=';')
+    csv_out.to_csv(csv_name, sep=';', index=False)
     log.info(f"Saved {csv_name}")
 
 
