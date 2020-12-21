@@ -3,7 +3,8 @@
 Idea: compare height of first radar echo and cloud base height detected by ceilometer
 Step1: find virga in each time step
 Step2: create virga mask
-Step3: detect single virga and evaluate statistcally -> output like cloud sniffer in csv file
+Step3: detect single virga and define borders
+Step4: evaluate statistcally -> output like cloud sniffer in csv file
 Result:
     - depth of virga
     - maximum Ze in virga
@@ -127,3 +128,31 @@ if save_fig:
     virga_dt = [h.ts_to_dt(t) for t in virga['ts']]
     ax.plot(virga_dt, h_ceilo, ".", color="purple")
     fig.savefig(f"./tmp/{location}_virga_radar-res_{time_interval[0]:%Y%m%d}.png")
+
+########################################################################################################################
+# Step 3: define single virga borders (corners)
+########################################################################################################################
+# minmum verticalextent: 3 radar range gates (70 - 120m) depending on chirp
+# maximum horizontal gap: 10 radar time steps (40 - 30s) depending on chirp table
+min_vert_ext = 3
+max_hori_gap = 10
+virgae = dict(idx=list(), borders=list())
+t_idx = 0
+while t_idx < len(virga_hr['ts']):
+    # check if a virga was detected in this time step
+    if any(virga_hr['var'][t_idx, :]):
+        v, b = list(), list()
+        # as long as a virga is detected within in the maximum horizontal gap add the borders to v
+        while virga_hr['var'][t_idx:(t_idx+max_hori_gap), :].any():
+            h_ids = np.where(virga_hr['var'][t_idx, :])[0]
+            if len(h_ids) > 0:
+                if (h_ids[-1] - h_ids[0]) > min_vert_ext:
+                    v.append((t_idx, h_ids[0], h_ids[-1]))
+                    b.append((virga_hr['ts'][t_idx], virga_hr['rg'][h_ids[0]], virga_hr['rg'][h_ids[-1]]))
+            t_idx += 1
+        # when the virga is finished add the list of borders to the output list
+        if len(v) > 0:
+            virgae['idx'].append(v)
+            virgae['borders'].append(b)
+    else:
+        t_idx += 1
