@@ -27,13 +27,20 @@ log = logging.getLogger('pyLARDA')
 log.setLevel(logging.INFO)
 log.addHandler(logging.StreamHandler())
 
+# gather command line arguments
+method_name, args, kwargs = h._method_info_from_argv(sys.argv)
+
 save_fig = False  # plot the two virga masks? saves to ./tmp/
 save_csv = True
 plot_data = True  # plot radar Ze together with virga polygons
 csv_outpath = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/virga_sniffer'
 larda = pyLARDA.LARDA().connect("eurec4a")
 
-begin_dt = dt.datetime(2020, 1, 20, 0, 0, 0)
+if 'date' in kwargs:
+    date = str(kwargs['date'])
+    begin_dt = dt.datetime.strptime(date, "%Y%m%d")
+else:
+    begin_dt = dt.datetime(2020, 1, 20, 0, 0, 0)
 end_dt = begin_dt + dt.timedelta(hours=23, minutes=59, seconds=59)
 time_interval = [begin_dt, end_dt]
 
