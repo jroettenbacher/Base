@@ -887,7 +887,7 @@
     # mastering regex (here to exclude ppi and stuff)
     base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_CEILOMETER/CHM170158/'
     matching_subdirs = '\d{4}\/\d{2}\/\d{8}_FSMETEOR_CHM170158.nc'
-    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2}_)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   # this general settings need to be handed down to the params
   [CEILO.generic]
     time_variable = 'time'
