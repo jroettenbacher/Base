@@ -147,8 +147,8 @@ min_vert_ext = 3  # minmum verticalextent: 3 radar range gates (70 - 120m) depen
 min_hori_ext = 20  # virga needs to be present for at least 1 minute (20+3s) to be counted
 max_hori_gap = 10  # maximum horizontal gap: 10 radar time steps (40 - 30s) depending on chirp table
 virgae = dict(ID=list(), virga_thickness_avg=list(), virga_thickness_med=list(), virga_thickness_std=list(),
-              idx=list(), borders=list(), points_b=list(), points_t=list(),
-              max_Ze=list(), min_Ze=list(), avg_height=list(), max_height=list(), min_height=list())
+              max_Ze=list(), min_Ze=list(), avg_height=list(), max_height=list(), min_height=list(),
+              idx=list(), borders=list(), points_b=list(), points_t=list())
 t_idx = 0
 while t_idx < len(virga_hr['ts']):
     # check if a virga was detected in this time step
