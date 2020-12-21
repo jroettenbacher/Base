@@ -48,8 +48,8 @@ for i in rain_indices:
     rain_flag_dwd[i:(i+minutes)] = True
 
 # interpolate radar and rain rate on ceilo time
-radar_ze = pyLARDA.Transformations.interpolate2d(radar_ze, new_time=ceilo_cbh['ts'])
-radar_ze['mask'] = radar_ze['mask'] == 1  # turn mask from integer to bool
+radar_ze_ip = pyLARDA.Transformations.interpolate2d(radar_ze, new_time=ceilo_cbh['ts'])
+radar_ze_ip['mask'] = radar_ze_ip['mask'] == 1  # turn mask from integer to bool
 
 f_rr = interp1d(h.dt_to_ts(rain_flag_dwd.index), rain_flag_dwd, kind='nearest', fill_value="extrapolate")
 rain_flag_dwd_ip = f_rr(ceilo_cbh['ts'])  # interpolate DWD RR to MWR time values
@@ -58,7 +58,7 @@ rain_flag_dwd_ip = rain_flag_dwd_ip == 1
 # get height of first ceilo cloud base and radar echo
 h_ceilo = ceilo_cbh['var'].data[:, 0]
 # get arrays which have the indices at which a signal is measured in a timestep, each array corresponds to one timestep
-rg_radar_all = [np.asarray(~radar_ze['mask'][t, :]).nonzero()[0] for t in range(radar_ze['ts'].shape[0])]
+rg_radar_all = [np.asarray(~radar_ze_ip['mask'][t, :]).nonzero()[0] for t in range(radar_ze_ip['ts'].shape[0])]
 
 # loop through arrays and select first element which corresponds to the first range gate with a signal
 # convert the range gate index into its corresponding height
@@ -66,7 +66,7 @@ rg_radar_all = [np.asarray(~radar_ze['mask'][t, :]).nonzero()[0] for t in range(
 h_radar = list()
 for i in rg_radar_all:
     try:
-        h_radar.append(radar_ze['rg'][i[0]])
+        h_radar.append(radar_ze_ip['rg'][i[0]])
     except IndexError:
         h_radar.append(-1)
 
@@ -88,19 +88,39 @@ virga = cloudy & h_diff & virga & ~rain_flag_dwd_ip  # is a virga present in the
 # virga mask on ceilo resolution
 # if timestep has virga, mask all radar range gates between first radar echo and cbh from ceilo as virga
 # find equivalent range gate to ceilo cbh
-virga_mask = np.zeros_like(radar_ze['var'])
+virga_mask = np.zeros_like(radar_ze_ip['var'])
 for i in np.where(virga)[0]:
     lower_rg = rg_radar_all[i][0]
-    upper_rg = h.argnearest(radar_ze['rg'], h_ceilo[i])
+    upper_rg = h.argnearest(radar_ze_ip['rg'], h_ceilo[i])
     assert lower_rg < upper_rg, f"Lower range ({lower_rg}) higher than upper range ({upper_rg})"
     virga_mask[i, lower_rg:upper_rg] = 1
 
 virga_mask = virga_mask == 1
 # make a larda container with the mask
-virga = h.put_in_container(virga_mask, radar_ze, name="virga_mask", paramkey="virga", var_unit="-", var_lims=[0, 1])
+virga = h.put_in_container(virga_mask, radar_ze_ip, name="virga_mask", paramkey="virga", var_unit="-", var_lims=[0, 1])
 fig, ax = pyLARDA.Transformations.plot_timeheight2(virga, range_interval=[0, 1000])
 virga_dt = [h.ts_to_dt(t) for t in virga['ts']]
 ax.plot(virga_dt, h_ceilo, ".", color="purple")
 fig.savefig("./tmp/virga_ceilo-res.png")
+
 # virga mask on radar resolution
 
+ts_list = list()
+for t in ceilo_cbh['ts']:
+    id_diff_min = h.argnearest(radar_ze['ts'], t)  # find index of nearest radar time step to ceilo time step
+    ts_list.append(id_diff_min)  # append index to list
+
+virga_mask_hr = np.zeros_like(radar_ze['mask'])
+for j in range(len(ts_list)-1):
+    ts1 = ts_list[j]
+    ts2 = ts_list[j+1]
+    if any(virga_mask[j]) and any(virga_mask[j+1]):
+        rg1 = np.where(virga_mask[j])[0][0]  # select first masked range gate
+        rg2 = np.where(virga_mask[j+1])[0][-1]  # select last masked range gate
+        virga_mask_hr[ts1:ts2, rg1:rg2] = True  # interpolate mask to radar time resolution
+
+virga_hr = h.put_in_container(virga_mask_hr, radar_ze, name="virga_mask", paramkey="virga", var_unit="-", var_lims=[0, 1])
+fig, ax = pyLARDA.Transformations.plot_timeheight2(virga_hr, range_interval=[0, 1000])
+virga_dt = [h.ts_to_dt(t) for t in virga['ts']]
+ax.plot(virga_dt, h_ceilo, ".", color="purple")
+fig.savefig("./tmp/virga_radar-res.png")
