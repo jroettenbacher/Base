@@ -35,7 +35,7 @@ y_lims = None
 # set date
 dates = pd.date_range(begin, end)
 for begin_dt in dates:
-    # begin_dt = dt.datetime(2020, 7, 16, 0, 0, 5)
+    # begin_dt = dt.datetime(2020, 7, 15, 0, 0, 5)
     end_dt = begin_dt + dt.timedelta(0.9999)
     time_interval = [begin_dt, end_dt]
 
@@ -115,6 +115,9 @@ for begin_dt in dates:
     # plot difference between LIMRAD and HATPRO
     line1, = ax2.plot(matplotlib.dates.date2num(diff_pdata['dt'][:]), diff_pdata['var'][:], 'g',
                       label='Difference\nLIMRAD94 - HATPRO')
+    # set new y_limits through var_lims
+    if abs(diff_pdata['var_lims'][0]) > 500:
+        diff_pdata['var_lims'] = [-500, 500]
     ax2, _ = trans._format_axis(fig, ax2, line1, diff_pdata)
     ax2.grid()
     ax2.legend(handles=[line1], bbox_to_anchor=(1.01, 1.0))
