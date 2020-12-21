@@ -23,18 +23,17 @@ log = logging.getLogger('pyLARDA')
 log.setLevel(logging.WARNING)
 log.addHandler(logging.StreamHandler())
 
+save_fig = False  # plot the two virga masks? saves to ./tmp/
 larda = pyLARDA.LARDA().connect("eurec4a")
 
 # define first and second part of campaign with differing chirp tables
-time_interval1 = [dt.datetime(2020, 1, 20, 0, 0, 5), dt.datetime(2020, 1, 20, 23, 59, 55)] #  dt.datetime(2020, 1, 27, 23, 59, 55)]
-time_interval2 = [dt.datetime(2020, 2, 1, 0, 0, 5), dt.datetime(2020, 2, 27, 23, 59, 55)]
+time_interval = [dt.datetime(2020, 1, 20, 0, 0, 5), dt.datetime(2020, 1, 20, 23, 59, 55)]
 
 # read in data
-radar_ze = larda.read("LIMRAD94_cn_input", "Ze", time_interval1, [0, 'max'])
-ceilo_cbh = larda.read("CEILO", "cbh", time_interval1)
-ceilo_beta = larda.read("CEILO", "beta", time_interval1, [0, 5000])
+radar_ze = larda.read("LIMRAD94_cn_input", "Ze", time_interval, [0, 'max'])
+ceilo_cbh = larda.read("CEILO", "cbh", time_interval)
 rainrate = jr.read_rainrate()  # read in rain rate from RV-Meteor DWD rain sensor
-rainrate = rainrate.sort_index()[time_interval1[0]:time_interval1[1]]  # sort index and select time interval
+rainrate = rainrate.sort_index()[time_interval[0]:time_interval[1]]  # sort index and select time interval
 
 # make a rain flag, extend rain flag x minutes after last rain to account for wet radome
 rain_flag_dwd = rainrate.Dauer > 0  # set rain flag if rain duration is greater 0 seconds
@@ -52,8 +51,8 @@ radar_ze_ip = pyLARDA.Transformations.interpolate2d(radar_ze, new_time=ceilo_cbh
 radar_ze_ip['mask'] = radar_ze_ip['mask'] == 1  # turn mask from integer to bool
 
 f_rr = interp1d(h.dt_to_ts(rain_flag_dwd.index), rain_flag_dwd, kind='nearest', fill_value="extrapolate")
-rain_flag_dwd_ip = f_rr(ceilo_cbh['ts'])  # interpolate DWD RR to MWR time values
-rain_flag_dwd_ip = rain_flag_dwd_ip == 1
+rain_flag_dwd_ip = f_rr(ceilo_cbh['ts'])  # interpolate DWD RR to ceilo time values
+rain_flag_dwd_ip = rain_flag_dwd_ip == 1  # turn mask from integer to bool
 
 # get height of first ceilo cloud base and radar echo
 h_ceilo = ceilo_cbh['var'].data[:, 0]
@@ -74,12 +73,12 @@ for i in rg_radar_all:
 # Step 1: Is there a virga in the time step
 ########################################################################################################################
 h_radar = np.asarray(h_radar)  # convert list to numpy array
+cloudy = h_radar != -1  # does the radar see a cloud?
 # since both instruments have different range resolutions compare their heights and decide if their are equal within a
 # tolerance of 23m (approximate range resolution of first radar chirp)
-cloudy = h_radar != -1  # does the radar see a cloud?
 h_diff = ~np.isclose(h_ceilo, h_radar, atol=23)  # is the ceilometer cloud base different from the first radar echo height?
 virga = h_ceilo > h_radar  # is the ceilometer cloud base higher than the first radar echo?
-# combine both masks
+# combine all masks
 virga = cloudy & h_diff & virga & ~rain_flag_dwd_ip  # is a virga present in the time step?, exclude rainy profiles
 
 ########################################################################################################################
@@ -98,10 +97,12 @@ for i in np.where(virga)[0]:
 virga_mask = virga_mask == 1
 # make a larda container with the mask
 virga = h.put_in_container(virga_mask, radar_ze_ip, name="virga_mask", paramkey="virga", var_unit="-", var_lims=[0, 1])
-fig, ax = pyLARDA.Transformations.plot_timeheight2(virga, range_interval=[0, 1000])
-virga_dt = [h.ts_to_dt(t) for t in virga['ts']]
-ax.plot(virga_dt, h_ceilo, ".", color="purple")
-fig.savefig("./tmp/virga_ceilo-res.png")
+if save_fig:
+    fig, ax = pyLARDA.Transformations.plot_timeheight2(virga, range_interval=[0, 1000])
+    virga_dt = [h.ts_to_dt(t) for t in virga['ts']]
+    ax.plot(virga_dt, h_ceilo, ".", color="purple")
+    location = virga['paraminfo']['location']
+    fig.savefig(f"./tmp/{location}_virga_ceilo-res_{time_interval[0]:%Y%m%d}.png")
 
 # virga mask on radar resolution
 
@@ -119,8 +120,10 @@ for j in range(len(ts_list)-1):
         rg2 = np.where(virga_mask[j+1])[0][-1]  # select last masked range gate
         virga_mask_hr[ts1:ts2, rg1:rg2] = True  # interpolate mask to radar time resolution
 
-virga_hr = h.put_in_container(virga_mask_hr, radar_ze, name="virga_mask", paramkey="virga", var_unit="-", var_lims=[0, 1])
-fig, ax = pyLARDA.Transformations.plot_timeheight2(virga_hr, range_interval=[0, 1000])
-virga_dt = [h.ts_to_dt(t) for t in virga['ts']]
-ax.plot(virga_dt, h_ceilo, ".", color="purple")
-fig.savefig("./tmp/virga_radar-res.png")
+virga_hr = h.put_in_container(virga_mask_hr, radar_ze, name="virga_mask", paramkey="virga", var_unit="-",
+                              var_lims=[0, 1])
+if save_fig:
+    fig, ax = pyLARDA.Transformations.plot_timeheight2(virga_hr, range_interval=[0, 1000])
+    virga_dt = [h.ts_to_dt(t) for t in virga['ts']]
+    ax.plot(virga_dt, h_ceilo, ".", color="purple")
+    fig.savefig(f"./tmp/{location}_virga_radar-res_{time_interval[0]:%Y%m%d}.png")
