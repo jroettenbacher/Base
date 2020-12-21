@@ -421,9 +421,9 @@
     description_file = 'limrad94_general.rst'
   [LIMRAD94_cn_input.params.Ze]
     variable_name = 'Ze'
-    var_unit = 'dBZ'
+    var_unit = 'mm^6/m^3'
     colormap = 'jet'
-    var_lims = [ -40, 20 ]
+    var_lims = [1.0e-5, 1.0e2]
   [LIMRAD94_cn_input.params.Vel]
     variable_name = 'vm'
     colormap = 'jet'
