@@ -14,8 +14,10 @@ import sys
 sys.path.append("/projekt1/remsens/work/jroettenbacher/Base/larda")
 import pyLARDA
 import pyLARDA.helpers as h
+import functions_jr as jr
 import datetime as dt
 import numpy as np
+from scipy.interpolate import interp1d
 import logging
 log = logging.getLogger('pyLARDA')
 log.setLevel(logging.WARNING)
@@ -31,10 +33,27 @@ time_interval2 = [dt.datetime(2020, 2, 1, 0, 0, 5), dt.datetime(2020, 2, 27, 23,
 radar_ze = larda.read("LIMRAD94_cn_input", "Ze", time_interval1, [0, 'max'])
 ceilo_cbh = larda.read("CEILO", "cbh", time_interval1)
 ceilo_beta = larda.read("CEILO", "beta", time_interval1, [0, 5000])
-# interpolate radar on ceilo time
+rainrate = jr.read_rainrate()  # read in rain rate from RV-Meteor DWD rain sensor
+rainrate = rainrate.sort_index()[time_interval1[0]:time_interval1[1]]  # sort index and select time interval
+
+# make a rain flag, extend rain flag x minutes after last rain to account for wet radome
+rain_flag_dwd = rainrate.Dauer > 0  # set rain flag if rain duration is greater 0 seconds
+# get a one dimensional array with the indices where rainflag turns from True to False or vice versa
+indices = np.asarray(np.where(np.diff(rain_flag_dwd))).flatten()
+# get indices where rainflag turns from True to False only -> index where it stops to rain
+rain_indices = np.asarray([idx for idx in indices if rain_flag_dwd[idx]])
+# from the end of each rain event add 10 minutes of masked values
+minutes = 10  # just for readability
+for i in rain_indices:
+    rain_flag_dwd[i:(i+minutes)] = True
+
+# interpolate radar and rain rate on ceilo time
 radar_ze = pyLARDA.Transformations.interpolate2d(radar_ze, new_time=ceilo_cbh['ts'])
-# turn mask from integer to bool
-radar_ze['mask'] = radar_ze['mask'] == 1
+radar_ze['mask'] = radar_ze['mask'] == 1  # turn mask from integer to bool
+
+f_rr = interp1d(h.dt_to_ts(rain_flag_dwd.index), rain_flag_dwd, kind='nearest', fill_value="extrapolate")
+rain_flag_dwd_ip = f_rr(ceilo_cbh['ts'])  # interpolate DWD RR to MWR time values
+rain_flag_dwd_ip = rain_flag_dwd_ip == 1
 
 # get height of first ceilo cloud base and radar echo
 h_ceilo = ceilo_cbh['var'].data[:, 0]
@@ -61,7 +80,7 @@ cloudy = h_radar != -1  # does the radar see a cloud?
 h_diff = ~np.isclose(h_ceilo, h_radar, atol=23)  # is the ceilometer cloud base different from the first radar echo height?
 virga = h_ceilo > h_radar  # is the ceilometer cloud base higher than the first radar echo?
 # combine both masks
-virga = cloudy & h_diff & virga  # is a virga present in the time step?
+virga = cloudy & h_diff & virga & ~rain_flag_dwd_ip  # is a virga present in the time step?, exclude rainy profiles
 
 ########################################################################################################################
 # Step 2: Create Virga Mask
