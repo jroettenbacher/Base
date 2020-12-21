@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 today=$(date +%Y%m%d)
-home=$(/projekt1/remsens/work/jroettenbacher/Base)
+home="/projekt1/remsens/work/jroettenbacher/Base"
 cd ${home}
 for date in {117..126}; do
 	echo "##################################################"
