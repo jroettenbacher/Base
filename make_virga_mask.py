@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 """script to analyse virgae during eurec4a
 Idea: compare height of first radar echo and cloud base height detected by ceilometer
-Step1: find virga in each time step
-Step2: create virga mask
-Step3: detect single virga and define borders
-Step4: evaluate statistcally -> output like cloud sniffer in csv file
+Step 1: find virga in each time step
+Step 2: create virga mask
+Step 3: detect single virga and define borders
+Step 4: evaluate statistcally -> output like cloud sniffer in csv file
+Step 5: plot radar Ze with virga in boxes (optionally)
 Result:
     - depth of virga
     - maximum Ze in virga
@@ -20,7 +21,7 @@ import datetime as dt
 import numpy as np
 from scipy.interpolate import interp1d
 from matplotlib.dates import date2num
-from matplotlib.patches import Polygon
+from matplotlib.patches import Polygon, Patch
 import pandas as pd
 import logging
 log = logging.getLogger('pyLARDA')
@@ -220,14 +221,20 @@ if save_csv:
 ########################################################################################################################
 if plot_data:
     radar_ze.update(var_unit="dBZ", var_lims=[-60, 20])
+    title = f"{location} Cloud Radar Reflectivity with Virga Detection {time_interval[0]:%Y-%m-%d}"
     t = [begin_dt, begin_dt + dt.timedelta(hours=12), end_dt]
     for i in range(2):
         fig, ax = pyLARDA.Transformations.plot_timeheight2(radar_ze, range_interval=[0, 2000],
-                                                           time_interval=[t[i], t[i+1]], z_converter='lin2z')
+                                                           time_interval=[t[i], t[i+1]], z_converter='lin2z',
+                                                           rg_converter=False,
+                                                           title=f"{title} {i+1}")
         for points_b, points_t in zip(virgae['points_b'], virgae['points_t']):
             # append the top points to the bottom points in reverse order for drawing a polygon
             points = points_b + points_t[::-1]
             ax.add_patch(Polygon(points, closed=True, fc='pink', ec='purple', alpha=0.7))
+        # add legend for virga polygons
+        virga_lgd = [Patch(facecolor='pink', edgecolor='purple', label="Virga")]
+        ax.legend(handles=virga_lgd, bbox_to_anchor=[1, -0.1], loc="lower left",  prop={'size': 12})
         figname = f"{csv_outpath}/{location}_radar-Ze_virga-masked_{time_interval[0]:%Y%m%d}_{i+1}.png"
         fig.savefig(figname)
         log.info(f"Saved {figname}")
