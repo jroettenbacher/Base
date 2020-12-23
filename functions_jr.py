@@ -958,9 +958,10 @@ def find_closest_timesteps(df, ts):
 def read_rainrate(path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DWD"):
     """Read in rain rate from RV-Meteor during Eurec4a"""
     file = "20200114_M161_Nsl.CSV"
-    rr = pd.read_csv(f'{path}/{file}', sep=';', index_col='Timestamp', parse_dates=True,
-                     usecols=['Timestamp', '   Dauer', 'RR_WS100_h', 'Nabs_WS100'])
-    rr.columns = ['Dauer', 'RR_WS100_h', 'Nabs_WS100']
+    rr = pd.read_csv(f'{path}/{file}', sep=';', usecols=['Timestamp', '   Dauer', 'RR_WS100_h', 'Nabs_WS100'])
+    rr.Timestamp = pd.to_datetime(rr.Timestamp, format="%d.%m.%Y %H:%M")  # turn Timestamp datetime
+    rr.set_index('Timestamp', inplace=True)  # set Timestamp column as DateTimeIndex
+    rr.columns = ['Dauer', 'RR_WS100_h', 'Nabs_WS100']  # rename columns
     return rr
 
 
