@@ -41,7 +41,7 @@ if 'date' in kwargs:
     date = str(kwargs['date'])
     begin_dt = dt.datetime.strptime(date, "%Y%m%d")
 else:
-    begin_dt = dt.datetime(2020, 1, 20, 0, 0, 0)
+    begin_dt = dt.datetime(2020, 2, 1, 0, 0, 0)
 end_dt = begin_dt + dt.timedelta(hours=23, minutes=59, seconds=59)
 time_interval = [begin_dt, end_dt]
 
@@ -49,8 +49,7 @@ time_interval = [begin_dt, end_dt]
 radar_ze = larda.read("LIMRAD94_cn_input", "Ze", time_interval, [0, 'max'])
 ceilo_cbh = larda.read("CEILO", "cbh", time_interval)
 rainrate = jr.read_rainrate()  # read in rain rate from RV-Meteor DWD rain sensor
-rainrate = rainrate.sort_index()[time_interval[0]:time_interval[1]]  # sort index and select time interval
-
+rainrate = rainrate[time_interval[0]:time_interval[1]]  # sort index and select time interval
 # make a rain flag, extend rain flag x minutes after last rain to account for wet radome
 rain_flag_dwd = rainrate.Dauer > 0  # set rain flag if rain duration is greater 0 seconds
 # get a one dimensional array with the indices where rainflag turns from True to False or vice versa
