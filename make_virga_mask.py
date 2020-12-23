@@ -20,6 +20,7 @@ import functions_jr as jr
 import datetime as dt
 import numpy as np
 from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
 from matplotlib.dates import date2num
 from matplotlib.patches import Polygon, Patch
 import pandas as pd
@@ -123,6 +124,7 @@ if save_fig:
     ax.plot(virga_dt, h_ceilo, ".", color="purple")
     figname = f"./tmp/{location}_virga_ceilo-res_{time_interval[0]:%Y%m%d}.png"
     fig.savefig(figname)
+    plt.close()
     log.info(f"Saved {figname}")
 
 # virga mask on radar resolution
@@ -149,6 +151,7 @@ if save_fig:
     ax.plot(virga_dt, h_ceilo, ".", color="purple")
     figname = f"./tmp/{location}_virga_radar-res_{time_interval[0]:%Y%m%d}.png"
     fig.savefig(figname)
+    plt.close()
     log.info(f"Saved {figname}")
 
 ########################################################################################################################
@@ -240,4 +243,21 @@ if plot_data:
         ax.legend(handles=virga_lgd, bbox_to_anchor=[1, -0.1], loc="lower left",  prop={'size': 12})
         figname = f"{csv_outpath}/{location}_radar-Ze_virga-masked_{time_interval[0]:%Y%m%d}_{i+1}.png"
         fig.savefig(figname)
+        fig.closefig()
+        plt.close()
         log.info(f"Saved {figname}")
+
+# # plot rainrate and used rainflag
+# rainrate["Flag"] = rain_flag_dwd
+# rr_plot = rainrate["20200125 12":'20200125 15']
+# fig, ax = plt.subplots(figsize=[10, 6])
+# ax.plot(date2num(rr_plot.index), rr_plot.Flag, label="Flag")
+# ax.plot(date2num(rr_plot.index), rr_plot.Dauer)
+# plt.title("RV-Meteor DWD Rain Sensor - Rain Duration per Minute in Seconds")
+# plt.ylabel("Rain Duration [s]")
+# plt.xlabel("Time [UTC]")
+# time_extend = rr_plot.index[-1] - rr_plot.index[0]
+# ax = pyLARDA.Transformations._set_xticks_and_xlabels(ax, time_extend)
+# ax.legend()
+# plt.savefig(f"./tmp/{location}_DWD-rainrate_{time_interval[0]:%Y%m%d}.png")
+# plt.close()
