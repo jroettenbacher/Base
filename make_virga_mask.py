@@ -98,7 +98,8 @@ h_diff = ~np.isclose(h_ceilo, h_radar, atol=23)  # is the ceilometer cloud base 
 virga = h_ceilo > h_radar  # is the ceilometer cloud base higher than the first radar echo?
 ze_threshold = first_radar_ze < h.z2lin(0)  # is the refelctivity in the first radar range gate below 0 dBZ?
 # combine all masks
-virga = cloudy & h_diff & virga & ~rain_flag_dwd_ip & ze_threshold # is a virga present in the time step?, exclude rainy profiles
+# is a virga present in the time step?, exclude rainy profiles
+virga = cloudy & h_diff & virga & ~rain_flag_dwd_ip & ze_threshold
 
 ########################################################################################################################
 # Step 2: Create Virga Mask
@@ -106,14 +107,21 @@ virga = cloudy & h_diff & virga & ~rain_flag_dwd_ip & ze_threshold # is a virga 
 # virga mask on ceilo resolution
 # if timestep has virga, mask all radar range gates between first radar echo and cbh from ceilo as virga
 # find equivalent range gate to ceilo cbh
-virga_mask = np.zeros_like(radar_ze_ip['var'])
+virga_mask = np.zeros(radar_ze_ip['var'].shape, dtype=bool)
+ze_gradient_mask = np.zeros(radar_ze_ip['ts'].shape, dtype=bool)  # does Ze increase from bottom to top of virga?
 for i in np.where(virga)[0]:
     lower_rg = rg_radar_all[i][0]
     upper_rg = h.argnearest(radar_ze_ip['rg'], h_ceilo[i])
-    assert lower_rg < upper_rg, f"Lower range ({lower_rg}) higher than upper range ({upper_rg})"
-    virga_mask[i, lower_rg:upper_rg] = 1
+    assert lower_rg < upper_rg, f"Lower range gate ({lower_rg}) higher than upper range gate ({upper_rg})"
+    # virga_mask[i, lower_rg:upper_rg] = True
+    # select only non nan values
+    column_ze = radar_ze_ip['var'][i, lower_rg:upper_rg][~radar_ze_ip['mask'][i, lower_rg:upper_rg]]
+    # calculate difference between i+1 and i'th element -> needs to be positive for Ze to increase with height
+    ze_gradient_mask[i] = all(np.diff(column_ze) > 0)
+    # set mask if Ze increases from bottom to top
+    if ze_gradient_mask[i]:
+        virga_mask[i, lower_rg:upper_rg] = True
 
-virga_mask = virga_mask == 1
 # make a larda container with the mask
 virga = h.put_in_container(virga_mask, radar_ze_ip, name="virga_mask", paramkey="virga", var_unit="-", var_lims=[0, 1])
 location = virga['paraminfo']['location']
