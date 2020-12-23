@@ -41,7 +41,7 @@ if 'date' in kwargs:
     date = str(kwargs['date'])
     begin_dt = dt.datetime.strptime(date, "%Y%m%d")
 else:
-    begin_dt = dt.datetime(2020, 2, 1, 0, 0, 0)
+    begin_dt = dt.datetime(2020, 1, 25, 0, 0, 0)
 end_dt = begin_dt + dt.timedelta(hours=23, minutes=59, seconds=59)
 time_interval = [begin_dt, end_dt]
 
@@ -77,24 +77,28 @@ rg_radar_all = [np.asarray(~radar_ze_ip['mask'][t, :]).nonzero()[0] for t in ran
 # loop through arrays and select first element which corresponds to the first range gate with a signal
 # convert the range gate index into its corresponding height
 # if the time stamp has no signal an empty array is returned, append a -1 for those steps to keep size of time dimension
-h_radar = list()
-for i in rg_radar_all:
+h_radar, first_radar_ze = list(), list()
+for i in range(len(rg_radar_all)):
     try:
-        h_radar.append(radar_ze_ip['rg'][i[0]])
+        rg = rg_radar_all[i][0]
+        h_radar.append(radar_ze_ip['rg'][rg])
+        first_radar_ze.append(radar_ze_ip['var'][i, rg])
     except IndexError:
         h_radar.append(-1)
+        first_radar_ze.append(np.nan)
 
 ########################################################################################################################
 # Step 1: Is there a virga in the time step
 ########################################################################################################################
-h_radar = np.asarray(h_radar)  # convert list to numpy array
+h_radar, first_radar_ze = np.asarray(h_radar), np.asarray(first_radar_ze)  # convert list to numpy array
 cloudy = h_radar != -1  # does the radar see a cloud?
 # since both instruments have different range resolutions compare their heights and decide if their are equal within a
 # tolerance of 23m (approximate range resolution of first radar chirp)
 h_diff = ~np.isclose(h_ceilo, h_radar, atol=23)  # is the ceilometer cloud base different from the first radar echo height?
 virga = h_ceilo > h_radar  # is the ceilometer cloud base higher than the first radar echo?
+ze_threshold = first_radar_ze < h.z2lin(0)  # is the refelctivity in the first radar range gate below 0 dBZ?
 # combine all masks
-virga = cloudy & h_diff & virga & ~rain_flag_dwd_ip  # is a virga present in the time step?, exclude rainy profiles
+virga = cloudy & h_diff & virga & ~rain_flag_dwd_ip & ze_threshold # is a virga present in the time step?, exclude rainy profiles
 
 ########################################################################################################################
 # Step 2: Create Virga Mask
