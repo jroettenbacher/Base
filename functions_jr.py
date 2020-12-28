@@ -3,6 +3,7 @@ from scipy import interpolate
 from scipy.signal import correlate
 import numpy as np
 import pandas as pd
+from dask import dataframe as dd
 import time
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -982,6 +983,24 @@ def add_season_to_df(df):
     return df
 
 
+def merge_csv(path, outname, **kwargs):
+    """Merge all csv files in a directory to one
+
+    Args:
+        path (str): path to directory with csv files
+        outname (str): name of the output csv file
+        kwargs: keywords taken by read csv
+        - sep
+
+    Returns: saves a new csv file, omitting the date in the file name
+
+    """
+    sep = kwargs['sep'] if 'sep' in kwargs else ','
+    dfs = dd.read_csv(f"{path}/*.csv", sep=sep)
+    dfs.to_csv(f"{path}/{outname}", single_file=True)
+    logger.info(f"Merged all csv files in {path} and saved to {outname}")
+
+
 if __name__ == '__main__':
     import sys, time
     import datetime as dt
@@ -1038,4 +1057,9 @@ if __name__ == '__main__':
     # rr = read_rainrate()
 
     # test read action log
-    action_log = read_device_action_log()
+    # action_log = read_device_action_log()
+
+    # test merge_csv
+    path = "/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/virga_sniffer"
+    outname = "RV-Meteor_virga-collection_all.csv"
+    merge_csv(path, outname, sep=";")
