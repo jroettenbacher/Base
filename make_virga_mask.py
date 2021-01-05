@@ -249,7 +249,6 @@ if plot_data:
         ax.legend(handles=virga_lgd, bbox_to_anchor=[1, -0.1], loc="lower left",  prop={'size': 12})
         figname = f"{csv_outpath}/{location}_radar-Ze_virga-masked_{time_interval[0]:%Y%m%d}_{i+1}.png"
         fig.savefig(figname)
-        fig.closefig()
         plt.close()
         log.info(f"Saved {figname}")
 
