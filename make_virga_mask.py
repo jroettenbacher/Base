@@ -36,6 +36,7 @@ save_fig = False  # plot the two virga masks? saves to ./tmp/
 save_csv = True
 plot_data = True  # plot radar Ze together with virga polygons
 csv_outpath = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/virga_sniffer'
+csv_outpath2 = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/virga_sniffer/flag'
 larda = pyLARDA.LARDA().connect("eurec4a")
 
 if 'date' in kwargs:
@@ -96,11 +97,11 @@ cloudy = h_radar != -1  # does the radar see a cloud?
 # since both instruments have different range resolutions compare their heights and decide if their are equal within a
 # tolerance of 23m (approximate range resolution of first radar chirp)
 h_diff = ~np.isclose(h_ceilo, h_radar, atol=23)  # is the ceilometer cloud base different from the first radar echo height?
-virga = h_ceilo > h_radar  # is the ceilometer cloud base higher than the first radar echo?
+virga_flag = h_ceilo > h_radar  # is the ceilometer cloud base higher than the first radar echo?
 ze_threshold = first_radar_ze < h.z2lin(0)  # is the refelctivity in the first radar range gate below 0 dBZ?
 # combine all masks
 # is a virga present in the time step?, exclude rainy profiles
-virga = cloudy & h_diff & virga & ~rain_flag_dwd_ip & ze_threshold
+virga_flag = cloudy & h_diff & virga_flag & ~rain_flag_dwd_ip & ze_threshold
 
 ########################################################################################################################
 # Step 2: Create Virga Mask
@@ -109,7 +110,7 @@ virga = cloudy & h_diff & virga & ~rain_flag_dwd_ip & ze_threshold
 # if timestep has virga, mask all radar range gates between first radar echo and cbh from ceilo as virga
 # find equivalent range gate to ceilo cbh
 virga_mask = np.zeros(radar_ze_ip['var'].shape, dtype=bool)
-for i in np.where(virga)[0]:
+for i in np.where(virga_flag)[0]:
     lower_rg = rg_radar_all[i][0]
     upper_rg = h.argnearest(radar_ze_ip['rg'], h_ceilo[i])
     assert lower_rg < upper_rg, f"Lower range gate ({lower_rg}) higher than upper range gate ({upper_rg})"
@@ -157,8 +158,8 @@ if save_fig:
 ########################################################################################################################
 # Step 3: define single virga borders (corners)
 ########################################################################################################################
-min_vert_ext = 3  # minmum verticalextent: 3 radar range gates (70 - 120m) depending on chirp
-min_hori_ext = 20  # virga needs to be present for at least 1 minute (20+3s) to be counted
+min_vert_ext = 3  # minimum vertical extent: 3 radar range gates (70 - 120m) depending on chirp
+min_hori_ext = 20  # virga needs to be present for at least 1 minute (20*3s) to be counted
 max_hori_gap = 10  # maximum horizontal gap: 10 radar time steps (40 - 30s) depending on chirp table
 virgae = dict(ID=list(), virga_thickness_avg=list(), virga_thickness_med=list(), virga_thickness_std=list(),
               max_Ze=list(), min_Ze=list(), avg_height=list(), max_height=list(), min_height=list(),
@@ -168,7 +169,7 @@ while t_idx < len(virga_hr['ts']):
     # check if a virga was detected in this time step
     if any(virga_hr['var'][t_idx, :]):
         v, b, p_b, p_t = list(), list(), list(), list()
-        # as long as a virga is detected within in the maximum horizontal gap add the borders to v
+        # as long as a virga is detected within the maximum horizontal gap add the borders to v
         while virga_hr['var'][t_idx:(t_idx+max_hori_gap), :].any():
             h_ids = np.where(virga_hr['var'][t_idx, :])[0]
             if len(h_ids) > 0:
@@ -220,6 +221,11 @@ if save_csv:
     csv_name = f"{csv_outpath}/{location}_virga-collection_{time_interval[0]:%Y%m%d}.csv"
     csv_out.to_csv(csv_name, sep=';', index=False)
     log.info(f"Saved {csv_name}")
+    # write a timeseries csv file with attributes for each timestep (ceilometer resolution)
+    timeseries_out = dict(unix_time=ceilo_cbh['ts'], virga_flag=virga_flag)
+    ts_name = f"{csv_outpath}/RV-Meteor_virga-timeseries_{time_interval[0]:%Y%m%d}.csv"
+    pd.DataFrame(timeseries_out).to_csv(ts_name, sep=';', index=False)
+    log.info(f"Saved {ts_name}")
 
 
 ########################################################################################################################
