@@ -49,6 +49,7 @@ time_interval = [begin_dt, end_dt]
 
 # read in data
 radar_ze = larda.read("LIMRAD94_cn_input", "Ze", time_interval, [0, 'max'])
+radar_vel = larda.read("LIMRAD94_cn_input", "Vel", time_interval, [0, 'max'])
 ceilo_cbh = larda.read("CEILO", "cbh", time_interval)
 rainrate = jr.read_rainrate()  # read in rain rate from RV-Meteor DWD rain sensor
 rainrate = rainrate[time_interval[0]:time_interval[1]]  # sort index and select time interval
@@ -66,6 +67,8 @@ for i in rain_indices:
 # interpolate radar and rain rate on ceilo time
 radar_ze_ip = pyLARDA.Transformations.interpolate2d(radar_ze, new_time=ceilo_cbh['ts'])
 radar_ze_ip['mask'] = radar_ze_ip['mask'] == 1  # turn mask from integer to bool
+radar_vel_ip = pyLARDA.Transformations.interpolate2d(radar_vel, new_time=ceilo_cbh['ts'])
+radar_vel_ip['mask'] = radar_vel_ip['mask'] == 1  # turn mask from integer to bool
 
 f_rr = interp1d(h.dt_to_ts(rain_flag_dwd.index), rain_flag_dwd, kind='nearest', fill_value="extrapolate")
 rain_flag_dwd_ip = f_rr(ceilo_cbh['ts'])  # interpolate DWD RR to ceilo time values
@@ -79,15 +82,19 @@ rg_radar_all = [np.asarray(~radar_ze_ip['mask'][t, :]).nonzero()[0] for t in ran
 # loop through arrays and select first element which corresponds to the first range gate with a signal
 # convert the range gate index into its corresponding height
 # if the time stamp has no signal an empty array is returned, append a -1 for those steps to keep size of time dimension
-h_radar, first_radar_ze = list(), list()
+h_radar, first_radar_ze, max_ze, max_vel, depth = list(), list(), list(), list(), list()
 for i in range(len(rg_radar_all)):
     try:
         rg = rg_radar_all[i][0]
         h_radar.append(radar_ze_ip['rg'][rg])
-        first_radar_ze.append(radar_ze_ip['var'][i, rg])
+        first_radar_ze.append(radar_ze_ip['var'][i, rg])  # save reflectivity at lowest radar range gate
+        max_ze.append(radar_ze_ip['var'][i, :])  # save maximum reflectivity in time step
+        max_vel.append(radar_vel_ip['var'][i, :])  # save max Doppler velocity in time step
     except IndexError:
         h_radar.append(-1)
         first_radar_ze.append(np.nan)
+        max_ze.append(np.nan)
+        max_vel.append(np.nan)
 
 ########################################################################################################################
 # Step 1: Is there a virga in the time step
@@ -110,6 +117,9 @@ virga_flag = cloudy & h_diff & virga_flag & ~rain_flag_dwd_ip & ze_threshold
 # if timestep has virga, mask all radar range gates between first radar echo and cbh from ceilo as virga
 # find equivalent range gate to ceilo cbh
 virga_mask = np.zeros(radar_ze_ip['var'].shape, dtype=bool)
+# array for the standard deviation of the Ze gradient inside the virga
+ze_gradient_std = np.full(ceilo_cbh['ts'].shape, np.nan)
+vel_gradient_std = np.full(ceilo_cbh['ts'].shape, np.nan)  # same as above but for the velocity gradient
 for i in np.where(virga_flag)[0]:
     lower_rg = rg_radar_all[i][0]
     upper_rg = h.argnearest(radar_ze_ip['rg'], h_ceilo[i])
@@ -170,7 +180,7 @@ while t_idx < len(virga_hr['ts']):
     if any(virga_hr['var'][t_idx, :]):
         v, b, p_b, p_t = list(), list(), list(), list()
         # as long as a virga is detected within the maximum horizontal gap add the borders to v
-        while virga_hr['var'][t_idx:(t_idx+max_hori_gap), :].any():
+        while any(virga_hr['var'][t_idx:(t_idx+max_hori_gap), :]):
             h_ids = np.where(virga_hr['var'][t_idx, :])[0]
             if len(h_ids) > 0:
                 if (h_ids[-1] - h_ids[0]) > min_vert_ext:
