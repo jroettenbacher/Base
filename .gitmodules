@@ -1,3 +1,6 @@
 [submodule "larda-fork"]
 	path = larda
 	url = https://github.com/jroettenbacher/larda.git
+[submodule "ship-motion-correction-for-EUREC4A-campaign"]
+	path = ship-motion-correction-for-EUREC4A-campaign
+	url = https://github.com/jroettenbacher/ship-motion-correction-for-EUREC4A-campaign.git
