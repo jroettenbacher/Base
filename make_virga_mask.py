@@ -274,8 +274,6 @@ if save_csv:
     csv_out.to_csv(csv_name, sep=';', index=False)
     log.info(f"Saved {csv_name}")
     # write a timeseries csv file with attributes for each timestep (ceilometer resolution)
-    # make new virga flag: there is only a virga in a timestep if more than one timestep has a virga
-
     ts_out = dict(unix_time=ceilo_cbh['ts'], virga_flag=virga_flag, ceilo_cbh=ceilo_cbh['var'][:, 0],
                   lowest_virga_range_gate=lowest_rg, virga_depth=virga_depth, cloud_depth=cloud_depth,
                   max_ze=max_ze, max_dbz=h.lin2z(max_ze), max_vel=max_vel,
@@ -301,9 +299,9 @@ if plot_data:
         for points_b, points_t in zip(virgae['points_b'], virgae['points_t']):
             # append the top points to the bottom points in reverse order for drawing a polygon
             points = points_b + points_t[::-1]
-            ax.add_patch(Polygon(points, closed=True, fc='pink', ec='purple', alpha=0.7))
+            ax.add_patch(Polygon(points, closed=True, fc='pink', ec='black', alpha=0.5))
         # add legend for virga polygons
-        virga_lgd = [Patch(facecolor='pink', edgecolor='purple', label="Virga")]
+        virga_lgd = [Patch(facecolor='pink', edgecolor='black', label="Virga")]
         ax.legend(handles=virga_lgd, bbox_to_anchor=[1, -0.1], loc="lower left",  prop={'size': 12})
         figname = f"{csv_outpath}/{location}_radar-Ze_virga-masked_{time_interval[0]:%Y%m%d}_{i+1}.png"
         fig.savefig(figname)
