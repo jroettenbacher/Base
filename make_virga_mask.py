@@ -133,8 +133,6 @@ for i in np.where(virga_flag)[0]:
     upper_rg = h.argnearest(radar_ze_ip['rg'], h_ceilo[i])
     assert lower_rg < upper_rg, f"Lower range gate ({lower_rg}) higher than upper range gate ({upper_rg})"
     virga_mask[i, lower_rg:upper_rg] = True
-    ze_slice = radar_ze_ip['var'][i, lower_rg:upper_rg]  # get radar ze slice
-    ze_gradient_std[i] = np.std(ze_slice[ze_slice != -999])  # take standard deviation of non nan values
 
 # make a larda container with the mask
 virga = h.put_in_container(virga_mask, radar_ze_ip, name="virga_mask", paramkey="virga", var_unit="-", var_lims=[0, 1])
