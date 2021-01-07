@@ -82,14 +82,22 @@ rg_radar_all = [np.asarray(~radar_ze_ip['mask'][t, :]).nonzero()[0] for t in ran
 # loop through arrays and select first element which corresponds to the first range gate with a signal
 # convert the range gate index into its corresponding height
 # if the time stamp has no signal an empty array is returned, append a -1 for those steps to keep size of time dimension
+# check for the minimum vertical extent to already exclude such cases from the mask
+min_vert_ext = 3  # minimum vertical extent: 3 radar range gates (70 - 120m) depending on chirp
 h_radar, first_radar_ze, max_ze, max_vel, depth = list(), list(), list(), list(), list()
 for i in range(len(rg_radar_all)):
     try:
         rg = rg_radar_all[i][0]
-        h_radar.append(radar_ze_ip['rg'][rg])
-        first_radar_ze.append(radar_ze_ip['var'][i, rg])  # save reflectivity at lowest radar range gate
-        max_ze.append(radar_ze_ip['var'][i, :])  # save maximum reflectivity in time step
-        max_vel.append(radar_vel_ip['var'][i, :])  # save max Doppler velocity in time step
+        if len(rg_radar_all[i]) >= min_vert_ext:
+            h_radar.append(radar_ze_ip['rg'][rg])
+            first_radar_ze.append(radar_ze_ip['var'][i, rg])  # save reflectivity at lowest radar range gate
+            max_ze.append(radar_ze_ip['var'][i, :])  # save maximum reflectivity in time step
+            max_vel.append(radar_vel_ip['var'][i, :])  # save max Doppler velocity in time step
+        else:
+            h_radar.append(-1)
+            first_radar_ze.append(np.nan)
+            max_ze.append(np.nan)
+            max_vel.append(np.nan)
     except IndexError:
         h_radar.append(-1)
         first_radar_ze.append(np.nan)
@@ -170,7 +178,6 @@ if save_fig:
 ########################################################################################################################
 # Step 3: define single virga borders (corners)
 ########################################################################################################################
-min_vert_ext = 3  # minimum vertical extent: 3 radar range gates (70 - 120m) depending on chirp
 min_hori_ext = 20  # virga needs to be present for at least 1 minute (20*3s) to be counted
 max_hori_gap = 10  # maximum horizontal gap: 10 radar time steps (40 - 30s) depending on chirp table
 virgae = dict(ID=list(), virga_thickness_avg=list(), virga_thickness_med=list(), virga_thickness_std=list(),
