@@ -50,6 +50,7 @@ time_interval = [begin_dt, end_dt]
 # read in data
 radar_ze = larda.read("LIMRAD94_cn_input", "Ze", time_interval, [0, 'max'])
 radar_vel = larda.read("LIMRAD94_cn_input", "Vel", time_interval, [0, 'max'])
+radar_cloud_mask = larda.read("LIMRAD94_cn_input", "cloud_bases_tops", time_interval, [0, 'max'])
 ceilo_cbh = larda.read("CEILO", "cbh", time_interval)
 rainrate = jr.read_rainrate()  # read in rain rate from RV-Meteor DWD rain sensor
 rainrate = rainrate[time_interval[0]:time_interval[1]]  # sort index and select time interval
@@ -69,6 +70,7 @@ radar_ze_ip = pyLARDA.Transformations.interpolate2d(radar_ze, new_time=ceilo_cbh
 radar_ze_ip['mask'] = radar_ze_ip['mask'] == 1  # turn mask from integer to bool
 radar_vel_ip = pyLARDA.Transformations.interpolate2d(radar_vel, new_time=ceilo_cbh['ts'])
 radar_vel_ip['mask'] = radar_vel_ip['mask'] == 1  # turn mask from integer to bool
+radar_cloud_mask_ip = pyLARDA.Transformations.select_closest(radar_cloud_mask, ceilo_cbh['ts'])
 
 f_rr = interp1d(h.dt_to_ts(rain_flag_dwd.index), rain_flag_dwd, kind='nearest', fill_value="extrapolate")
 rain_flag_dwd_ip = f_rr(ceilo_cbh['ts'])  # interpolate DWD RR to ceilo time values
@@ -91,18 +93,12 @@ for i in range(len(rg_radar_all)):
         if len(rg_radar_all[i]) >= min_vert_ext:
             h_radar.append(radar_ze_ip['rg'][rg])
             first_radar_ze.append(radar_ze_ip['var'][i, rg])  # save reflectivity at lowest radar range gate
-            max_ze.append(radar_ze_ip['var'][i, :])  # save maximum reflectivity in time step
-            max_vel.append(radar_vel_ip['var'][i, :])  # save max Doppler velocity in time step
         else:
             h_radar.append(-1)
             first_radar_ze.append(np.nan)
-            max_ze.append(np.nan)
-            max_vel.append(np.nan)
     except IndexError:
         h_radar.append(-1)
         first_radar_ze.append(np.nan)
-        max_ze.append(np.nan)
-        max_vel.append(np.nan)
 
 ########################################################################################################################
 # Step 1: Is there a virga in the time step
@@ -125,14 +121,39 @@ virga_flag = cloudy & h_diff & virga_flag & ~rain_flag_dwd_ip & ze_threshold
 # if timestep has virga, mask all radar range gates between first radar echo and cbh from ceilo as virga
 # find equivalent range gate to ceilo cbh
 virga_mask = np.zeros(radar_ze_ip['var'].shape, dtype=bool)
+# initialize arrays for time series csv output
 # array for the standard deviation of the Ze gradient inside the virga
 ze_gradient_std = np.full(ceilo_cbh['ts'].shape, np.nan)
+dbz_gradient_std = np.full(ceilo_cbh['ts'].shape, np.nan)
 vel_gradient_std = np.full(ceilo_cbh['ts'].shape, np.nan)  # same as above but for the velocity gradient
+max_ze = np.full(ceilo_cbh['ts'].shape, np.nan)
+max_vel = np.full(ceilo_cbh['ts'].shape, np.nan)
+virga_depth = np.full(ceilo_cbh['ts'].shape, np.nan)
+cloud_depth = np.full(ceilo_cbh['ts'].shape, np.nan)
+lowest_rg = np.full(ceilo_cbh['ts'].shape, np.nan)
+first_gate = np.full(ceilo_cbh['ts'].shape, False)
 for i in np.where(virga_flag)[0]:
     lower_rg = rg_radar_all[i][0]
     upper_rg = h.argnearest(radar_ze_ip['rg'], h_ceilo[i])
     assert lower_rg < upper_rg, f"Lower range gate ({lower_rg}) higher than upper range gate ({upper_rg})"
-    virga_mask[i, lower_rg:upper_rg] = True
+    # double check for minimal vertical extent
+    if (upper_rg - lower_rg) >= min_vert_ext:
+        virga_mask[i, lower_rg:upper_rg] = True
+        ze_slice = radar_ze_ip['var'][i, lower_rg:upper_rg]  # get radar ze slice
+        vel_slice = radar_vel_ip['var'][i, lower_rg:upper_rg]  # get radar vel slice
+        ze_gradient_std[i] = np.std(np.diff(ze_slice[ze_slice != -999]))  # take standard deviation of diff non nan values
+        dbz_gradient_std[i] = h.lin2z(1 + np.std(np.diff(ze_slice[ze_slice != -999])) / np.mean(np.diff(ze_slice[ze_slice != -999])))
+        vel_gradient_std[i] = np.std(np.diff(vel_slice[vel_slice != -999]))  # take standard deviation of diff non nan values
+        max_ze[i] = np.max(ze_slice)  # save maximum reflectivity in virga slice
+        max_vel[i] = np.max(vel_slice)  # save max Doppler velocity in virga slice
+        virga_depth[i] = radar_ze_ip['rg'][upper_rg] - radar_ze_ip['rg'][lower_rg]
+        # get the range index of the lowest cloud top
+        cloud_top_idx = np.min(np.where(radar_cloud_mask_ip['var'][i, :] == 1)[0])
+        cloud_depth[i] = radar_ze_ip['rg'][cloud_top_idx] - ceilo_cbh['var'][i, 0]
+        lowest_rg[i] = radar_ze_ip['rg'][lower_rg]
+        first_gate[i] = lower_rg == 0  # check if lowest virga range gate corresponds to first radar range gate
+    else:
+        continue
 
 # make a larda container with the mask
 virga = h.put_in_container(virga_mask, radar_ze_ip, name="virga_mask", paramkey="virga", var_unit="-", var_lims=[0, 1])
@@ -174,23 +195,25 @@ if save_fig:
     log.info(f"Saved {figname}")
 
 ########################################################################################################################
-# Step 3: define single virga borders (corners)
+# Step 3: define single virga borders (corners) and update virga mask
 ########################################################################################################################
 min_hori_ext = 20  # virga needs to be present for at least 1 minute (20*3s) to be counted
 max_hori_gap = 10  # maximum horizontal gap: 10 radar time steps (40 - 30s) depending on chirp table
 virgae = dict(ID=list(), virga_thickness_avg=list(), virga_thickness_med=list(), virga_thickness_std=list(),
               max_Ze=list(), min_Ze=list(), avg_height=list(), max_height=list(), min_height=list(),
               idx=list(), borders=list(), points_b=list(), points_t=list())
+real_virgas_hr = np.zeros(virga_mask_hr.shape, dtype=bool)
 t_idx = 0
 while t_idx < len(virga_hr['ts']):
     # check if a virga was detected in this time step
     if any(virga_hr['var'][t_idx, :]):
         v, b, p_b, p_t = list(), list(), list(), list()
         # as long as a virga is detected within the maximum horizontal gap add the borders to v
-        while any(virga_hr['var'][t_idx:(t_idx+max_hori_gap), :]):
+        while virga_hr['var'][t_idx:(t_idx+max_hori_gap), :].any():
             h_ids = np.where(virga_hr['var'][t_idx, :])[0]
             if len(h_ids) > 0:
                 if (h_ids[-1] - h_ids[0]) > min_vert_ext:
+                    real_virgas_hr[t_idx, h_ids] = True  # set virga mask with only big virgas
                     v.append((t_idx, h_ids[0], h_ids[-1]))
                     b.append((virga_hr['ts'][t_idx], virga_hr['rg'][h_ids[0]], virga_hr['rg'][h_ids[-1]]))
                     p_b.append(np.array([date2num(h.ts_to_dt(virga_hr['ts'][t_idx])), virga_hr['rg'][h_ids[0]]]))
@@ -205,6 +228,18 @@ while t_idx < len(virga_hr['ts']):
     else:
         t_idx += 1
 
+# put new virga mask in container
+real_virgas = h.put_in_container(real_virgas_hr, radar_ze, name="virga_mask", paramkey="virga", var_unit="-",
+                                 var_lims=[0, 1])
+
+if save_fig:
+    fig, ax = pyLARDA.Transformations.plot_timeheight2(real_virgas, range_interval=[0, 1000])
+    virga_dt = [h.ts_to_dt(t) for t in virga['ts']]
+    ax.plot(virga_dt, h_ceilo, ".", color="purple")
+    figname = f"./tmp/{location}_real_virga_radar-res_{time_interval[0]:%Y%m%d}.png"
+    fig.savefig(figname)
+    plt.close()
+    log.info(f"Saved {figname}")
 ########################################################################################################################
 # Step 4: get statistics of each virga and save to csv file
 ########################################################################################################################
@@ -215,7 +250,7 @@ for v in virgae['idx']:
     rgs = [k[1:] for k in v]
     range_slice = [np.min(rgs), np.max(rgs)]
     virga_ze = pyLARDA.Transformations.slice_container(radar_ze, index={'time': time_slice, 'range': range_slice})
-    mask = pyLARDA.Transformations.slice_container(virga_hr, index={'time': time_slice, 'range': range_slice})['var']
+    mask = pyLARDA.Transformations.slice_container(real_virgas, index={'time': time_slice, 'range': range_slice})['var']
     # calculate thickness in each timestep
     thickness = list()
     for idx in range(len(v)):
@@ -239,9 +274,15 @@ if save_csv:
     csv_out.to_csv(csv_name, sep=';', index=False)
     log.info(f"Saved {csv_name}")
     # write a timeseries csv file with attributes for each timestep (ceilometer resolution)
-    timeseries_out = dict(unix_time=ceilo_cbh['ts'], virga_flag=virga_flag)
-    ts_name = f"{csv_outpath}/RV-Meteor_virga-timeseries_{time_interval[0]:%Y%m%d}.csv"
-    pd.DataFrame(timeseries_out).to_csv(ts_name, sep=';', index=False)
+    # make new virga flag: there is only a virga in a timestep if more than one timestep has a virga
+
+    ts_out = dict(unix_time=ceilo_cbh['ts'], virga_flag=virga_flag, ceilo_cbh=ceilo_cbh['var'][:, 0],
+                  lowest_virga_range_gate=lowest_rg, virga_depth=virga_depth, cloud_depth=cloud_depth,
+                  max_ze=max_ze, max_dbz=h.lin2z(max_ze), max_vel=max_vel,
+                  ze_gradient_std=ze_gradient_std, vel_gradient_std=vel_gradient_std, dbz_gradient_std=dbz_gradient_std,
+                  first_gate=first_gate)
+    ts_name = f"{csv_outpath}/time_series/RV-Meteor_virga-timeseries_{time_interval[0]:%Y%m%d}.csv"
+    pd.DataFrame(ts_out).to_csv(ts_name, sep=';', index=False)
     log.info(f"Saved {ts_name}")
 
 
