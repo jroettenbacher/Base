@@ -806,8 +806,16 @@ time_interval = [date, date + timedelta(0.9999)]
 radarData = larda.read("LIMRAD94", "VEL", time_interval, [0, 'max'])
 SeqIntTime = larda.read("LIMRAD94", "SeqIntTime", time_interval)
 Nchirps = SeqIntTime['var'].shape[1]  # get number of chirps
+mdv = radarData['var']
 # get the exact chirp time stamps
 chirp_ts = calc_chirp_timestamps(radarData, date)
+chirp_ranges = dict()
+for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA', 'DoppLen', 'MaxVel']:
+    # print('loading variable from LV1 :: ' + var)
+    chirp_ranges.update({var: larda.read("LIMRAD94", var, time_interval, [0, 'max'])})
+rg_borders = jr.get_range_bin_borders(3, chirp_ranges)
+rg_borders_id = rg_borders - np.array([0, 1, 1, 1])  # transform bin boundaries, necessary because python starts counting at 0
+range_offset = [radarData['rg'][0], radarData['rg'][rg_borders_id[1]], radarData['rg'][rg_borders_id[2]]]
 # datetimeRadar = nc4.num2date(radarData['Time'].values, 'seconds since 2001-01-01 00:00:00',
 #                              only_use_cftime_datetimes=False)
 # C1Range = radarData['C1Range'].values
@@ -885,18 +893,15 @@ for i_chirp in range(0, Nchirps):
         timeSerieRadar = timeChirp3
 
     # selecting index of min and max height of the chirp
-    i_h_min = f_closest(rangeRadar, range_offset[i_chirp])
-    if i_chirp + 1 != 3:
-        i_h_max = f_closest(rangeRadar, range_offset[i_chirp + 1])
-    else:
-        i_h_max = -1
+    i_h_min = rg_borders_id[i_chirp]
+    i_h_max = rg_borders_id[i_chirp + 1]
 
-    print('processing between ' + str(rangeRadar[i_h_min]) + ' and ' + str(rangeRadar[i_h_max]))
+    print('processing between ' + str(radarData['rg'][i_h_min]) + ' and ' + str(radarData['rg'][i_h_max]))
 
     # reading mdv values for the selected chirp
     mvd_chirp = mdv[:, i_h_min:i_h_max]
     dimHchirp = np.shape(mvd_chirp)[1]
-    rangeChirp = rangeRadar[i_h_min:i_h_max]
+    rangeChirp = radarData['rg'][i_h_min:i_h_max]
 
     # # search for at least 10 min of consecutive w obs in the chirp
     w_radar, timeRadarSel, w_radar_meanCol = f_findMdvTimeSerie(mvd_chirp,
@@ -998,15 +1003,15 @@ mdv_corr = mdv + correctionMatrix
 # %%
 
 # plot of the 2d map of mean doppler velocity corrected for the selected hour
-plot_2Dmaps(datetimeRadar, rangeRadar, mdv_corr, 'mdv corrected', -5., 4., 0., 2250., timeStartDay, timeEndDay,
+plot_2Dmaps(datetimeRadar, radarData['rg'], mdv_corr, 'mdv corrected', -5., 4., 0., 2250., timeStartDay, timeEndDay,
             'seismic', date, 'mdv_corr', pathFig)
 
 # applying rolling average to the data
-df = pd.DataFrame(mdv_corr, index=datetimeRadar, columns=rangeRadar)
+df = pd.DataFrame(mdv_corr, index=datetimeRadar, columns=radarData['rg'])
 mdv_roll3 = df.rolling(window=3, center=True, axis=0).apply(lambda x: np.nanmean(x))
 
 # plot of the 2d map of mean doppler velocity corrected for the selected hour with 3 steps running mean applied
-plot_2Dmaps(datetimeRadar, rangeRadar, mdv_roll3.values, 'mdv corrected rolling', -5., 4., 0., 2250., timeStartDay,
+plot_2Dmaps(datetimeRadar, radarData['rg'], mdv_roll3.values, 'mdv corrected rolling', -5., 4., 0., 2250., timeStartDay,
             timeEndDay, 'seismic', date, 'mdv_corr_rolling3', pathFig)
 
 # %%
@@ -1020,7 +1025,7 @@ w_rot2 = Cs_rot(pd.to_datetime(timeChirp2))
 w_heave2 = Cs_heave(pd.to_datetime(timeChirp2))
 
 # plotting ffts of a selected height in the cloud (height selected in user parameter section)
-iHeight = f_closest(rangeRadar, selHeight)
+iHeight = f_closest(radarData['rg'], selHeight)
 timeExact = pd.to_datetime(timeChirp2) - timedelta(seconds=timeShiftArray[1])
 CS_interpfft = CubicSpline(timeExact, wShip_exactChirp2)
 CS_interp_rot = CubicSpline(timeExact, w_rot2)
