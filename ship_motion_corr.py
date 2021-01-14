@@ -746,8 +746,9 @@ w_heave_valid = w_heave[i_valid]
 # plot time series of w_ship and w_heave for the plot interval
 plot_df = pd.DataFrame({'time': [h.ts_to_dt(t) for t in timeShip_valid],
                         'w_ship': w_ship_valid,
-                        'w_heave': w_heave_valid})
-plot_df = plot_df.set_index('time').loc["2020-02-16 16:30":"2020-02-16 16:32"]  # set time as index and select only 2 minutes of data
+                        'w_heave': w_heave_valid}).set_index('time')
+plot_time_interval = [datetime(2020, 2, 16, 16, 30, 0), datetime(2020, 2, 16, 16, 32, 0)]
+plot_df = plot_df.loc[plot_time_interval[0]:plot_time_interval[1]]  # select only 2 minutes of data
 fig, ax = plt.subplots()
 ax.plot(plot_df['w_ship'], color='red', label='w_ship')
 ax.plot(plot_df['w_heave'], color='black', label='w_heave')
@@ -791,7 +792,7 @@ radarData = larda.read("LIMRAD94", "VEL", time_interval, [0, 'max'])
 # Nchirps = len(chirpIntegrations)
 
 # plot on mean doppler velocity time height
-fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData)
+fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData, time_interval=plot_time_interval)
 plt.savefig(f'{pathFig}/{date:%Y%m%d}_vdop.png', format='png')
 plt.close()
 
