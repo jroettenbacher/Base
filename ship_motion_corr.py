@@ -931,50 +931,36 @@ for i_chirp in range(0, Nchirps):
     #############################################################################
     # plot of the quantities as quicklooks
     timePlot = timeExact
-    timeStart = timeRadarSel[0]  # datetime(2020,1,20,6,0,0,0)#pd.to_datetime(timeSerieRadar)[0]
-    timeEnd = timeRadarSel[40]  # = datetime(2020,1,20,6,2,0,0)#pd.to_datetime(timeSerieRadar)[0]+timedelta(seconds=120)
+    timeStart = timeRadarSel[0]
+    timeEnd = timeRadarSel[40]
 
+    # select values for plotting which are closest to the selected time stamps for the time shift analysis
+    exactChirp_idx = [h.argnearest(timePlot, t) for t in timeRadarSel]
+    ship_idx = [h.argnearest(timeSerieRadar, t) for t in timeRadarSel]
+    plot_time = pd.to_datetime(timeRadarSel, unit='s')
+    plot_df = pd.DataFrame(dict(time=plot_time, w_radar_meanCol=w_radar_meanCol, w_ship_chirpSel=w_ship_chirpSel,
+                                wShip_exactChirp=wShip_exactChirp[exactChirp_idx],
+                                W_ship1_exact=W_ship1_exact[ship_idx])).set_index('time')
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
     rcParams['font.sans-serif'] = ['Tahoma']
     matplotlib.rcParams['savefig.dpi'] = 100
     plt.gcf().subplots_adjust(bottom=0.15)
-    fig.tight_layout()
-    ax = plt.subplot(1, 1, 1)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.get_xaxis().tick_bottom()
-    ax.get_yaxis().tick_left()
-    matplotlib.rc('xtick')  # sets dimension of ticks in the plots
-    matplotlib.rc('ytick')  # sets dimension of ticks in the plots
-    ax.xaxis_date()
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
-    # if Hrz == 1:
-    #    major_ticks = np.arange(timeStart, timeEnd, 24, dtype='datetime64')
-    #    minor_ticks = np.arange(timeStart, timeEnd, 120, dtype='datetime64')
-    # else:
-    #    major_ticks = np.arange(timeStart, timeEnd, 24, dtype='datetime64')
-    #    minor_ticks = np.arange(timeStart, timeEnd, 120, dtype='datetime64')
-
-    ax.tick_params(which='both', direction='out')
-    ax.grid(which='both')
-    ax.grid(which='minor', alpha=0.2)
-    ax.grid(which='major', alpha=0.5)
-    ax.plot(timeRadarSel, w_radar_meanCol, color='red', label='mean w_radar over column')
+    ax.plot(plot_df['w_radar_meanCol'], color='red', label='mean w_radar over column')
+    ax.plot(plot_df['w_ship_chirpSel'], color='blue', linewidth=0.2, label='w_ship original')
+    ax.plot(plot_df['wShip_exactChirp'], color='blue', label='w_ship shifted of deltaT found')
+    ax.plot(plot_df['W_ship1_exact'], '.', color='green', label='w_ship shifted interpolated on radar exact time')
     # ax.plot(timeRadarSel, w_radar, linewidth = 0.2, color='red', label='w_radar at one height')
-    ax.plot(timeRadarSel, w_ship_chirpSel, color='blue', linewidth=0.2, label='w_ship original')
-    ax.plot(timePlot, wShip_exactChirp, color='blue', label='w_ship shifted of deltaT found')
-    ax.scatter(pd.to_datetime(timeSerieRadar, unit='s'), W_ship1_exact, color='green',
-               label='w_ship shifted interpolated on radar exact time')
     ax.set_ylim(-4., 2.)
     ax.legend(frameon=False)
     # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
-    ax.set_xlim(timeStart, timeEnd)  # limits of the x-axes
     ax.set_title(
         f'velocity for time delay calculations : {date:%Y-%m-%d} shift = {str(timeShiftArray[i_chirp])}',
         loc='left')
     ax.set_xlabel("time [hh:mm:ss]")
     ax.set_ylabel('w [m s-1]')
-    fig.tight_layout()
+    ax.xaxis_date()
+    ax.grid()
+    fig.autofmt_xdate()
     fig.savefig(f'{pathFig}/{date:%Y%m%d}_chirp{i_chirp+1}_timeSeries_wship_wradar.png', format='png')
     plt.close()
 
@@ -984,11 +970,15 @@ for i_chirp in range(0, Nchirps):
 
 # calculating corrected mean doppler velocity
 mdv_corr = mdv + correctionMatrix
+# update larda container with new mdv
+radarData_new = h.put_in_container(mdv_corr, radarData)
+
 # %%
 
 # plot of the 2d map of mean doppler velocity corrected for the selected hour
-plot_2Dmaps(datetimeRadar, radarData['rg'], mdv_corr, 'mdv corrected', -5., 4., 0., 2250., timeStartDay, timeEndDay,
-            'seismic', date, 'mdv_corr', pathFig)
+fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData)
+fig.savefig(f'{pathFig}/{date:%Y%m%d}_mdv_corr.png')
+plt.close()
 
 # applying rolling average to the data
 df = pd.DataFrame(mdv_corr, index=datetimeRadar, columns=radarData['rg'])
