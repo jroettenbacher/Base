@@ -162,7 +162,6 @@ def f_findMdvTimeSerie(values, time, rangeHeight, NtimeStampsRun, pathFig, chirp
 
     """
     import pandas as pd
-    import matplotlib as mpl
     import matplotlib.pyplot as plt
     import matplotlib.dates as mdates
     from matplotlib import rcParams
@@ -196,55 +195,47 @@ def f_findMdvTimeSerie(values, time, rangeHeight, NtimeStampsRun, pathFig, chirp
     valuesColumnMean = np.nanmean(valuesColumn, axis=1)
 
     # plotting quicklooks of the values map and the picked time serie interval
-    labelsizeaxes = 12
-    fontSizeTitle = 12
-    fontSizeX = 12
-    fontSizeY = 12
-    cbarAspect = 10
-    fontSizeCbar = 12
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
-    rcParams['font.sans-serif'] = ['Tahoma']
-    matplotlib.rcParams['savefig.dpi'] = 100
-    plt.gcf().subplots_adjust(bottom=0.15)
-    fig.tight_layout()
-    ax = plt.subplot(2, 1, 1)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.get_xaxis().tick_bottom()
-    ax.get_yaxis().tick_left()
-    matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-    ax.xaxis.set_minor_formatter(mdates.DateFormatter("%H:%M"))
-    ax.xaxis_date()
-    cax = ax.pcolormesh(time[:-NtimeStampsRun], rangeHeight, nanAmountMatrix.transpose(), vmin=0., vmax=200.,
-                        cmap='viridis')
-    # ax.scatter(timeSerie, heightSerie, s=nanAmountSerie, c='orange', marker='o')
-    ax.plot(timeSerie, heightSerie, color='orange', linewidth=7.0)
-    ax.set_ylim(rangeHeight[0], rangeHeight[-1] + 200.)  # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
-    ax.set_xlim(time[0], time[-200])  # limits of the x-axes
-    ax.set_title('time-height plot for the day : ' + date, fontsize=fontSizeTitle, loc='left')
-    ax.set_xlabel("time [hh:mm]", fontsize=fontSizeX)
-    ax.set_ylabel("height [m]", fontsize=fontSizeY)
-    cbar = fig.colorbar(cax, orientation='vertical', aspect=cbarAspect)
-    cbar.set_label(label='Nan Amount [%]', size=fontSizeCbar)
-    cbar.ax.tick_params(labelsize=labelsizeaxes)
-
-    ax = plt.subplot(2, 1, 2)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.get_xaxis().tick_bottom()
-    ax.get_yaxis().tick_left()
-    matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-    ax.xaxis.set_minor_formatter(mdates.DateFormatter("%H:%M"))
-    ax.xaxis_date()
-    ax.plot(timeSerie, valuesTimeSerie, color='black', label='selected values at ' + str(heightSerie[0]))
-    ax.legend(frameon=False)
-    ax.set_xlim(timeSerie[0], timeSerie[-1])  # limits of the x-axes
-    fig.tight_layout()
-    fig.savefig(f"{pathFig}/{date}_chirp_{chirp}_quicklooks_mdvSelectedSerie.png", format='png')
+    # labelsizeaxes = 12
+    # fontSizeTitle = 12
+    # fontSizeX = 12
+    # fontSizeY = 12
+    # cbarAspect = 10
+    # fontSizeCbar = 12
+    # fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
+    # rcParams['font.sans-serif'] = ['Tahoma']
+    # matplotlib.rcParams['savefig.dpi'] = 100
+    # plt.gcf().subplots_adjust(bottom=0.15)
+    # ax = plt.subplot(2, 1, 1)
+    # ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+    # ax.xaxis.set_minor_formatter(mdates.DateFormatter("%H:%M"))
+    # ax.xaxis_date()
+    # cax = ax.pcolormesh(time[:-NtimeStampsRun], rangeHeight, nanAmountMatrix.transpose(), vmin=0., vmax=200.,
+    #                     cmap='viridis')
+    # # ax.scatter(timeSerie, heightSerie, s=nanAmountSerie, c='orange', marker='o')
+    # ax.plot(timeSerie, heightSerie, color='orange', linewidth=7.0)
+    # ax.set_ylim(rangeHeight[0], rangeHeight[-1] + 200.)  # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
+    # ax.set_xlim(time[0], time[-200])  # limits of the x-axes
+    # ax.set_title('time-height plot for the day : ' + date, fontsize=fontSizeTitle, loc='left')
+    # ax.set_xlabel("time [hh:mm]", fontsize=fontSizeX)
+    # ax.set_ylabel("height [m]", fontsize=fontSizeY)
+    # cbar = fig.colorbar(cax, orientation='vertical', aspect=cbarAspect)
+    # cbar.set_label(label='Nan Amount [%]', size=fontSizeCbar)
+    # cbar.ax.tick_params(labelsize=labelsizeaxes)
+    #
+    # ax = plt.subplot(2, 1, 2)
+    # ax.spines["top"].set_visible(False)
+    # ax.spines["right"].set_visible(False)
+    # ax.get_xaxis().tick_bottom()
+    # ax.get_yaxis().tick_left()
+    # matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
+    # matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
+    # ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+    # ax.xaxis.set_minor_formatter(mdates.DateFormatter("%H:%M"))
+    # ax.xaxis_date()
+    # ax.plot(timeSerie, valuesTimeSerie, color='black', label='selected values at ' + str(heightSerie[0]))
+    # ax.legend(frameon=False)
+    # ax.set_xlim(timeSerie[0], timeSerie[-1])  # limits of the x-axes
+    # fig.savefig(f"{pathFig}/{date}_chirp_{chirp}_quicklooks_mdvSelectedSerie.png", format='png')
 
     return (valuesTimeSerie, timeSerie, valuesColumnMean)
 
@@ -526,7 +517,7 @@ def f_calculateExactRadarTime(millisec, chirpIntegrations, datetimeRadar):
     return (datetimeChirp)
 
 
-def f_calcTimeShift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRadar, pathFig, chirp, date, hour):
+def f_calcTimeShift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRadar, pathFig, chirp, date):
     """
     author: Claudia Acquistapace, Jan. H. Schween
     date:   25/11/2020
@@ -556,12 +547,10 @@ def f_calcTimeShift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRada
         DESCRIPTION.time array corresponding to the w_radar serie of values
     pathFig : TYPE string
         DESCRIPTION. output path for quicklooks
-    chirp : TYPE string
-        DESCRIPTION. string indicating the chirp processed
+    chirp : TYPE int
+        DESCRIPTION. int indicating the chirp processed
     date : TYPE string
         DESCRIPTION. date
-    hour : TYPE string
-        DESCRIPTION. hour
     OUTPUT:
     timeShift_chirp: TYPE ndarray of dimension equal to the number of chirps
         DESCRIPTION: time lag for each chirp in seconds
@@ -633,12 +622,12 @@ def f_calcTimeShift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRada
     ax.set_ylim(-0.1, 2.)  # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
     ax.set_xlim(DeltaTmin, DeltaTmax)  # limits of the x-axes
     ax.set_title(
-        f'covariance and sharpiness for chirp {chirp}: {date:%Y-%m-%d} {hour}:{str(int(hour) + 1)}, time lag found : {str(DeltaTimeShift[indMin])}',
+        f'covariance and sharpiness for chirp {chirp}: {date:%Y-%m-%d}, time lag found : {str(DeltaTimeShift[indMin])}',
         fontsize=fontSizeTitle, loc='left')
     ax.set_xlabel("time Shift [seconds]", fontsize=fontSizeX)
     ax.set_ylabel('w [m s-1]', fontsize=fontSizeY)
     fig.tight_layout()
-    fig.savefig(f'{pathFig}/{date:%Y%m%d}_{hour}_{chirp}_timeShiftQuicklook.png', format='png')
+    fig.savefig(f'{pathFig}/{date:%Y%m%d}_chirp{chirp}_timeShiftQuicklook.png', format='png')
 
     return (timeShift_chirp)
 
@@ -903,7 +892,7 @@ for i_chirp in range(0, Nchirps):
     dimHchirp = np.shape(mvd_chirp)[1]
     rangeChirp = radarData['rg'][i_h_min:i_h_max]
 
-    # # search for at least 10 min of consecutive w obs in the chirp
+    # search for at least 10 min of consecutive w obs in the chirp
     w_radar, timeRadarSel, w_radar_meanCol = f_findMdvTimeSerie(mvd_chirp,
                                                                 timeSerieRadar,
                                                                 rangeChirp,
@@ -922,9 +911,8 @@ for i_chirp in range(0, Nchirps):
                                                   w_ship_chirpSel,
                                                   timeRadarSel,
                                                   pathFig,
-                                                  chirp,
-                                                  date,
-                                                  hour)
+                                                  i_chirp+1,
+                                                  date)
     else:
         timeShiftArray[i_chirp] = np.nan
 
@@ -959,8 +947,8 @@ for i_chirp in range(0, Nchirps):
     ax.spines["right"].set_visible(False)
     ax.get_xaxis().tick_bottom()
     ax.get_yaxis().tick_left()
-    matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
+    matplotlib.rc('xtick')  # sets dimension of ticks in the plots
+    matplotlib.rc('ytick')  # sets dimension of ticks in the plots
     ax.xaxis_date()
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
     # if Hrz == 1:
@@ -971,8 +959,6 @@ for i_chirp in range(0, Nchirps):
     #    minor_ticks = np.arange(timeStart, timeEnd, 120, dtype='datetime64')
 
     ax.tick_params(which='both', direction='out')
-    ax.set_xticks(major_ticks)
-    ax.set_xticks(minor_ticks, minor=True)
     ax.grid(which='both')
     ax.grid(which='minor', alpha=0.2)
     ax.grid(which='major', alpha=0.5)
@@ -988,9 +974,9 @@ for i_chirp in range(0, Nchirps):
     ax.set_xlim(timeStart, timeEnd)  # limits of the x-axes
     ax.set_title(
         f'velocity for time delay calculations : {date:%Y-%m-%d} shift = {str(timeShiftArray[i_chirp])}',
-        fontsize=fontSizeTitle, loc='left')
-    ax.set_xlabel("time [hh:mm:ss]", fontsize=fontSizeX)
-    ax.set_ylabel('w [m s-1]', fontsize=fontSizeY)
+        loc='left')
+    ax.set_xlabel("time [hh:mm:ss]")
+    ax.set_ylabel('w [m s-1]')
     fig.tight_layout()
     fig.savefig(f'{pathFig}/{date:%Y%m%d}_{str(i_chirp)}_timeSeries_wship_wradar.png', format='png')
 
