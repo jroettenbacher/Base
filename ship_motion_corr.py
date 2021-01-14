@@ -697,6 +697,41 @@ def tick_function(X):
     return ["%.f" % z for z in V]
 
 
+def calc_chirp_timestamps(container, date):
+    """ Calculate the exact timestamp for each chirp corresponding with the center of the chirp
+    The timestamp in the radar file corresponds to the end of a chirp sequence with an accuracy of 0.1s
+
+    Args:
+        container (larda container): containing the radar time with milliseconds
+        date (datetime.datetime): date which is being processed
+
+    Returns: dict with chirp timestamps
+
+    """
+    # make lookup table for chirp durations for each chirptable (see projekt1/remsens/hardware/LIMRAD94/chirptables)
+    chirp_durations = pd.DataFrame({"Chirp_No": (1, 2, 3), "tradewindCU": (1.022, 0.947, 0.966),
+                                    "Doppler1s": (0.239, 0.342, 0.480), "Cu_small_Tint": (0.225, 0.135, 0.181),
+                                    "Cu_small_Tint2": (0.563, 0.573, 0.453)})
+    # calculate start time of each chirp by subtracting the duration of the later chirp(s) + the chirp itself
+    # the timestamp then corresponds to the start of the chirp
+    # select chirp durations according to date
+    if date < datetime(2020, 1, 29, 18, 0, 0):
+        chirp_dur = chirp_durations["tradewindCU"]
+    elif date < datetime(2020, 1, 30, 15, 3, 0):
+        chirp_dur = chirp_durations["Doppler1s"]
+    elif date < datetime(2020, 1, 31, 22, 28, 0):
+        chirp_dur = chirp_durations["Cu_small_Tint"]
+    else:
+        chirp_dur = chirp_durations["Cu_small_Tint2"]
+
+    chirp_timestamps = dict()
+    chirp_timestamps["chirp_1"] = container["ts"] - chirp_dur[0] - chirp_dur[1] - chirp_dur[2] / 2
+    chirp_timestamps["chirp_2"] = container["ts"] - chirp_dur[1] - chirp_dur[2] / 2
+    chirp_timestamps["chirp_3"] = container["ts"] - chirp_dur[2] / 2
+
+    return chirp_timestamps
+
+
 # %%
 
 print(f'processing date: {date:%Y-%m-%d}')
@@ -768,6 +803,10 @@ plt.close()
 # reading radar data
 time_interval = [date, date + timedelta(0.9999)]
 radarData = larda.read("LIMRAD94", "VEL", time_interval, [0, 'max'])
+SeqIntTime = larda.read("LIMRAD94", "SeqIntTime", time_interval)
+Nchirps = SeqIntTime['var'].shape[1]  # get number of chirps
+# get the exact chirp time stamps
+chirp_ts = calc_chirp_timestamps(radarData, date)
 # datetimeRadar = nc4.num2date(radarData['Time'].values, 'seconds since 2001-01-01 00:00:00',
 #                              only_use_cftime_datetimes=False)
 # C1Range = radarData['C1Range'].values
@@ -802,6 +841,7 @@ plt.close()
 Cs = CubicSpline(timeShip_valid, w_ship_valid)
 
 # interpolating W_ship for each chirp on the time exact array of the chirp
+timeChirp1, timeChirp2, timeChirp3 = chirp_ts['chirp_1'], chirp_ts['chirp_2'], chirp_ts['chirp_3']
 wShip_exactChirp1 = Cs(pd.to_datetime(timeChirp1))
 wShip_exactChirp2 = Cs(pd.to_datetime(timeChirp2))
 wShip_exactChirp3 = Cs(pd.to_datetime(timeChirp3))
@@ -818,19 +858,19 @@ DeltaTimeShift = np.arange(DeltaTmin, DeltaTmax, step=res)
 # calculating time shift and correction for mean doppler velocity proceeding per chirp
 timeShiftArray = np.zeros((3))
 timeShiftArray.fill(-999.)
-timeExactFinal = np.zeros((Nchirps, len(datetimeRadar)))
-WshipExactFinal = np.zeros((Nchirps, len(datetimeRadar)))
+timeExactFinal = np.zeros((Nchirps, len(radarData['ts'])))
+WshipExactFinal = np.zeros((Nchirps, len(radarData['ts'])))
 
 chirpStringArr = []
 
 # assigning lenght of the mean doppler velocity time series for calculating time shift
 # with 3 sec time resolution, 200 corresponds to 10 min
 NtimeStampsRun = 200
-correctionMatrix = np.zeros((len(datetimeRadar), len(rangeRadar)))
+correctionMatrix = np.zeros((len(radarData['ts']), len(radarData['rg'])))
 
 for i_chirp in range(0, Nchirps):
 
-    print('processing chirp ' + str(i_chirp))
+    print(f'processing chirp {i_chirp+1}')
 
     # assigning string identifying the chirp that is processed
     chirp = 'chirp_' + str(i_chirp)
