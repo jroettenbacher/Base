@@ -12,6 +12,7 @@ sys.path.append("/projekt1/remsens/work/jroettenbacher/Base/larda")
 sys.path.append('.')
 import pyLARDA
 import pyLARDA.helpers as h
+import functions_jr as jr
 import numpy as np
 import netCDF4 as nc4
 import matplotlib.pyplot as plt
@@ -130,7 +131,7 @@ def f_readShipDataset(shipDataName):
     return (ShipData)
 
 
-def f_findMdvTimeSerie(values, datetime, rangeHeight, NtimeStampsRun, pathFig, chirp):
+def f_findMdvTimeSerie(values, time, rangeHeight, NtimeStampsRun, pathFig, chirp):
     """
     author: Claudia Acquistapace
     date: 25 november 2020
@@ -143,7 +144,7 @@ def f_findMdvTimeSerie(values, datetime, rangeHeight, NtimeStampsRun, pathFig, c
     INPUT:
     values : TYPE ndarray(time, height)
         DESCRIPTION : matrix of values for which it is necessary to find a serie of non nan values of given lenght
-    datetime : datetime
+    time : datetime
         DESCRIPTION: time array associated with the matrix of values
     rangeHeight : ndarray
         DESCRIPTION: height array associated with the matrix of values
@@ -152,8 +153,8 @@ def f_findMdvTimeSerie(values, datetime, rangeHeight, NtimeStampsRun, pathFig, c
         (expressed in interval of the time resolution)
     pathFig : string
         DESCRIPTION: string for the output path of the selected plot
-    chirp: string
-        DESCRIPTION: string indicating the chirp of the radar data processed
+    chirp: int
+        DESCRIPTION: int indicating the chirp of the radar data processed
     OUTPUT:
     valuesTimeSerie: type(ndarray) - time serie of the lenght prescribed by NtimeStampsRun corresponding
     to the minimum amount of nan values found in the serie
@@ -168,14 +169,14 @@ def f_findMdvTimeSerie(values, datetime, rangeHeight, NtimeStampsRun, pathFig, c
     import matplotlib
 
     # extracting date from timestamp format
-    date = '20' + pd.to_datetime(datetime[0]).strftime(format="%y%m%d-%H")
+    date = '20' + pd.to_datetime(time[0]).strftime(format="%y%m%d-%H")
 
     #  concept: scan the matrix using running mean for every height, and check the number of nans in the selected serie.
-    nanAmountMatrix = np.zeros((len(datetime) - NtimeStampsRun, len(rangeHeight)))
+    nanAmountMatrix = np.zeros((len(time) - NtimeStampsRun, len(rangeHeight)))
     nanAmountMatrix.fill(np.nan)
-    for indtime in range(len(datetime) - NtimeStampsRun):
+    for indtime in range(len(time) - NtimeStampsRun):
         mdvChunk = values[indtime:indtime + NtimeStampsRun, :]
-        df = pd.DataFrame(mdvChunk, index=datetime[indtime:indtime + NtimeStampsRun], columns=rangeHeight)
+        df = pd.DataFrame(mdvChunk, index=time[indtime:indtime + NtimeStampsRun], columns=rangeHeight)
 
         # count number of nans in each height
         nanAmountMatrix[indtime, :] = df.isnull().sum(axis=0).values
@@ -187,7 +188,7 @@ def f_findMdvTimeSerie(values, datetime, rangeHeight, NtimeStampsRun, pathFig, c
 
     # extract corresponding time Serie of mean Doppler velocity values for the chirp
     valuesTimeSerie = values[i_time_sel:i_time_sel + NtimeStampsRun, i_height_sel]
-    timeSerie = datetime[i_time_sel:i_time_sel + NtimeStampsRun]
+    timeSerie = time[i_time_sel:i_time_sel + NtimeStampsRun]
     heightSerie = np.repeat(rangeHeight[i_height_sel], NtimeStampsRun)
 
     ###### adding test for columns ########
@@ -216,12 +217,12 @@ def f_findMdvTimeSerie(values, datetime, rangeHeight, NtimeStampsRun, pathFig, c
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     ax.xaxis.set_minor_formatter(mdates.DateFormatter("%H:%M"))
     ax.xaxis_date()
-    cax = ax.pcolormesh(datetime[:-NtimeStampsRun], rangeHeight, nanAmountMatrix.transpose(), vmin=0., vmax=200.,
+    cax = ax.pcolormesh(time[:-NtimeStampsRun], rangeHeight, nanAmountMatrix.transpose(), vmin=0., vmax=200.,
                         cmap='viridis')
     # ax.scatter(timeSerie, heightSerie, s=nanAmountSerie, c='orange', marker='o')
     ax.plot(timeSerie, heightSerie, color='orange', linewidth=7.0)
     ax.set_ylim(rangeHeight[0], rangeHeight[-1] + 200.)  # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
-    ax.set_xlim(datetime[0], datetime[-200])  # limits of the x-axes
+    ax.set_xlim(time[0], time[-200])  # limits of the x-axes
     ax.set_title('time-height plot for the day : ' + date, fontsize=fontSizeTitle, loc='left')
     ax.set_xlabel("time [hh:mm]", fontsize=fontSizeX)
     ax.set_ylabel("height [m]", fontsize=fontSizeY)
@@ -243,7 +244,7 @@ def f_findMdvTimeSerie(values, datetime, rangeHeight, NtimeStampsRun, pathFig, c
     ax.legend(frameon=False)
     ax.set_xlim(timeSerie[0], timeSerie[-1])  # limits of the x-axes
     fig.tight_layout()
-    fig.savefig(pathFig + date + '_' + chirp + '_quicklooks_mdvSelectedSerie.png', format='png')
+    fig.savefig(f"{pathFig}/{date}_chirp_{chirp}_quicklooks_mdvSelectedSerie.png", format='png')
 
     return (valuesTimeSerie, timeSerie, valuesColumnMean)
 
@@ -872,10 +873,6 @@ for i_chirp in range(0, Nchirps):
 
     print(f'processing chirp {i_chirp+1}')
 
-    # assigning string identifying the chirp that is processed
-    chirp = 'chirp_' + str(i_chirp)
-    chirpStringArr.append(chirp)
-
     # reading corresponding ship data and radar exact time array
     if i_chirp == 0:
         wShip_exactChirp = wShip_exactChirp1
@@ -907,7 +904,7 @@ for i_chirp in range(0, Nchirps):
                                                                 rangeChirp,
                                                                 NtimeStampsRun,
                                                                 pathFig,
-                                                                chirp)
+                                                                i_chirp+1)
 
     # selecting wship values of the chirp over the same time interval
     Cs_chirp = CubicSpline(timeSerieRadar, wShip_exactChirp)
