@@ -829,8 +829,9 @@ range_offset = [radarData['rg'][0], radarData['rg'][rg_borders_id[1]], radarData
 # Nchirps = len(chirpIntegrations)
 
 # plot on mean doppler velocity time height
-fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData, time_interval=plot_time_interval)
-plt.savefig(f'{pathFig}/{date:%Y%m%d}_vdop.png', format='png')
+fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData, time_interval=plot_time_interval,
+                                                   range_interval=[0, 2000])
+plt.savefig(f'{pathFig}/{date:%Y%m%d}_mdv_org.png', format='png')
 plt.close()
 
 # %%
@@ -971,22 +972,35 @@ for i_chirp in range(0, Nchirps):
 # calculating corrected mean doppler velocity
 mdv_corr = mdv + correctionMatrix
 # update larda container with new mdv
-radarData_new = h.put_in_container(mdv_corr, radarData)
+radarData_cor = h.put_in_container(mdv_corr, radarData)
 
 # %%
 
 # plot of the 2d map of mean doppler velocity corrected for the selected hour
-fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData)
+fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData_cor, time_interval=plot_time_interval,
+                                                   range_interval=[0, 2000])
 fig.savefig(f'{pathFig}/{date:%Y%m%d}_mdv_corr.png')
 plt.close()
 
 # applying rolling average to the data
-df = pd.DataFrame(mdv_corr, index=datetimeRadar, columns=radarData['rg'])
+df = pd.DataFrame(mdv_corr, index=pd.to_datetime(radarData['ts'], unit='s'), columns=radarData['rg'])
 mdv_roll3 = df.rolling(window=3, center=True, axis=0).apply(lambda x: np.nanmean(x))
+df = pd.DataFrame(mdv, index=pd.to_datetime(radarData['ts'], unit='s'), columns=radarData['rg'])
+mdv_org_roll3 = df.rolling(window=3, center=True, axis=0).apply(lambda x: np.nanmean(x))
 
 # plot of the 2d map of mean doppler velocity corrected for the selected hour with 3 steps running mean applied
-plot_2Dmaps(datetimeRadar, radarData['rg'], mdv_roll3.values, 'mdv corrected rolling', -5., 4., 0., 2250., timeStartDay,
-            timeEndDay, 'seismic', date, 'mdv_corr_rolling3', pathFig)
+radarData_roll = h.put_in_container(mdv_roll3.values, radarData)
+fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData_roll, time_interval=plot_time_interval,
+                                                   range_interval=[0, 2000])
+fig.savefig(f'{pathFig}/{date:%Y%m%d}_mdv_roll.png')
+plt.close()
+
+# plot the mean doppler velocity with 3 steps running mean applied
+radarData_org_roll = h.put_in_container(mdv_org_roll3.values, radarData)
+fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData_org_roll, time_interval=plot_time_interval,
+                                                   range_interval=[0, 2000])
+fig.savefig(f'{pathFig}/{date:%Y%m%d}_mdv_org_roll.png')
+plt.close()
 
 # %%
 
