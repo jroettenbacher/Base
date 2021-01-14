@@ -744,50 +744,24 @@ timeShip_valid = timeShip[i_valid]
 w_heave_valid = w_heave[i_valid]
 
 # plot time series of w_ship and w_heave for the plot interval
-timeStartDay = datetime(int(yy), int(mm), int(dd), 16, 30, 0)
-timeEndDay = datetime(int(yy), int(mm), int(dd), 16, 32, 0)
-labelsizeaxes = 12
-fontSizeTitle = 12
-fontSizeX = 12
-fontSizeY = 12
-cbarAspect = 10
-fontSizeCbar = 12
-
-fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
-rcParams['font.sans-serif'] = ['Tahoma']
-matplotlib.rcParams['savefig.dpi'] = 100
-plt.gcf().subplots_adjust(bottom=0.15)
-fig.tight_layout()
-ax = plt.subplot(1, 1, 1)
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-ax.get_xaxis().tick_bottom()
-ax.get_yaxis().tick_left()
-matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-ax.xaxis_date()
-ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
-major_ticks = np.arange(timeStartDay, timeEndDay, 50000000, dtype='datetime64')
-minor_ticks = np.arange(timeStartDay, timeEndDay, 10000000, dtype='datetime64')
-ax.tick_params(which='both', direction='out')
-ax.set_xticks(major_ticks)
-ax.set_xticks(minor_ticks, minor=True)
-ax.grid(which='both')
-ax.grid(which='minor', alpha=0.2)
-ax.grid(which='major', alpha=0.5)
-# ax.scatter(x, y, color = "m", marker = "o", s=1)
-ax.plot(timeShip_valid, w_ship_valid, color='red', label='w_ship')
-ax.plot(timeShip_valid, w_heave_valid, color='black', label='w_heave')
-
+plot_df = pd.DataFrame({'time': [h.ts_to_dt(t) for t in timeShip_valid],
+                        'w_ship': w_ship_valid,
+                        'w_heave': w_heave_valid})
+plot_df = plot_df.set_index('time').loc["2020-02-16 16:30":"2020-02-16 16:32"]  # set time as index and select only 2 minutes of data
+fig, ax = plt.subplots()
+ax.plot(plot_df['w_ship'], color='red', label='w_ship')
+ax.plot(plot_df['w_heave'], color='black', label='w_heave')
 ax.legend(frameon=False)
 ax.xaxis_date()
+fig.autofmt_xdate()
 ax.set_ylim(-1.5, 1.5)  # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
-ax.set_xlim(timeStartDay, timeEndDay)  # limits of the x-axes
-ax.set_title(f'time serie for the day : {date:%Y-%m-%d} - no time shift', fontsize=fontSizeTitle, loc='left')
-ax.set_xlabel("time [hh:mm:ss]", fontsize=fontSizeX)
-ax.set_ylabel('w [m s-1]', fontsize=fontSizeY)
+ax.set_title(f'Time series for the day : {date:%Y-%m-%d} - no time shift', loc='left')
+ax.set_xlabel("Time [hh:mm:ss]")
+ax.set_ylabel('w [m s-1]')
+ax.grid()
 fig.tight_layout()
-fig.savefig(f'{pathFig}/{date:%Y%m%d}_wship_heave_timeSerie.png', format='png')
+fig.savefig(f'{pathFig}/{date:%Y%m%d}_wship_heave_timeSeries.png', format='png')
+plt.close()
 
 # %%
 # reading radar data
@@ -970,12 +944,12 @@ for i_chirp in range(0, Nchirps):
     # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
     ax.set_xlim(timeStart, timeEnd)  # limits of the x-axes
     ax.set_title(
-        f'velocity for time delay calculations : {date:%Y-%m-%d} {hour}:{int(hour) + 1} shift = {str(timeShiftArray[i_chirp])}',
+        f'velocity for time delay calculations : {date:%Y-%m-%d} shift = {str(timeShiftArray[i_chirp])}',
         fontsize=fontSizeTitle, loc='left')
     ax.set_xlabel("time [hh:mm:ss]", fontsize=fontSizeX)
     ax.set_ylabel('w [m s-1]', fontsize=fontSizeY)
     fig.tight_layout()
-    fig.savefig(f'{pathFig}/{date:%Y%m%d}_{hour}_{str(i_chirp)}_timeSeries_wship_wradar.png', format='png')
+    fig.savefig(f'{pathFig}/{date:%Y%m%d}_{str(i_chirp)}_timeSeries_wship_wradar.png', format='png')
 
     # building correction term matrix
     correctionMatrix[:, i_h_min:i_h_max] = - np.repeat(W_ship1_exact, len(rangeChirp)).reshape(len(timeExact),
