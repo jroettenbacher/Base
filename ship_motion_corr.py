@@ -168,7 +168,7 @@ def f_findMdvTimeSerie(values, time, rangeHeight, NtimeStampsRun, pathFig, chirp
     import matplotlib
 
     # extracting date from timestamp format
-    date = '20' + pd.to_datetime(time[0], unit='s').strftime(format="%y%m%d-%H")
+    date = pd.to_datetime(time[0], unit='s').strftime(format="%Y%m%d")
 
     #  concept: scan the matrix using running mean for every height, and check the number of nans in the selected serie.
     nanAmountMatrix = np.zeros((len(time) - NtimeStampsRun, len(rangeHeight)))
