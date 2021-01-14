@@ -260,10 +260,10 @@ def get_range_bin_borders(no_chirps, container):
     range_bins = np.zeros(no_chirps + 1, dtype=np.int)  # needs to be length 4 to include all +1 chirp borders
     for i in range(no_chirps):
         try:
-            range_bins[i + 1] = range_bins[i] + container[f'C{i + 1}Range']['var'][0].shape
+            range_bins[i + 1] = range_bins[i] + container[f'C{i + 1}Range']['var'][0].shape - 1
         except ValueError:
             # in case only one file is read in data["C1Range"]["var"] has only one dimension
-            range_bins[i + 1] = range_bins[i] + container[f'C{i + 1}Range']['var'].shape
+            range_bins[i + 1] = range_bins[i] + container[f'C{i + 1}Range']['var'].shape - 1
 
     return range_bins
 
