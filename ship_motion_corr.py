@@ -135,7 +135,7 @@ def f_findMdvTimeSerie(values, time, rangeHeight, NtimeStampsRun, pathFig, chirp
     """
     author: Claudia Acquistapace
     date: 25 november 2020
-    goal : identify, given a mean doppler velocity matrix, a sequence of lenght
+    goal : identify, given a mean doppler velocity matrix, a sequence of length
     NtimeStampsRun, of values in the matrix at a given height
     that contains the minimum possible amount of nan values in it.
 
@@ -156,8 +156,8 @@ def f_findMdvTimeSerie(values, time, rangeHeight, NtimeStampsRun, pathFig, chirp
     chirp: int
         DESCRIPTION: int indicating the chirp of the radar data processed
     OUTPUT:
-    valuesTimeSerie: type(ndarray) - time serie of the lenght prescribed by NtimeStampsRun corresponding
-    to the minimum amount of nan values found in the serie
+    valuesTimeSerie: type(ndarray) - time series of the length prescribed by NtimeStampsRun corresponding
+    to the minimum amount of nan values found in the series
     -------
 
     """
@@ -526,7 +526,7 @@ def f_calcTimeShift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRada
     NOTE: adding or subtracting the obtained time shift depends on what you did
     during the calculation of the covariances: if you added/subtracted time _shift
     to t_radar you have to do the same for the 'exact time'
-    Here is the time shift anaylysis as plot:
+    Here is the time shift analysis as plot:
     <ww> is short for <w'_ship*w'_radar> i.e. covariance between vertical speeds from
     ship movements and radar its maximum gives an estimate for optimal agreement in
     vertical velocities of ship and radar
@@ -549,7 +549,7 @@ def f_calcTimeShift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRada
         DESCRIPTION. output path for quicklooks
     chirp : TYPE int
         DESCRIPTION. int indicating the chirp processed
-    date : TYPE string
+    date : TYPE datetime
         DESCRIPTION. date
     OUTPUT:
     timeShift_chirp: TYPE ndarray of dimension equal to the number of chirps
@@ -571,7 +571,7 @@ def f_calcTimeShift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRada
     w_prime_radar = w_radar_meanCol - np.nanmean(w_radar_meanCol)
 
     print(np.shape(w_prime_radar))
-    # calculating covariance between w-ship and w_radar where w_ship is ahifted for each deltaT given gy DeltaTimeShift
+    # calculating covariance between w-ship and w_radar where w_ship is shifted for each deltaT given by DeltaTimeShift
     cov_ww = np.zeros(len(DeltaTimeShift))
     deltaW_ship = np.zeros(len(DeltaTimeShift))
 
@@ -579,11 +579,11 @@ def f_calcTimeShift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRada
         # calculate w_ship interpolating it on the new time array (timeShip+deltatimeShift(i))
         T_corr = pd.to_datetime(timeSerieRadar) + timedelta(seconds=DeltaTimeShift[i])
 
-        # interpolating w_ship on the shifted time serie
+        # interpolating w_ship on the shifted time series
         cs_ship = CubicSpline(timeSerieRadar, w_ship_chirp)
         w_ship_shifted = cs_ship(pd.to_datetime(T_corr))
 
-        # calculating w_prime_ship with the new interpolated serie
+        # calculating w_prime_ship with the new interpolated series
         w_ship_prime = w_ship_shifted - np.nanmean(w_ship_shifted)
 
         # calculating covariance of the prime series
@@ -796,6 +796,7 @@ radarData = larda.read("LIMRAD94", "VEL", time_interval, [0, 'max'])
 SeqIntTime = larda.read("LIMRAD94", "SeqIntTime", time_interval)
 Nchirps = SeqIntTime['var'].shape[1]  # get number of chirps
 mdv = radarData['var']
+mdv[radarData['mask']] = np.nan
 # get the exact chirp time stamps
 chirp_ts = calc_chirp_timestamps(radarData, date)
 chirp_ranges = dict()
@@ -858,8 +859,6 @@ timeShiftArray = np.zeros((3))
 timeShiftArray.fill(-999.)
 timeExactFinal = np.zeros((Nchirps, len(radarData['ts'])))
 WshipExactFinal = np.zeros((Nchirps, len(radarData['ts'])))
-
-chirpStringArr = []
 
 # assigning lenght of the mean doppler velocity time series for calculating time shift
 # with 3 sec time resolution, 200 corresponds to 10 min
@@ -978,7 +977,8 @@ for i_chirp in range(0, Nchirps):
     ax.set_xlabel("time [hh:mm:ss]")
     ax.set_ylabel('w [m s-1]')
     fig.tight_layout()
-    fig.savefig(f'{pathFig}/{date:%Y%m%d}_{str(i_chirp)}_timeSeries_wship_wradar.png', format='png')
+    fig.savefig(f'{pathFig}/{date:%Y%m%d}_chirp{i_chirp+1}_timeSeries_wship_wradar.png', format='png')
+    plt.close()
 
     # building correction term matrix
     correctionMatrix[:, i_h_min:i_h_max] = - np.repeat(W_ship1_exact, len(rangeChirp)).reshape(len(timeExact),
