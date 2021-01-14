@@ -168,7 +168,7 @@ def f_findMdvTimeSerie(values, time, rangeHeight, NtimeStampsRun, pathFig, chirp
     import matplotlib
 
     # extracting date from timestamp format
-    date = '20' + pd.to_datetime(time[0]).strftime(format="%y%m%d-%H")
+    date = '20' + pd.to_datetime(time[0], unit='s').strftime(format="%y%m%d-%H")
 
     #  concept: scan the matrix using running mean for every height, and check the number of nans in the selected serie.
     nanAmountMatrix = np.zeros((len(time) - NtimeStampsRun, len(rangeHeight)))
@@ -511,8 +511,7 @@ def f_calculateExactRadarTime(millisec, chirpIntegrations, datetimeRadar):
 
     for ind_chirp in range(len(chirpIntegrations)):
         for ind_time in range(len(timeRadar)):
-            datetimeChirp[ind_chirp, ind_time] = pd.to_datetime(
-                datetime.utcfromtimestamp(timeChirp[ind_chirp, ind_time]), unit='ns')
+            datetimeChirp[ind_chirp, ind_time] = datetime.utcfromtimestamp(timeChirp[ind_chirp, ind_time])
 
     return (datetimeChirp)
 
@@ -577,11 +576,11 @@ def f_calcTimeShift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRada
 
     for i in range(len(DeltaTimeShift)):
         # calculate w_ship interpolating it on the new time array (timeShip+deltatimeShift(i))
-        T_corr = pd.to_datetime(timeSerieRadar) + timedelta(seconds=DeltaTimeShift[i])
+        T_corr = timeSerieRadar + DeltaTimeShift[i]
 
         # interpolating w_ship on the shifted time series
         cs_ship = CubicSpline(timeSerieRadar, w_ship_chirp)
-        w_ship_shifted = cs_ship(pd.to_datetime(T_corr))
+        w_ship_shifted = cs_ship(T_corr)
 
         # calculating w_prime_ship with the new interpolated series
         w_ship_prime = w_ship_shifted - np.nanmean(w_ship_shifted)
@@ -841,9 +840,9 @@ Cs = CubicSpline(timeShip_valid, w_ship_valid)
 
 # interpolating W_ship for each chirp on the time exact array of the chirp
 timeChirp1, timeChirp2, timeChirp3 = chirp_ts['chirp_1'], chirp_ts['chirp_2'], chirp_ts['chirp_3']
-wShip_exactChirp1 = Cs(pd.to_datetime(timeChirp1))
-wShip_exactChirp2 = Cs(pd.to_datetime(timeChirp2))
-wShip_exactChirp3 = Cs(pd.to_datetime(timeChirp3))
+wShip_exactChirp1 = Cs(timeChirp1)
+wShip_exactChirp2 = Cs(timeChirp2)
+wShip_exactChirp3 = Cs(timeChirp3)
 
 # %%
 # calculation of the deltaT_shift array to use for getting good matching between t_radar and T-ship
@@ -917,24 +916,23 @@ for i_chirp in range(0, Nchirps):
 
     # recalculating exact time including time shift due to lag
     if ~np.isnan(timeShiftArray[i_chirp]):
-        timeExact = pd.to_datetime(timeSerieRadar) - timedelta(seconds=timeShiftArray[i_chirp])
+        timeExact = timeSerieRadar - timeShiftArray[i_chirp]
     else:
-        timeExact = pd.to_datetime(timeSerieRadar)
+        timeExact = timeSerieRadar
 
-    timeExactFinal[i_chirp, :] = pd.to_datetime(timeExact)
+    timeExactFinal[i_chirp, :] = timeExact
 
     # interpolating ship data on the exact time again, with the right time found after the calculating
     # and the addition of the time shift
     Cs_final = CubicSpline(timeExact, wShip_exactChirp)
-    W_ship1_exact = Cs_final(pd.to_datetime(timeSerieRadar))
+    W_ship1_exact = Cs_final(timeSerieRadar)
     WshipExactFinal[i_chirp, :] = W_ship1_exact
 
     #############################################################################
     # plot of the quantities as quicklooks
-    timePlot = pd.to_datetime(timeExact)
-    timeStart = pd.to_datetime(timeRadarSel[0])  # datetime(2020,1,20,6,0,0,0)#pd.to_datetime(timeSerieRadar)[0]
-    timeEnd = pd.to_datetime(
-        timeRadarSel[40])  # = datetime(2020,1,20,6,2,0,0)#pd.to_datetime(timeSerieRadar)[0]+timedelta(seconds=120)
+    timePlot = timeExact
+    timeStart = timeRadarSel[0]  # datetime(2020,1,20,6,0,0,0)#pd.to_datetime(timeSerieRadar)[0]
+    timeEnd = timeRadarSel[40]  # = datetime(2020,1,20,6,2,0,0)#pd.to_datetime(timeSerieRadar)[0]+timedelta(seconds=120)
 
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
     rcParams['font.sans-serif'] = ['Tahoma']
@@ -965,7 +963,7 @@ for i_chirp in range(0, Nchirps):
     # ax.plot(timeRadarSel, w_radar, linewidth = 0.2, color='red', label='w_radar at one height')
     ax.plot(timeRadarSel, w_ship_chirpSel, color='blue', linewidth=0.2, label='w_ship original')
     ax.plot(timePlot, wShip_exactChirp, color='blue', label='w_ship shifted of deltaT found')
-    ax.scatter(pd.to_datetime(timeSerieRadar), W_ship1_exact, color='green',
+    ax.scatter(pd.to_datetime(timeSerieRadar, unit='s'), W_ship1_exact, color='green',
                label='w_ship shifted interpolated on radar exact time')
     ax.set_ylim(-4., 2.)
     ax.legend(frameon=False)
@@ -1007,12 +1005,12 @@ plot_2Dmaps(datetimeRadar, radarData['rg'], mdv_roll3.values, 'mdv corrected rol
 # interpolating ship correction terms of rotation and heave on the chirp time array
 Cs_rot = CubicSpline(timeShip_valid, w_rot)
 Cs_heave = CubicSpline(timeShip_valid, w_heave)
-w_rot2 = Cs_rot(pd.to_datetime(timeChirp2))
-w_heave2 = Cs_heave(pd.to_datetime(timeChirp2))
+w_rot2 = Cs_rot(timeChirp2)
+w_heave2 = Cs_heave(timeChirp2)
 
 # plotting ffts of a selected height in the cloud (height selected in user parameter section)
 iHeight = f_closest(radarData['rg'], selHeight)
-timeExact = pd.to_datetime(timeChirp2) - timedelta(seconds=timeShiftArray[1])
+timeExact = timeChirp2 - timeShiftArray[1]
 CS_interpfft = CubicSpline(timeExact, wShip_exactChirp2)
 CS_interp_rot = CubicSpline(timeExact, w_rot2)
 CS_interp_heave = CubicSpline(timeExact, w_heave2)
@@ -1038,12 +1036,12 @@ nans, x = nan_helper(w_radar_orig)
 w_radar_orig[nans] = np.interp(x(nans), x(~nans), w_radar_orig[~nans])
 
 # calculating power spectra of the selected corrected time series
-pow_radarCorr, freq_radarCorr = f_calcFftSpectra(W_corr, pd.to_datetime(timeChirp2))
-pow_radarCorr_NS, freq_radarCorr_NS = f_calcFftSpectra(W_corr_no_shift, pd.to_datetime(timeChirp2))
-pow_wShip, freq_Ship = f_calcFftSpectra(W_ship_interp, pd.to_datetime(timeChirp2))
-pow_wrot, freq_rot = f_calcFftSpectra(w_rot_interp, pd.to_datetime(timeChirp2))
-pow_wheave, freq_heave = f_calcFftSpectra(w_heave_interp, pd.to_datetime(timeChirp2))
-pow_radarOrig, freq_radarOrig = f_calcFftSpectra(w_radar_orig, pd.to_datetime(timeChirp2))
+pow_radarCorr, freq_radarCorr = f_calcFftSpectra(W_corr, timeChirp2)
+pow_radarCorr_NS, freq_radarCorr_NS = f_calcFftSpectra(W_corr_no_shift, timeChirp2)
+pow_wShip, freq_Ship = f_calcFftSpectra(W_ship_interp, timeChirp2)
+pow_wrot, freq_rot = f_calcFftSpectra(w_rot_interp, timeChirp2)
+pow_wheave, freq_heave = f_calcFftSpectra(w_heave_interp, timeChirp2)
+pow_radarOrig, freq_radarOrig = f_calcFftSpectra(w_radar_orig, timeChirp2)
 # %%%
 
 # plot of the power spectra calculated
