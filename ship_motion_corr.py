@@ -175,10 +175,8 @@ def f_findMdvTimeSerie(values, time, rangeHeight, NtimeStampsRun, pathFig, chirp
     nanAmountMatrix.fill(np.nan)
     for indtime in range(len(time) - NtimeStampsRun):
         mdvChunk = values[indtime:indtime + NtimeStampsRun, :]
-        df = pd.DataFrame(mdvChunk, index=time[indtime:indtime + NtimeStampsRun], columns=rangeHeight)
-
         # count number of nans in each height
-        nanAmountMatrix[indtime, :] = df.isnull().sum(axis=0).values
+        nanAmountMatrix[indtime, :] = np.sum(np.isnan(mdvChunk), axis=0)
 
     # find indeces where nanAmount is minimal
     ntuples = np.where(nanAmountMatrix == np.nanmin(nanAmountMatrix))
