@@ -778,32 +778,32 @@ heave = ShipDataCenter['heave'].values
 timeShip = ShipDataCenter['time_shifted'].values.astype('float64')/10**9
 w_heave = ShipDataCenter['heave_rate'].values
 w_rot = ShipDataCenter['w_rot'].values
-w_ship = ShipDataCenter['heave_rate_radar'].values
+w_radar = ShipDataCenter['heave_rate_radar'].values
 
 # Take from the ship data only the valid times where roll and pitch are not -999 (or nan) - i assume gaps are short and rare
 # select valid values of ship time series
 i_valid = np.where(~np.isnan(roll) *
                    ~np.isnan(pitch) *
                    ~np.isnan(heave) *
-                   ~np.isnan(w_ship))
+                   ~np.isnan(w_radar))
 
-w_ship_valid = w_ship[i_valid]
+w_radar_valid = w_radar[i_valid]
 timeShip_valid = timeShip[i_valid]
 w_heave_valid = w_heave[i_valid]
 
-# plot time series of w_ship and w_heave for the plot interval
+# plot time series of w_radar and w_heave for the plot interval
 plot_df = pd.DataFrame({'time': [h.ts_to_dt(t) for t in timeShip_valid],
-                        'w_ship': w_ship_valid,
+                        'w_radar': w_radar_valid,
                         'w_heave': w_heave_valid}).set_index('time')
 plot_time_interval = [datetime(2020, 2, 16, 16, 30, 0), datetime(2020, 2, 16, 16, 32, 0)]
 plot_df = plot_df.loc[plot_time_interval[0]:plot_time_interval[1]]  # select only 2 minutes of data
 fig, ax = plt.subplots()
-ax.plot(plot_df['w_ship'], color='red', label='w_ship')
+ax.plot(plot_df['w_radar'], color='red', label='w_radar')
 ax.plot(plot_df['w_heave'], color='black', label='w_heave')
 ax.legend(frameon=False)
 ax.xaxis_date()
 fig.autofmt_xdate()
-ax.set_ylim(-1.5, 1.5)  # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
+ax.set_ylim(-1.5, 1.5)  # limits of the y-axes
 ax.set_title(f'Time series for the day : {date:%Y-%m-%d} - no time shift', loc='left')
 ax.set_xlabel("Time [hh:mm:ss]")
 ax.set_ylabel('w [m s-1]')
@@ -861,9 +861,9 @@ plt.close()
 # %%
 # calculating exact radar time stamps
 # prepare interpolation of the ship data
-Cs = CubicSpline(timeShip_valid, w_ship_valid)
+Cs = CubicSpline(timeShip_valid, w_radar_valid)
 
-# interpolating W_ship for each chirp on the time exact array of the chirp
+# interpolating w_radar for each chirp on the time exact array of the chirp
 timeChirp1, timeChirp2, timeChirp3 = chirp_ts['chirp_1'], chirp_ts['chirp_2'], chirp_ts['chirp_3']
 wShip_exactChirp1 = Cs(timeChirp1)
 wShip_exactChirp2 = Cs(timeChirp2)
@@ -885,7 +885,7 @@ timeExactFinal = np.zeros((Nchirps, len(radarData['ts'])))
 WshipExactFinal = np.zeros((Nchirps, len(radarData['ts'])))
 
 # assigning lenght of the mean doppler velocity time series for calculating time shift
-# with 3 sec time resolution, 200 corresponds to 10 min
+# with 1.5 sec time resolution, 400 corresponds to 10 min
 NtimeStampsRun = 10*60/1.5
 correctionMatrix = np.zeros((len(radarData['ts']), len(radarData['rg'])))
 
@@ -925,13 +925,13 @@ for i_chirp in range(0, Nchirps):
 
     # selecting wship values of the chirp over the same time interval
     Cs_chirp = CubicSpline(timeSerieRadar, wShip_exactChirp)
-    w_ship_chirpSel = Cs_chirp(timeRadarSel)
+    w_radar_chirpSel = Cs_chirp(timeRadarSel)
 
     # calculating time shift for the chirp
     if np.sum(np.where(~np.isnan(w_radar_meanCol))) != 0:
         timeShiftArray[i_chirp] = f_calcTimeShift(w_radar_meanCol,
                                                   DeltaTimeShift,
-                                                  w_ship_chirpSel,
+                                                  w_radar_chirpSel,
                                                   timeRadarSel,
                                                   pathFig,
                                                   i_chirp+1,
@@ -950,8 +950,8 @@ for i_chirp in range(0, Nchirps):
     # interpolating ship data on the exact time again, with the right time found after the calculating
     # and the addition of the time shift
     Cs_final = CubicSpline(timeExact, wShip_exactChirp)
-    W_ship1_exact = Cs_final(timeSerieRadar)
-    WshipExactFinal[i_chirp, :] = W_ship1_exact
+    w_radar1_exact = Cs_final(timeSerieRadar)
+    WshipExactFinal[i_chirp, :] = w_radar1_exact
 
     #############################################################################
     # plot of the quantities as quicklooks
@@ -963,17 +963,17 @@ for i_chirp in range(0, Nchirps):
     exactChirp_idx = [h.argnearest(timePlot, t) for t in timeRadarSel]
     ship_idx = [h.argnearest(timeSerieRadar, t) for t in timeRadarSel]
     plot_time = pd.to_datetime(timeRadarSel, unit='s')
-    plot_df = pd.DataFrame(dict(time=plot_time, w_radar_meanCol=w_radar_meanCol, w_ship_chirpSel=w_ship_chirpSel,
+    plot_df = pd.DataFrame(dict(time=plot_time, w_radar_meanCol=w_radar_meanCol, w_radar_chirpSel=w_radar_chirpSel,
                                 wShip_exactChirp=wShip_exactChirp[exactChirp_idx],
-                                W_ship1_exact=W_ship1_exact[ship_idx])).set_index('time')
+                                w_radar1_exact=w_radar1_exact[ship_idx])).set_index('time')
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
     rcParams['font.sans-serif'] = ['Tahoma']
     matplotlib.rcParams['savefig.dpi'] = 100
     plt.gcf().subplots_adjust(bottom=0.15)
     ax.plot(plot_df['w_radar_meanCol'], color='red', label='mean w_radar over column')
-    ax.plot(plot_df['w_ship_chirpSel'], color='blue', linewidth=0.2, label='w_ship original')
-    ax.plot(plot_df['wShip_exactChirp'], color='blue', label='w_ship shifted of deltaT found')
-    ax.plot(plot_df['W_ship1_exact'], '.', color='green', label='w_ship shifted interpolated on radar exact time')
+    ax.plot(plot_df['w_radar_chirpSel'], color='blue', linewidth=0.2, label='w_radar original')
+    ax.plot(plot_df['wShip_exactChirp'], color='blue', label='w_radar shifted of deltaT found')
+    ax.plot(plot_df['w_radar1_exact'], '.', color='green', label='w_radar shifted interpolated on radar exact time')
     # ax.plot(timeRadarSel, w_radar, linewidth = 0.2, color='red', label='w_radar at one height')
     ax.set_ylim(-4., 2.)
     ax.legend(frameon=False)
@@ -990,7 +990,7 @@ for i_chirp in range(0, Nchirps):
     plt.close()
 
     # building correction term matrix
-    correctionMatrix[:, i_h_min:i_h_max] = - np.repeat(W_ship1_exact, len(rangeChirp)).reshape(len(timeExact),
+    correctionMatrix[:, i_h_min:i_h_max] = - np.repeat(w_radar1_exact, len(rangeChirp)).reshape(len(timeExact),
                                                                                                len(rangeChirp))
 
 # calculating corrected mean doppler velocity
@@ -1044,12 +1044,12 @@ CS_interp_rot = CubicSpline(timeExact, w_rot2)
 CS_interp_heave = CubicSpline(timeExact, w_heave2)
 
 # deriving values of wship rot and heave at the chirp times using the interpolation on the derived exact time
-W_ship_interp = CS_interpfft(timeChirp2)
+w_radar_interp = CS_interpfft(timeChirp2)
 w_rot_interp = CS_interp_rot(timeChirp2)
 w_heave_interp = CS_interp_heave(timeChirp2)
 
 # calculating corrected mdv with and without the time shift to the exact value
-W_corr = mdv[:, iHeight] - W_ship_interp
+W_corr = mdv[:, iHeight] - w_radar_interp
 W_corr_no_shift = mdv[:, iHeight] - wShip_exactChirp2
 
 # interpolating over nans the two series ( in order to calculate fft tranformation)
@@ -1066,7 +1066,7 @@ w_radar_orig[nans] = np.interp(x(nans), x(~nans), w_radar_orig[~nans])
 # calculating power spectra of the selected corrected time series
 pow_radarCorr, freq_radarCorr = f_calcFftSpectra(W_corr, timeChirp2)
 pow_radarCorr_NS, freq_radarCorr_NS = f_calcFftSpectra(W_corr_no_shift, timeChirp2)
-pow_wShip, freq_Ship = f_calcFftSpectra(W_ship_interp, timeChirp2)
+pow_wShip, freq_Ship = f_calcFftSpectra(w_radar_interp, timeChirp2)
 pow_wrot, freq_rot = f_calcFftSpectra(w_rot_interp, timeChirp2)
 pow_wheave, freq_heave = f_calcFftSpectra(w_heave_interp, timeChirp2)
 pow_radarOrig, freq_radarOrig = f_calcFftSpectra(w_radar_orig, timeChirp2)
