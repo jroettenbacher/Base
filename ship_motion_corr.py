@@ -719,6 +719,48 @@ def calc_chirp_timestamps(container, date):
     return chirp_timestamps
 
 
+def calc_heave_rate_claudia(data, x_radar=-11, y_radar=4.07, z_radar=-15.8):
+    """Calculate heave rate at a certain location on a ship according to Claudia Acquistapace's approach
+
+    Args:
+        data (xr.DataSet): Data Set with heading, roll, pitch and heave as columns
+        x_radar (float): x position of location with respect to INS in meters
+        y_radar (float): y position of location with respect to INS in meters
+        z_radar (float): z position of location with respect to INS in meters
+
+    Returns: xr.DataSet with additional variable heave_rate
+
+    """
+    r_radar = [x_radar, y_radar, z_radar]
+    # calculation of w_heave
+    heave = data['heave'].values
+    timeShip = data['time_shifted'].values.astype('float64') / 10 ** 9
+    w_heave = np.diff(heave, prepend=np.nan) / np.diff(timeShip, prepend=np.nan)
+
+    # calculating rotational terms
+    roll = data['roll'].values
+    pitch = data['pitch'].values
+    yaw = data['yaw'].values
+    NtimeShip = len(timeShip)
+    r_ship = np.zeros((3, NtimeShip))
+
+    # calculate the position of the  radar on the ship r_ship:
+    R = f_calcRMatrix(roll, pitch, yaw, NtimeShip)
+    for i in range(NtimeShip):
+        r_ship[:, i] = np.dot(R[:, :, i], r_radar)
+
+    # calculating vertical component of the velocity of the radar on the ship (v_rot)
+    w_rot = np.diff(r_ship[2, :], prepend=np.nan) / np.diff(timeShip, prepend=np.nan)
+
+    # calculating total ship velocity at radar
+    heave_rate = w_rot + w_heave
+    data['w_rot'] = (('time_shifted'), w_rot)
+    data['heave_rate'] = (('time_shifted'), w_heave)
+    data['heave_rate_radar'] = (('time_shifted',), heave_rate)
+
+    return data
+
+
 # %%
 
 print(f'processing date: {date:%Y-%m-%d}')
@@ -728,29 +770,15 @@ ShipDataset = dataset.to_xarray()
 
 # shifting time stamp for ship data hour
 ShipDataCenter = f_shiftTimeDataset(ShipDataset)
-
-# calculation of w_heave
-heave = ShipDataCenter['heave'].values
-timeShip = ShipDataCenter['time_shifted'].values.astype('float64')/10**9
-w_heave = np.diff(heave, prepend=np.nan) / np.diff(timeShip, prepend=np.nan)
-
-# calculating rotational terms
+ShipDataCenter = calc_heave_rate_claudia(ShipDataCenter)
 roll = ShipDataCenter['roll'].values
 pitch = ShipDataCenter['pitch'].values
 yaw = ShipDataCenter['yaw'].values
-NtimeShip = len(timeShip)
-r_ship = np.zeros((3, NtimeShip))
-
-# calculate the position of the  radar on the ship r_ship:
-R = f_calcRMatrix(roll, pitch, yaw, NtimeShip)
-for i in range(NtimeShip):
-    r_ship[:, i] = np.dot(R[:, :, i], r_FMCW)
-
-# calculating vertical component of the velocity of the radar on the ship (v_rot)
-w_rot = np.diff(r_ship[2, :], prepend=np.nan) / np.diff(timeShip, prepend=np.nan)
-
-# calculating total ship velocity
-w_ship = w_rot + w_heave
+heave = ShipDataCenter['heave'].values
+timeShip = ShipDataCenter['time_shifted'].values.astype('float64')/10**9
+w_heave = ShipDataCenter['heave_rate'].values
+w_rot = ShipDataCenter['w_rot'].values
+w_ship = ShipDataCenter['heave_rate_radar'].values
 
 # Take from the ship data only the valid times where roll and pitch are not -999 (or nan) - i assume gaps are short and rare
 # select valid values of ship time series
@@ -858,7 +886,7 @@ WshipExactFinal = np.zeros((Nchirps, len(radarData['ts'])))
 
 # assigning lenght of the mean doppler velocity time series for calculating time shift
 # with 3 sec time resolution, 200 corresponds to 10 min
-NtimeStampsRun = 200
+NtimeStampsRun = 10*60/1.5
 correctionMatrix = np.zeros((len(radarData['ts']), len(radarData['rg'])))
 
 for i_chirp in range(0, Nchirps):
