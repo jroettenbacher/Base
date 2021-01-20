@@ -747,9 +747,7 @@ for i in range(NtimeShip):
     r_ship[:, i] = np.dot(R[:, :, i], r_FMCW)
 
 # calculating vertical component of the velocity of the radar on the ship (v_rot)
-w_rot = np.zeros(len(timeShip))
-for i in range(1, len(timeShip)):
-    w_rot[i] = (r_ship[2, i] - r_ship[2, i - 1]) / (timeShip[i] - timeShip[i - 1])
+w_rot = np.diff(r_ship[2, :], prepend=np.nan) / np.diff(timeShip, prepend=np.nan)
 
 # calculating total ship velocity
 w_ship = w_rot + w_heave
