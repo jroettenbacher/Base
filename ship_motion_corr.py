@@ -640,8 +640,8 @@ def f_calcFftSpectra(vel, time):
     ----------
     vel : TYPE ndarray [m/s]
         DESCRIPTION: time serie of velocity
-    time : TYPE datetime
-        DESCRIPTION. time array corresponding to the velocity
+    time : TYPE float
+        DESCRIPTION. time array corresponding to the velocity in seconds since
 
     Returns
     -------
@@ -652,7 +652,7 @@ def f_calcFftSpectra(vel, time):
     import numpy as np
     w_fft = np.fft.fft(vel)
     N = len(w_fft)
-    T_len = (time[-1] - time[0]).total_seconds()
+    T_len = (time[-1] - time[0])
     w_pow = (abs(w_fft)) ** 2
     w_pow = w_pow[1:int(N / 2) + 1]
     freq = np.arange(int(N / 2)) * 1 / T_len
@@ -1007,8 +1007,8 @@ plt.close()
 # calculation of the power spectra of the correction terms and of the original and corrected mean Doppler velocity time series at a given height
 
 # interpolating ship correction terms of rotation and heave on the chirp time array
-Cs_rot = CubicSpline(timeShip_valid, w_rot)
-Cs_heave = CubicSpline(timeShip_valid, w_heave)
+Cs_rot = CubicSpline(timeShip_valid, w_rot[1:])
+Cs_heave = CubicSpline(timeShip_valid, w_heave[1:])
 w_rot2 = Cs_rot(timeChirp2)
 w_heave2 = Cs_heave(timeChirp2)
 
@@ -1060,8 +1060,6 @@ ax.spines["right"].set_visible(False)
 ax.get_xaxis().tick_bottom()
 ax.get_yaxis().tick_left()
 # ax.set_yscale('log')
-matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
 ax.loglog(freq_Ship, pow_wShip, label='ship', color='black', alpha=0.5)
 ax.loglog(freq_rot, pow_wrot, label='w_rot', color='purple')
 ax.loglog(freq_heave, pow_wheave, label='w_heave', color='orange')
@@ -1080,8 +1078,6 @@ axt.spines["right"].set_visible(False)
 axt.get_xaxis().tick_bottom()
 axt.get_yaxis().tick_left()
 # ax.set_yscale('log')
-matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
 axt.loglog(freq_radarOrig, pow_radarOrig, label='radar', color='black')
 axt.loglog(freq_radarCorr, pow_radarCorr, label='corr with time shift', color='pink')
 
@@ -1100,8 +1096,6 @@ axtt.spines["right"].set_visible(False)
 axtt.get_xaxis().tick_bottom()
 axtt.get_yaxis().tick_left()
 # ax.set_yscale('log')
-matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
 axtt.loglog(freq_radarOrig, pow_radarOrig, label='radar', color='black')
 axtt.loglog(freq_radarCorr_NS, pow_radarCorr_NS, label='corr without time shift', color='green')
 
@@ -1116,4 +1110,4 @@ axtt2.set_xticklabels(tick_function(new_tick_locations))
 # ax.set_xlim(0.001, 0.5)
 # ax.set_ylim(10**(-9.), 10)
 fig.tight_layout()
-fig.savefig(f'{pathFig}/{date:%Y%m%d}_{hour}_{str(i_chirp)}_fft_check.png', format='png')
+fig.savefig(f'{pathFig}/{date:%Y%m%d}_{i_chirp}_fft_check.png', format='png')
