@@ -268,6 +268,47 @@ def get_range_bin_borders(no_chirps, container):
     return range_bins
 
 
+def calc_chirp_timestamps(radar_ts, date, version):
+    """ Calculate the exact timestamp for each chirp corresponding with the center or start of the chirp
+    The timestamp in the radar file corresponds to the end of a chirp sequence with an accuracy of 0.1 s
+
+    Args:
+        radar_ts (ndarray): timestamps of the radar with milliseconds in seconds
+        date (datetime.datetime): date which is being processed
+        version (str): should the timestamp correspond to the 'center' or the 'start' of the chirp
+
+    Returns: dict with chirp timestamps
+
+    """
+    # make lookup table for chirp durations for each chirptable (see projekt1/remsens/hardware/LIMRAD94/chirptables)
+    chirp_durations = pd.DataFrame({"Chirp_No": (1, 2, 3), "tradewindCU": (1.022, 0.947, 0.966),
+                                    "Doppler1s": (0.239, 0.342, 0.480), "Cu_small_Tint": (0.225, 0.135, 0.181),
+                                    "Cu_small_Tint2": (0.563, 0.573, 0.453)})
+    # calculate start time of each chirp by subtracting the duration of the later chirp(s) + the chirp itself
+    # the timestamp then corresponds to the start of the chirp
+    # select chirp durations according to date
+    if date < dt.datetime(2020, 1, 29, 18, 0, 0):
+        chirp_dur = chirp_durations["tradewindCU"]
+    elif date < dt.datetime(2020, 1, 30, 15, 3, 0):
+        chirp_dur = chirp_durations["Doppler1s"]
+    elif date < dt.datetime(2020, 1, 31, 22, 28, 0):
+        chirp_dur = chirp_durations["Cu_small_Tint"]
+    else:
+        chirp_dur = chirp_durations["Cu_small_Tint2"]
+
+    chirp_timestamps = dict()
+    if version == 'center':
+        chirp_timestamps["chirp_1"] = radar_ts - chirp_dur[0] - chirp_dur[1] - chirp_dur[2] / 2
+        chirp_timestamps["chirp_2"] = radar_ts - chirp_dur[1] - chirp_dur[2] / 2
+        chirp_timestamps["chirp_3"] = radar_ts - chirp_dur[2] / 2
+    else:
+        chirp_timestamps["chirp_1"] = radar_ts - chirp_dur[0] - chirp_dur[1] - chirp_dur[2]
+        chirp_timestamps["chirp_2"] = radar_ts - chirp_dur[1] - chirp_dur[2]
+        chirp_timestamps["chirp_3"] = radar_ts - chirp_dur[2]
+
+    return chirp_timestamps
+
+
 def calc_heave_corr(container, date, seapath, mean_hr=True):
     """Calculate heave correction for mean Doppler velocity
 
@@ -285,29 +326,11 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
     ####################################################################################################################
     # Calculating Timestamps for each chirp
     ####################################################################################################################
-    # timestamp in radar file corresponds to end of chirp sequence with an accuracy of 0.1s
-    # make lookup table for chirp durations for each chirptable (see projekt1/remsens/hardware/LIMRAD94/chirptables)
-    chirp_durations = pd.DataFrame({"Chirp_No": (1, 2, 3), "tradewindCU": (1.022, 0.947, 0.966),
-                                    "Doppler1s": (0.239, 0.342, 0.480), "Cu_small_Tint": (0.225, 0.135, 0.181),
-                                    "Cu_small_Tint2": (0.563, 0.573, 0.453)})
-    # calculate start time of each chirp by subtracting the duration of the later chirp(s) + the chirp itself
-    # the timestamp then corresponds to the start of the chirp
-    # select chirp durations according to date
-    if date < dt.datetime(2020, 1, 29, 18, 0, 0):
-        chirp_dur = chirp_durations["tradewindCU"]
-    elif date < dt.datetime(2020, 1, 30, 15, 3, 0):
-        chirp_dur = chirp_durations["Doppler1s"]
-    elif date < dt.datetime(2020, 1, 31, 22, 28, 0):
-        chirp_dur = chirp_durations["Cu_small_Tint"]
-    else:
-        chirp_dur = chirp_durations["Cu_small_Tint2"]
-    chirp_timestamps = pd.DataFrame()
-    chirp_timestamps["chirp_1"] = container["ts"] - chirp_dur[0] - chirp_dur[1] - chirp_dur[2]
-    chirp_timestamps["chirp_2"] = container["ts"] - chirp_dur[1] - chirp_dur[2]
-    chirp_timestamps["chirp_3"] = container["ts"] - chirp_dur[2]
+    version = 'start' if mean_hr else 'center'
+    chirp_timestamps = calc_chirp_timestamps(container['ts'], date, version)
 
     # array with range bin numbers of chirp borders
-    no_chirps = len(chirp_dur)
+    no_chirps = container['SeqIntTime']['var'].shape[1]
     range_bins = get_range_bin_borders(no_chirps, container)
 
     seapath_ts = seapath.index.values.astype(np.float64) / 10 ** 9  # convert datetime index to seconds since 1970-01-01
@@ -999,6 +1022,9 @@ def merge_csv(path, outname, **kwargs):
     dfs = dd.read_csv(f"{path}/*.csv", sep=sep)
     dfs.to_csv(f"{path}/{outname}", single_file=True)
     logger.info(f"Merged all csv files in {path} and saved to {outname}")
+
+
+
 
 
 if __name__ == '__main__':
