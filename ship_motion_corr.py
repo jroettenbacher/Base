@@ -779,6 +779,100 @@ def calc_heave_rate_claudia(data, x_radar=-11, y_radar=4.07, z_radar=-15.8):
     return data
 
 
+def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, n_ts_run, Cs_w_radar, **kwargs):
+    no_chirps = kwargs['no_chirps'] if 'no_chirps' in kwargs else 3
+    delta_t_min = kwargs['delta_t_min'] if 'delta_t_min' in kwargs else radar_ts[0] - radar_ts[1]
+    delta_t_max = kwargs['delta_t_max'] if 'delta_t_max' in kwargs else radar_ts[1] - radar_ts[0]
+    resolution = kwargs['resolution'] if 'resolution' in kwargs else 0.05
+    pathFig = kwargs['pathFig'] if 'pathFig' in kwargs else "./tmp"
+    date = kwargs['date'] if 'date' in kwargs else pd.to_datetime(radar_ts[0], unit='s')
+    plot_fig = kwargs['plot_fig'] if 'plot_fig' in kwargs else False
+
+    time_shift_array = np.zeros((len(radar_ts), no_chirps))
+    idx = np.int(np.floor(len(radar_ts) / 24))
+    for i in range(24):
+        start_idx = i * idx
+        if i < 22:
+            end_idx = (i + 1) * idx
+        else:
+            end_idx = time_shift_array.shape[0]
+        for j in range(no_chirps):
+            # set time and range slice
+            ts_slice, rg_slice = slice(start_idx, end_idx), slice(rg_borders_id[j], rg_borders_id[j + 1])
+            mdv_slice = radar_mdv[ts_slice, rg_slice]
+            time_slice = chirp_ts[f'chirp_{j + 1}'][
+                ts_slice]  # select the corresponding exact chirp time for the mdv slice
+            mdv_series, time_mdv_series, height_id, mdv_mean_col = find_mdv_time_series(mdv_slice, time_slice,
+                                                                                        n_ts_run)
+
+            # selecting w_radar values of the chirp over the same time interval as the mdv_series
+            w_radar_chirpSel = Cs_w_radar(time_mdv_series)
+
+            # calculating time shift for the chirp and hour if at least NtimeStampsRun measurements are available
+            if np.sum(~np.isnan(mdv_mean_col)) == NtimeStampsRun:
+                time_shift_array[ts_slice, j] = calc_time_shift(mdv_mean_col, delta_t_min, delta_t_max, resolution,
+                                                                w_radar_chirpSel, time_mdv_series,
+                                                                pathFig, j + 1, i, date)
+
+            # recalculate exact chirp time including time shift due to lag
+            chirp_ts_shifted[f'chirp_{j + 1}'][ts_slice] = chirp_ts[f'chirp_{j + 1}'][ts_slice] - time_shift_array[
+                ts_slice, j]
+            # get w_radar at the time shifted exact chirp time stamps
+            w_radar_exact = Cs(chirp_ts_shifted[f'chirp_{j + 1}'][ts_slice])
+
+            if plot_fig:
+                # plot mdv time series and shifted radar heave rate
+                ts_idx = [h.argnearest(chirp_ts_shifted[f'chirp_{j + 1}'][ts_slice], t) for t in time_mdv_series]
+                plot_time = pd.to_datetime(time_mdv_series, unit='s')
+                plot_df = pd.DataFrame(dict(time=plot_time, mdv_mean_col=mdv_mean_col,
+                                            w_radar_org=Cs(time_mdv_series),
+                                            w_radar_chirpSel=w_radar_chirpSel,
+                                            w_radar_exact_shifted=w_radar_exact[ts_idx])).set_index('time')
+                fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
+                ax.plot(plot_df['mdv_mean_col'], color='red', label='mean mdv over column at original radar time')
+                ax.plot(plot_df['w_radar_org'], color='blue', linewidth=0.2, label='w_radar at original radar time')
+                ax.plot(plot_df['w_radar_chirpSel'], color='blue', label='w_radar at original chirp time')
+                ax.plot(plot_df['w_radar_exact_shifted'], '.', color='green', label='w_radar shifted')
+                ax.set_ylim(-4., 2.)
+                ax.legend(frameon=False)
+                # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
+                ax.set_title(
+                    f'Velocity for Time Delay Calculations : {date:%Y-%m-%d} shift = {time_shift_array[start_idx, j]}',
+                    loc='left')
+                ax.set_xlabel("Time [day hh:mm]")
+                ax.set_ylabel('w [m s$^{-1}$]')
+                ax.xaxis_date()
+                ax.grid()
+                fig.autofmt_xdate()
+                fig.savefig(f'{pathFig}/{date:%Y%m%d}_time-series_mdv_w-radar_chirp{j + 1}_hour{i}.png')
+                plt.close()
+
+    return chirp_ts_shifted, time_shift_array
+
+
+def calc_corr_matrix_claudia(radar_ts, radar_rg, rg_borders_id, chirp_ts_shifted, Cs_w_radar):
+    corr_matrix = np.zeros((len(radar_ts), len(radar_rg)))
+    # divide the day in 24 equal slices
+    idx = np.int(np.floor(len(radar_ts) / 24))
+    for i in range(24):
+        start_idx = i * idx
+        if i < 22:
+            end_idx = (i + 1) * idx
+        else:
+            end_idx = len(radar_ts)
+        for j in range(Nchirps):
+            # set time and range slice
+            ts_slice, rg_slice = slice(start_idx, end_idx), slice(rg_borders_id[j], rg_borders_id[j + 1])
+            # get w_radar at the time shifted exact chirp time stamps
+            w_radar_exact = Cs_w_radar(chirp_ts_shifted[f'chirp_{j + 1}'][ts_slice])
+            # add a dimension to w_radar_exact and repeat it over this dimension (range) to fill the hour and
+            # chirp of the correction array
+            tmp = np.repeat(np.expand_dims(w_radar_exact, 1), rg_borders_id[j + 1] - rg_borders_id[j], axis=1)
+            corr_matrix[ts_slice, rg_slice] = tmp
+
+    return corr_matrix
+
+
 # %%
 
 print(f'processing date: {date:%Y-%m-%d}')
@@ -878,6 +972,8 @@ plt.close()
 # %%
 
 Cs = CubicSpline(timeShip_valid, w_radar_valid)  # prepare interpolation of the ship data
+seapath = ShipDataCenter.dropna('time_shifted')
+cs_test = CubicSpline(seapath['time_shifted'].values.astype(float)/10**9, seapath['heave_rate_radar'])
 
 # interpolate w_radar for each chirp on the exact time of the chirp
 w_radar_chirp = dict()
@@ -889,76 +985,21 @@ for i in range(Nchirps):
 delta_t_min = -3.  # minimum time shift
 delta_t_max = 3.  # maximum time shift
 resolution = 0.05  # step size between min and max delta_t
-time_shift_array = np.zeros((len(radarData['ts']), Nchirps))
-chirp_ts_shifted = chirp_ts.copy()
-# calculating time shift and correction for mean doppler velocity proceeding per hour and chirp
+# calculating time shift for mean doppler velocity proceeding per hour and chirp
 # setting the length of the mean doppler velocity time series for calculating time shift
 NtimeStampsRun = np.int(10*60/1.5)  # 10 minutes with time res of 1.5 s
-correctionMatrix = np.zeros((len(radarData['ts']), len(radarData['rg'])))
 
 # find a 10 minute mdv time series in every hour of radar data and for each chirp if possible
 # calculate time shift for each hour and each chirp
-# divide the day in 24 equal slices
-idx = np.int(np.floor(len(radarData['ts']) / 24))
-for i in range(24):
-    start_idx = i * idx
-    if i < 22:
-        end_idx = (i + 1) * idx
-    else:
-        end_idx = time_shift_array.shape[0]
-    for ii in range(Nchirps):
-        # set time and range slice
-        ts_slice, rg_slice = slice(start_idx, end_idx), slice(rg_borders_id[ii], rg_borders_id[ii+1])
-        mdv_slice = mdv[ts_slice, rg_slice]
-        time_slice = chirp_ts[f'chirp_{ii+1}'][ts_slice]  # select the corresponding exact chirp time for the mdv slice
-        mdv_series, time_mdv_series, height_id, mdv_mean_col = find_mdv_time_series(mdv_slice, time_slice, NtimeStampsRun)
-
-        # selecting w_radar values of the chirp over the same time interval as the mdv_series
-        w_radar_chirpSel = Cs(time_mdv_series)
-
-        # calculating time shift for the chirp and hour if at least NtimeStampsRun measurements are available
-        if np.sum(~np.isnan(mdv_mean_col)) == NtimeStampsRun:
-            time_shift_array[ts_slice, ii] = calc_time_shift(mdv_mean_col, delta_t_min, delta_t_max, resolution,
-                                                             w_radar_chirpSel, time_mdv_series,
-                                                             pathFig, ii + 1, i, date)
-
-        # recalculate exact chirp time including time shift due to lag
-        chirp_ts_shifted[f'chirp_{ii+1}'][ts_slice] = chirp_ts[f'chirp_{ii + 1}'][ts_slice] - time_shift_array[ts_slice, ii]
-        # get w_radar at the time shifted exact chirp time stamps
-        w_radar_exact = Cs(chirp_ts_shifted[f'chirp_{ii+1}'][ts_slice])
-        # add a dimension to w_radar_exact and repeat it over this dimension (range) to fill the hour and chirp of the
-        # correction array
-        tmp = np.repeat(np.expand_dims(w_radar_exact, 1), rg_borders_id[ii+1]-rg_borders_id[ii], axis=1)
-        correctionMatrix[ts_slice, rg_slice] = tmp
-
-        # plot mdv time series and shifted radar heave rate
-        ts_idx = [h.argnearest(chirp_ts_shifted[f'chirp_{ii+1}'][ts_slice], t) for t in time_mdv_series]
-        plot_time = pd.to_datetime(time_mdv_series, unit='s')
-        plot_df = pd.DataFrame(dict(time=plot_time, mdv_mean_col=mdv_mean_col,
-                                    w_radar_org=Cs(time_mdv_series),
-                                    w_radar_chirpSel=w_radar_chirpSel,
-                                    w_radar_exact_shifted=w_radar_exact[ts_idx])).set_index('time')
-        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
-        ax.plot(plot_df['mdv_mean_col'], color='red', label='mean mdv over column at original radar time')
-        ax.plot(plot_df['w_radar_org'], color='blue', linewidth=0.2, label='w_radar at original radar time')
-        ax.plot(plot_df['w_radar_chirpSel'], color='blue', label='w_radar at original chirp time')
-        ax.plot(plot_df['w_radar_exact_shifted'], '.', color='green', label='w_radar shifted')
-        ax.set_ylim(-4., 2.)
-        ax.legend(frameon=False)
-        # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
-        ax.set_title(
-            f'Velocity for Time Delay Calculations : {date:%Y-%m-%d} shift = {time_shift_array[start_idx, ii]}',
-            loc='left')
-        ax.set_xlabel("Time [day hh:mm]")
-        ax.set_ylabel('w [m s$^{-1}$]')
-        ax.xaxis_date()
-        ax.grid()
-        fig.autofmt_xdate()
-        fig.savefig(f'{pathFig}/{date:%Y%m%d}_time-series_mdv_w-radar_chirp{ii+1}_hour{i}.png')
-        plt.close()
+chirp_ts_shifted, time_shift_array = calc_shifted_chirp_timestamps(radarData['ts'], mdv, chirp_ts, NtimeStampsRun, Cs,
+                                                                   no_chirps=Nchirps, pathFig=pathFig,
+                                                                   delta_t_min=delta_t_min, delta_t_max=delta_t_max,
+                                                                   date=date, plot_fig=True)
+# calculate the correction matrix
+corr_matrix = calc_corr_matrix(radarData['ts'], radarData['rg'], rg_borders_id, chirp_ts_shifted, Cs)
 
 # %%
-mdv_corr = mdv + correctionMatrix  # calculating corrected mean doppler velocity
+mdv_corr = mdv + corr_matrix  # calculating corrected mean doppler velocity
 # update larda container with new mdv
 radarData_cor = h.put_in_container(mdv_corr, radarData)
 
