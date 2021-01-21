@@ -662,7 +662,7 @@ def f_calcTimeShift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRada
     return (timeShift_chirp)
 
 
-def calc_time_shift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRadar, pathFig, chirp, date):
+def calc_time_shift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRadar, pathFig, chirp, hour, date):
     """
     author: Claudia Acquistapace, Jan. H. Schween
     date:   25/11/2020
@@ -683,14 +683,11 @@ def calc_time_shift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRada
     fontSizeTitle = 12
     fontSizeX = 12
     fontSizeY = 12
-    rcParams['font.sans-serif'] = ['Tahoma']
-    matplotlib.rcParams['savefig.dpi'] = 100
     plt.gcf().subplots_adjust(bottom=0.15)
 
     # calculating variation for w_radar
     w_prime_radar = w_radar_meanCol - np.nanmean(w_radar_meanCol)
 
-    print(np.shape(w_prime_radar))
     # calculating covariance between w-ship and w_radar where w_ship is shifted for each deltaT given by DeltaTimeShift
     cov_ww = np.zeros(len(DeltaTimeShift))
     deltaW_ship = np.zeros(len(DeltaTimeShift))
@@ -719,35 +716,40 @@ def calc_time_shift(w_radar_meanCol, DeltaTimeShift, w_ship_chirp, timeSerieRada
     indMin = np.where(deltaW_ship == minDeltaW)
     maxCov_w = np.nanmax(cov_ww)
     indMax = np.where(cov_ww == maxCov_w)
-    print('time shift found for the chirp ' + str(DeltaTimeShift[indMin][0]))
+    try:
+        print(f'Time shift found for chirp {chirp} at hour {hour}: {DeltaTimeShift[indMin][0]}')
+        # calculating time shift for radar data
+        timeShift_chirp = DeltaTimeShift[indMin][0]
 
-    # calculating time shift for radar data
-    timeShift_chirp = DeltaTimeShift[indMin][0]
-
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
-    fig.tight_layout()
-    ax = plt.subplot(1, 1, 1)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.get_xaxis().tick_bottom()
-    ax.get_yaxis().tick_left()
-    matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    ax.plot(DeltaTimeShift, cov_ww, color='red', linestyle=':', label='cov_ww')
-    ax.axvline(x=DeltaTimeShift[indMax], color='red', linestyle=':', label='max cov_w')
-    ax.plot(DeltaTimeShift, deltaW_ship, color='red', label='Deltaw^2')
-    ax.axvline(x=DeltaTimeShift[indMin], color='red', label='min Deltaw^2')
-    ax.legend(frameon=False)
-    # ax.xaxis_date()
-    ax.set_ylim(-0.1, 2.)  # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
-    ax.set_xlim(DeltaTmin, DeltaTmax)  # limits of the x-axes
-    ax.set_title(
-        f'covariance and sharpiness for chirp {chirp}: {date:%Y-%m-%d}, time lag found : {DeltaTimeShift[indMin]}',
-        fontsize=fontSizeTitle, loc='left')
-    ax.set_xlabel("time Shift [seconds]", fontsize=fontSizeX)
-    ax.set_ylabel('w [m s-1]', fontsize=fontSizeY)
-    fig.tight_layout()
-    fig.savefig(f'{pathFig}/{date:%Y%m%d}_chirp{chirp}_timeShiftQuicklook.png', format='png')
+        # plot results
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
+        fig.tight_layout()
+        ax = plt.subplot(1, 1, 1)
+        ax.spines["top"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.get_xaxis().tick_bottom()
+        ax.get_yaxis().tick_left()
+        matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
+        matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
+        ax.plot(DeltaTimeShift, cov_ww, color='red', linestyle=':', label='cov_ww')
+        ax.axvline(x=DeltaTimeShift[indMax], color='red', linestyle=':', label='max cov_w')
+        ax.plot(DeltaTimeShift, deltaW_ship, color='red', label='Deltaw^2')
+        ax.axvline(x=DeltaTimeShift[indMin], color='red', label='min Deltaw^2')
+        ax.legend(frameon=False)
+        # ax.xaxis_date()
+        ax.set_ylim(-0.1, 2.)  # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
+        ax.set_xlim(DeltaTmin, DeltaTmax)  # limits of the x-axes
+        ax.set_title(
+            f'Covariance and Sharpiness for chirp {chirp}: {date:%Y-%m-%d} hour: {hour}, '
+            f'time lag found : {DeltaTimeShift[indMin]}',
+            fontsize=fontSizeTitle, loc='left')
+        ax.set_xlabel("Time Shift [seconds]", fontsize=fontSizeX)
+        ax.set_ylabel('w [m s$^{-1}$]', fontsize=fontSizeY)
+        fig.tight_layout()
+        fig.savefig(f'{pathFig}/{date:%Y%m%d}_chirp{chirp}_hour{hour}_timeShiftQuicklook.png', format='png')
+    except IndexError:
+        print(f'Not enough data points for time shift calculation in chirp {chirp} at hour {hour}!')
+        timeShift_chirp = 0
 
     return timeShift_chirp
 
@@ -855,10 +857,10 @@ def calc_heave_rate_claudia(data, x_radar=-11, y_radar=4.07, z_radar=-15.8):
 
     """
     r_radar = [x_radar, y_radar, z_radar]
-    # calculation of w_heave
+    # calculation of w_ship
     heave = data['heave'].values
     timeShip = data['time_shifted'].values.astype('float64') / 10 ** 9
-    w_heave = np.diff(heave, prepend=np.nan) / np.diff(timeShip, prepend=np.nan)
+    w_ship = np.diff(heave, prepend=np.nan) / np.diff(timeShip, prepend=np.nan)
 
     # calculating rotational terms
     roll = data['roll'].values
@@ -876,9 +878,9 @@ def calc_heave_rate_claudia(data, x_radar=-11, y_radar=4.07, z_radar=-15.8):
     w_rot = np.diff(r_ship[2, :], prepend=np.nan) / np.diff(timeShip, prepend=np.nan)
 
     # calculating total ship velocity at radar
-    heave_rate = w_rot + w_heave
+    heave_rate = w_rot + w_ship
     data['w_rot'] = (('time_shifted'), w_rot)
-    data['heave_rate'] = (('time_shifted'), w_heave)
+    data['heave_rate'] = (('time_shifted'), w_ship)
     data['heave_rate_radar'] = (('time_shifted',), heave_rate)
 
     return data
@@ -899,7 +901,7 @@ pitch = ShipDataCenter['pitch'].values
 yaw = ShipDataCenter['yaw'].values
 heave = ShipDataCenter['heave'].values
 timeShip = ShipDataCenter['time_shifted'].values.astype('float64')/10**9
-w_heave = ShipDataCenter['heave_rate'].values
+w_ship = ShipDataCenter['heave_rate'].values
 w_rot = ShipDataCenter['w_rot'].values
 w_radar = ShipDataCenter['heave_rate_radar'].values
 
@@ -912,17 +914,17 @@ i_valid = np.where(~np.isnan(roll) *
 
 w_radar_valid = w_radar[i_valid]
 timeShip_valid = timeShip[i_valid]
-w_heave_valid = w_heave[i_valid]
+w_ship_valid = w_ship[i_valid]
 
-# plot time series of w_radar and w_heave for the plot interval
+# plot time series of w_radar and w_ship for the plot interval
 plot_df = pd.DataFrame({'time': [h.ts_to_dt(t) for t in timeShip_valid],
                         'w_radar': w_radar_valid,
-                        'w_heave': w_heave_valid}).set_index('time')
+                        'w_ship': w_ship_valid}).set_index('time')
 plot_time_interval = [datetime(2020, 2, 16, 16, 30, 0), datetime(2020, 2, 16, 16, 32, 0)]
 plot_df = plot_df.loc[plot_time_interval[0]:plot_time_interval[1]]  # select only 2 minutes of data
 fig, ax = plt.subplots()
 ax.plot(plot_df['w_radar'], color='red', label='w_radar')
-ax.plot(plot_df['w_heave'], color='black', label='w_heave')
+ax.plot(plot_df['w_ship'], color='black', label='w_ship')
 ax.legend(frameon=False)
 ax.xaxis_date()
 fig.autofmt_xdate()
@@ -987,10 +989,9 @@ plt.close()
 Cs = CubicSpline(timeShip_valid, w_radar_valid)
 
 # interpolating w_radar for each chirp on the time exact array of the chirp
-timeChirp1, timeChirp2, timeChirp3 = chirp_ts['chirp_1'], chirp_ts['chirp_2'], chirp_ts['chirp_3']
-wShip_exactChirp1 = Cs(timeChirp1)
-wShip_exactChirp2 = Cs(timeChirp2)
-wShip_exactChirp3 = Cs(timeChirp3)
+w_radar_chirp = dict()
+for i in range(Nchirps):
+    w_radar_chirp[f'chirp_{i+1}'] = Cs(chirp_ts[f'chirp_{i+1}'])
 
 # %%
 # calculation of the deltaT_shift array to use for getting good matching between t_radar and T-ship
@@ -1005,7 +1006,7 @@ DeltaTimeShift = np.arange(DeltaTmin, DeltaTmax, step=res)
 timeShiftArray = np.zeros((3))
 timeShiftArray.fill(-999.)
 timeExactFinal = np.zeros((Nchirps, len(radarData['ts'])))
-WshipExactFinal = np.zeros((Nchirps, len(radarData['ts'])))
+w_radarExactFinal = np.zeros((Nchirps, len(radarData['ts'])))
 
 # assigning lenght of the mean doppler velocity time series for calculating time shift
 # with 1.5 sec time resolution, 400 corresponds to 10 min
@@ -1019,134 +1020,61 @@ time_shift_array = np.zeros((len(radarData['ts']), Nchirps))
 idx = np.int(np.floor(len(radarData['ts']) / 24))
 for i in range(24):
     start_idx = i * idx
-    if i < 23:
+    if i < 22:
         end_idx = (i + 1) * idx
     else:
-        end_idx = -1
+        end_idx = time_shift_array.shape[0]
     for ii in range(Nchirps):
-        mdv_slice = mdv[start_idx:end_idx, rg_borders_id[ii]:rg_borders_id[ii+1]]
-        time_slice = radarData['ts'][start_idx:end_idx]
-        w_radar, timeRadarSel, height_id, w_radar_meanCol = find_mdv_time_series(mdv_slice, time_slice, NtimeStampsRun)
-        # selecting wship values of the chirp over the same time interval
-        Cs_chirp = CubicSpline(chirp_ts['chirp_1'], wShip_exactChirp1)
-        w_radar_chirpSel = Cs_chirp(timeRadarSel)
+        ts_slice, rg_slice = slice(start_idx, end_idx), slice(rg_borders_id[ii], rg_borders_id[ii+1])
+        mdv_slice = mdv[ts_slice, rg_slice]
+        time_slice = radarData['ts'][ts_slice]
+        mdv_series, time_mdv_series, height_id, mdv_mean_col = find_mdv_time_series(mdv_slice, time_slice, NtimeStampsRun)
 
-        # calculating time shift for the chirp
-        if np.sum(~np.isnan(w_radar_meanCol)) != 0:
-            time_shift_array[start_idx:end_idx, ii] = calc_time_shift(w_radar_meanCol, DeltaTimeShift,
-                                                                      w_radar_chirpSel, timeRadarSel,
-                                                                      pathFig, ii + 1, date)
+        # selecting w_radar values of the chirp over the same time interval as the mdv_series
+        chirp_time = chirp_ts[f'chirp_{ii+1}']
+        Cs_chirp = CubicSpline(chirp_time, w_radar_chirp[f'chirp_{ii+1}'])
+        w_radar_chirpSel = Cs_chirp(time_mdv_series)
 
-# recalculating exact time including time shift due to lag for each chirp
-timeExact = dict()
-for i in range(Nchirps):
-    timeExact[f'chirp_{i+1}'] = chirp_ts[f'chirp_{i+1}'] - time_shift_array[:, i]
+        # calculating time shift for the chirp and hour if at least NtimeStampsRun measurements are available
+        if np.sum(~np.isnan(mdv_mean_col)) == NtimeStampsRun:
+            time_shift_array[ts_slice, ii] = calc_time_shift(mdv_mean_col, DeltaTimeShift,
+                                                             w_radar_chirpSel, time_mdv_series,
+                                                             pathFig, ii + 1, i, date)
 
+        # recalculate exact chirp time including time shift due to lag
+        chirp_time_shifted = chirp_ts[f'chirp_{ii + 1}'][ts_slice] - time_shift_array[ts_slice, ii]
+        Cs_final = CubicSpline(chirp_ts[f'chirp_{ii + 1}'][ts_slice], w_radar_chirp[f'chirp_{ii+1}'][ts_slice])
+        w_radar_exact = Cs_final(chirp_time_shifted)  # get w_radar at the time shifted exact chirp time stamps
+        # add a dimension to w_radar_exact and repeat it over this dimension (range) to fill the hour and chirp of the
+        # correction array
+        tmp = np.repeat(np.expand_dims(w_radar_exact, 1), rg_borders_id[ii+1]-rg_borders_id[ii], axis=1)
+        correctionMatrix[ts_slice, rg_slice] = tmp
 
-
-for i_chirp in range(0, Nchirps):
-
-    print(f'processing chirp {i_chirp+1}')
-
-    # reading corresponding ship data and radar exact time array
-    if i_chirp == 0:
-        wShip_exactChirp = wShip_exactChirp1
-        timeSerieRadar = timeChirp1
-    elif i_chirp == 1:
-        wShip_exactChirp = wShip_exactChirp2
-        timeSerieRadar = timeChirp2
-    else:
-        wShip_exactChirp = wShip_exactChirp3
-        timeSerieRadar = timeChirp3
-
-    # selecting index of min and max height of the chirp
-    i_h_min = rg_borders_id[i_chirp]
-    i_h_max = rg_borders_id[i_chirp + 1]
-
-    print('processing between ' + str(radarData['rg'][i_h_min]) + ' and ' + str(radarData['rg'][i_h_max]))
-
-    # reading mdv values for the selected chirp
-    mvd_chirp = mdv[:, i_h_min:i_h_max]
-    dimHchirp = np.shape(mvd_chirp)[1]
-    rangeChirp = radarData['rg'][i_h_min:i_h_max]
-
-    # search for at least 10 min of consecutive w obs in the chirp
-    w_radar, timeRadarSel, w_radar_meanCol = f_findMdvTimeSerie(mvd_chirp,
-                                                                timeSerieRadar,
-                                                                rangeChirp,
-                                                                NtimeStampsRun,
-                                                                pathFig,
-                                                                i_chirp+1)
-
-    # selecting wship values of the chirp over the same time interval
-    Cs_chirp = CubicSpline(timeSerieRadar, wShip_exactChirp)
-    w_radar_chirpSel = Cs_chirp(timeRadarSel)
-
-    # calculating time shift for the chirp
-    if np.sum(np.where(~np.isnan(w_radar_meanCol))) != 0:
-        timeShiftArray[i_chirp] = f_calcTimeShift(w_radar_meanCol,
-                                                  DeltaTimeShift,
-                                                  w_radar_chirpSel,
-                                                  timeRadarSel,
-                                                  pathFig,
-                                                  i_chirp+1,
-                                                  date)
-    else:
-        timeShiftArray[i_chirp] = np.nan
-
-    # recalculating exact time including time shift due to lag
-    if ~np.isnan(timeShiftArray[i_chirp]):
-        timeExact = timeSerieRadar - timeShiftArray[i_chirp]
-    else:
-        timeExact = timeSerieRadar
-
-    timeExactFinal[i_chirp, :] = timeExact
-
-    # interpolating ship data on the exact time again, with the right time found after the calculating
-    # and the addition of the time shift
-    Cs_final = CubicSpline(timeExact, wShip_exactChirp)
-    w_radar1_exact = Cs_final(timeSerieRadar)
-    WshipExactFinal[i_chirp, :] = w_radar1_exact
-
-    #############################################################################
-    # plot of the quantities as quicklooks
-    timePlot = timeExact
-    timeStart = timeRadarSel[0]
-    timeEnd = timeRadarSel[40]
-
-    # select values for plotting which are closest to the selected time stamps for the time shift analysis
-    exactChirp_idx = [h.argnearest(timePlot, t) for t in timeRadarSel]
-    ship_idx = [h.argnearest(timeSerieRadar, t) for t in timeRadarSel]
-    plot_time = pd.to_datetime(timeRadarSel, unit='s')
-    plot_df = pd.DataFrame(dict(time=plot_time, w_radar_meanCol=w_radar_meanCol, w_radar_chirpSel=w_radar_chirpSel,
-                                wShip_exactChirp=wShip_exactChirp[exactChirp_idx],
-                                w_radar1_exact=w_radar1_exact[ship_idx])).set_index('time')
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
-    rcParams['font.sans-serif'] = ['Tahoma']
-    matplotlib.rcParams['savefig.dpi'] = 100
-    plt.gcf().subplots_adjust(bottom=0.15)
-    ax.plot(plot_df['w_radar_meanCol'], color='red', label='mean w_radar over column')
-    ax.plot(plot_df['w_radar_chirpSel'], color='blue', linewidth=0.2, label='w_radar original')
-    ax.plot(plot_df['wShip_exactChirp'], color='blue', label='w_radar shifted of deltaT found')
-    ax.plot(plot_df['w_radar1_exact'], '.', color='green', label='w_radar shifted interpolated on radar exact time')
-    # ax.plot(timeRadarSel, w_radar, linewidth = 0.2, color='red', label='w_radar at one height')
-    ax.set_ylim(-4., 2.)
-    ax.legend(frameon=False)
-    # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
-    ax.set_title(
-        f'velocity for time delay calculations : {date:%Y-%m-%d} shift = {timeShiftArray[i_chirp]}',
-        loc='left')
-    ax.set_xlabel("time [hh:mm:ss]")
-    ax.set_ylabel('w [m s-1]')
-    ax.xaxis_date()
-    ax.grid()
-    fig.autofmt_xdate()
-    fig.savefig(f'{pathFig}/{date:%Y%m%d}_chirp{i_chirp+1}_timeSeries_wship_wradar.png', format='png')
-    plt.close()
-
-    # building correction term matrix
-    correctionMatrix[:, i_h_min:i_h_max] = - np.repeat(w_radar1_exact, len(rangeChirp)).reshape(len(timeExact),
-                                                                                               len(rangeChirp))
+        # plot mdv time series and shifted radar heave rate
+        ts_idx = [h.argnearest(chirp_time_shifted, t) for t in time_mdv_series]
+        plot_time = pd.to_datetime(time_mdv_series, unit='s')
+        plot_df = pd.DataFrame(dict(time=plot_time, mdv_mean_col=mdv_mean_col,
+                                    w_radar_org=Cs(time_mdv_series),
+                                    w_radar_chirpSel=w_radar_chirpSel,
+                                    w_radar_exact_shifted=w_radar_exact[ts_idx])).set_index('time')
+        fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
+        ax.plot(plot_df['mdv_mean_col'], color='red', label='mean mdv over column at original radar time')
+        ax.plot(plot_df['w_radar_org'], color='blue', linewidth=0.2, label='w_radar at original radar time')
+        ax.plot(plot_df['w_radar_chirpSel'], color='blue', label='w_radar at original chirp time')
+        ax.plot(plot_df['w_radar_exact_shifted'], '.', color='green', label='w_radar shifted')
+        ax.set_ylim(-4., 2.)
+        ax.legend(frameon=False)
+        # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
+        ax.set_title(
+            f'Velocity for Time Delay Calculations : {date:%Y-%m-%d} shift = {time_shift_array[start_idx, ii]}',
+            loc='left')
+        ax.set_xlabel("Time [day hh:mm]")
+        ax.set_ylabel('w [m s$^{-1}$]')
+        ax.xaxis_date()
+        ax.grid()
+        fig.autofmt_xdate()
+        fig.savefig(f'{pathFig}/{date:%Y%m%d}_time-series_mdv_w-radar_chirp{ii+1}_hour{i}.png')
+        plt.close()
 
 # calculating corrected mean doppler velocity
 mdv_corr = mdv + correctionMatrix
@@ -1187,25 +1115,25 @@ plt.close()
 
 # interpolating ship correction terms of rotation and heave on the chirp time array
 Cs_rot = CubicSpline(timeShip_valid, w_rot[1:])
-Cs_heave = CubicSpline(timeShip_valid, w_heave[1:])
+Cs_heave = CubicSpline(timeShip_valid, w_ship[1:])
 w_rot2 = Cs_rot(timeChirp2)
-w_heave2 = Cs_heave(timeChirp2)
+w_ship2 = Cs_heave(timeChirp2)
 
 # plotting ffts of a selected height in the cloud (height selected in user parameter section)
 iHeight = f_closest(radarData['rg'], selHeight)
 timeExact = timeChirp2 - timeShiftArray[1]
-CS_interpfft = CubicSpline(timeExact, wShip_exactChirp2)
+CS_interpfft = CubicSpline(timeExact, w_radar_exactChirp2)
 CS_interp_rot = CubicSpline(timeExact, w_rot2)
-CS_interp_heave = CubicSpline(timeExact, w_heave2)
+CS_interp_heave = CubicSpline(timeExact, w_ship2)
 
 # deriving values of wship rot and heave at the chirp times using the interpolation on the derived exact time
 w_radar_interp = CS_interpfft(timeChirp2)
 w_rot_interp = CS_interp_rot(timeChirp2)
-w_heave_interp = CS_interp_heave(timeChirp2)
+w_ship_interp = CS_interp_heave(timeChirp2)
 
 # calculating corrected mdv with and without the time shift to the exact value
 W_corr = mdv[:, iHeight] - w_radar_interp
-W_corr_no_shift = mdv[:, iHeight] - wShip_exactChirp2
+W_corr_no_shift = mdv[:, iHeight] - w_radar_exactChirp2
 
 # interpolating over nans the two series ( in order to calculate fft tranformation)
 nans, x = nan_helper(W_corr)
@@ -1221,9 +1149,9 @@ w_radar_orig[nans] = np.interp(x(nans), x(~nans), w_radar_orig[~nans])
 # calculating power spectra of the selected corrected time series
 pow_radarCorr, freq_radarCorr = f_calcFftSpectra(W_corr, timeChirp2)
 pow_radarCorr_NS, freq_radarCorr_NS = f_calcFftSpectra(W_corr_no_shift, timeChirp2)
-pow_wShip, freq_Ship = f_calcFftSpectra(w_radar_interp, timeChirp2)
+pow_w_radar, freq_Ship = f_calcFftSpectra(w_radar_interp, timeChirp2)
 pow_wrot, freq_rot = f_calcFftSpectra(w_rot_interp, timeChirp2)
-pow_wheave, freq_heave = f_calcFftSpectra(w_heave_interp, timeChirp2)
+pow_wheave, freq_heave = f_calcFftSpectra(w_ship_interp, timeChirp2)
 pow_radarOrig, freq_radarOrig = f_calcFftSpectra(w_radar_orig, timeChirp2)
 # %%%
 
@@ -1239,9 +1167,9 @@ ax.spines["right"].set_visible(False)
 ax.get_xaxis().tick_bottom()
 ax.get_yaxis().tick_left()
 # ax.set_yscale('log')
-ax.loglog(freq_Ship, pow_wShip, label='ship', color='black', alpha=0.5)
+ax.loglog(freq_Ship, pow_w_radar, label='ship', color='black', alpha=0.5)
 ax.loglog(freq_rot, pow_wrot, label='w_rot', color='purple')
-ax.loglog(freq_heave, pow_wheave, label='w_heave', color='orange')
+ax.loglog(freq_heave, pow_wheave, label='w_ship', color='orange')
 ax.legend(frameon=False)
 ax2 = ax.twiny()
 new_tick_locations = np.array([0.2, 0.1, 0.06666667, 0.05, 0.04, 0.02, 0.01666667])
