@@ -15,10 +15,7 @@ import pyLARDA
 import pyLARDA.helpers as h
 import functions_jr as jr
 import numpy as np
-import netCDF4 as nc4
 import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-from matplotlib import rcParams
 import matplotlib
 import pandas as pd
 from datetime import datetime
@@ -634,7 +631,7 @@ def calc_time_shift(w_radar_meanCol, delta_t_min, delta_t_max, resolution, w_shi
         ax.set_xlabel("Time Shift [seconds]", fontsize=fontSizeX)
         ax.set_ylabel('w [m s$^{-1}$]', fontsize=fontSizeY)
         fig.tight_layout()
-        fig.savefig(f'{pathFig}/{date:%Y%m%d}_chirp{chirp}_hour{hour}_timeShiftQuicklook.png', format='png')
+        fig.savefig(f'{pathFig}/{date:%Y%m%d}_timeShiftQuicklook_chirp{chirp}_hour{hour}.png', format='png')
         plt.close()
     except IndexError:
         print(f'Not enough data points for time shift calculation in chirp {chirp} at hour {hour}!')
