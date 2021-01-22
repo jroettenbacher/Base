@@ -789,6 +789,7 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, n_ts_run, Cs_w_
     plot_fig = kwargs['plot_fig'] if 'plot_fig' in kwargs else False
 
     time_shift_array = np.zeros((len(radar_ts), no_chirps))
+    chirp_ts_shifted = chirp_ts
     idx = np.int(np.floor(len(radar_ts) / 24))
     for i in range(24):
         start_idx = i * idx
@@ -800,8 +801,7 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, n_ts_run, Cs_w_
             # set time and range slice
             ts_slice, rg_slice = slice(start_idx, end_idx), slice(rg_borders_id[j], rg_borders_id[j + 1])
             mdv_slice = radar_mdv[ts_slice, rg_slice]
-            time_slice = chirp_ts[f'chirp_{j + 1}'][
-                ts_slice]  # select the corresponding exact chirp time for the mdv slice
+            time_slice = chirp_ts[f'chirp_{j + 1}'][ts_slice]  # select the corresponding exact chirp time for the mdv slice
             mdv_series, time_mdv_series, height_id, mdv_mean_col = find_mdv_time_series(mdv_slice, time_slice,
                                                                                         n_ts_run)
 
@@ -891,6 +891,14 @@ def calc_chirp_int_time(MaxVel, freq, avg_num):
     return chirp_int_time
 
 
+def roll_mean_2D(matrix, windowsize, direction):
+    axis = 0 if direction == 'row' else 1
+    df = pd.DataFrame(matrix)
+    df_roll = df.rolling(window=windowsize, center=True, axis=axis).apply(lambda x: np.nanmean(x))
+
+    return df_roll.values
+
+
 # %%
 
 print(f'processing date: {date:%Y-%m-%d}')
@@ -955,7 +963,6 @@ for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'DoppLen', 'MaxVel', 
 Nchirps = len(radarData['SeqIntTime']['var'][0])
 rg_borders = jr.get_range_bin_borders(3, radarData)
 rg_borders_id = rg_borders - np.array([0, 1, 1, 1])  # transform bin boundaries, necessary because python starts counting at 0
-range_offset = [radarData['rg'][0], radarData['rg'][rg_borders_id[1]], radarData['rg'][rg_borders_id[2]]]
 
 # calculate SeqIntTime
 radar_aux = xr.open_dataset(radarData['filename'][0])
@@ -998,7 +1005,7 @@ chirp_ts_shifted, time_shift_array = calc_shifted_chirp_timestamps(radarData['ts
                                                                    delta_t_min=delta_t_min, delta_t_max=delta_t_max,
                                                                    date=date, plot_fig=True)
 # calculate the correction matrix
-corr_matrix = calc_corr_matrix(radarData['ts'], radarData['rg'], rg_borders_id, chirp_ts_shifted, Cs)
+corr_matrix = calc_corr_matrix_claudia(radarData['ts'], radarData['rg'], rg_borders_id, chirp_ts_shifted, Cs)
 
 # %%
 mdv_corr = mdv + corr_matrix  # calculating corrected mean doppler velocity
@@ -1014,20 +1021,18 @@ fig.savefig(f'{pathFig}/{date:%Y%m%d}_mdv_corr.png')
 plt.close()
 
 # applying rolling average to the data
-df = pd.DataFrame(mdv_corr, index=pd.to_datetime(radarData['ts'], unit='s'), columns=radarData['rg'])
-mdv_roll3 = df.rolling(window=3, center=True, axis=0).apply(lambda x: np.nanmean(x))
-df = pd.DataFrame(mdv, index=pd.to_datetime(radarData['ts'], unit='s'), columns=radarData['rg'])
-mdv_org_roll3 = df.rolling(window=3, center=True, axis=0).apply(lambda x: np.nanmean(x))
+mdv_roll3 = roll_mean_2D(mdv_corr, 3, 'row')
+mdv_org_roll3 = roll_mean_2D(mdv, 3, 'row')
 
 # plot of the 2d map of mean doppler velocity corrected for the selected hour with 3 steps running mean applied
-radarData_roll = h.put_in_container(mdv_roll3.values, radarData)
+radarData_roll = h.put_in_container(mdv_roll3, radarData)
 fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData_roll, time_interval=plot_time_interval,
                                                    range_interval=[0, 2000])
 fig.savefig(f'{pathFig}/{date:%Y%m%d}_mdv_roll.png')
 plt.close()
 
 # plot the mean doppler velocity with 3 steps running mean applied
-radarData_org_roll = h.put_in_container(mdv_org_roll3.values, radarData)
+radarData_org_roll = h.put_in_container(mdv_org_roll3, radarData)
 fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData_org_roll, time_interval=plot_time_interval,
                                                    range_interval=[0, 2000])
 fig.savefig(f'{pathFig}/{date:%Y%m%d}_mdv_org_roll.png')
