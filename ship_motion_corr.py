@@ -711,7 +711,7 @@ def calc_chirp_timestamps(radar_ts, date, version):
     # make lookup table for chirp durations for each chirptable (see projekt1/remsens/hardware/LIMRAD94/chirptables)
     chirp_durations = pd.DataFrame({"Chirp_No": (1, 2, 3), "tradewindCU": (1.022, 0.947, 0.966),
                                     "Doppler1s": (0.239, 0.342, 0.480), "Cu_small_Tint": (0.225, 0.135, 0.181),
-                                    "Cu_small_Tint2": (0.563, 0.573, 0.453)})
+                                    "Cu_small_Tint2": (0.562, 0.572, 0.453)})
     # calculate start time of each chirp by subtracting the duration of the later chirp(s) + the chirp itself
     # the timestamp then corresponds to the start of the chirp
     # select chirp durations according to date
@@ -873,6 +873,24 @@ def calc_corr_matrix_claudia(radar_ts, radar_rg, rg_borders_id, chirp_ts_shifted
     return corr_matrix
 
 
+def calc_chirp_int_time(MaxVel, freq, avg_num):
+    """
+    Calculate the integration time for each chirp
+    Args:
+        MaxVel (ndarray): Nyquist velocity of each chirp
+        freq (ndarray): radar frequency in GHz
+        avg_num (ndarray): number of chirps averaged for each chirp measurement
+
+    Returns: ndarray with integration time for each chirp
+
+    """
+    chirp_rep_freq = (4 * MaxVel * freq * 10 ** 9) / 299792458  # speed of light
+    chirp_duration = 1 / chirp_rep_freq
+    chirp_int_time = chirp_duration * avg_num
+
+    return chirp_int_time
+
+
 # %%
 
 print(f'processing date: {date:%Y-%m-%d}')
@@ -927,41 +945,25 @@ plt.close()
 # %%
 time_interval = [date, date + timedelta(0.9999)]  # reading radar data
 radarData = larda.read("LIMRAD94", "VEL", time_interval, [0, 'max'])
-SeqIntTime = larda.read("LIMRAD94", "SeqIntTime", time_interval)
-Nchirps = SeqIntTime['var'].shape[1]  # get number of chirps
 mdv = radarData['var']
 mdv[radarData['mask']] = np.nan
 # get the exact chirp time stamps
 chirp_ts = calc_chirp_timestamps(radarData['ts'], date, version='center')
-chirp_ranges = dict()
-for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'Inc_ElA', 'DoppLen', 'MaxVel']:
+for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'DoppLen', 'MaxVel', 'AvgNum', 'RangeRes']:
     # print('loading variable from LV1 :: ' + var)
-    chirp_ranges.update({var: larda.read("LIMRAD94", var, time_interval, [0, 'max'])})
-rg_borders = jr.get_range_bin_borders(3, chirp_ranges)
+    radarData.update({var: larda.read("LIMRAD94", var, time_interval, [0, 'max'])})
+Nchirps = len(radarData['SeqIntTime']['var'][0])
+rg_borders = jr.get_range_bin_borders(3, radarData)
 rg_borders_id = rg_borders - np.array([0, 1, 1, 1])  # transform bin boundaries, necessary because python starts counting at 0
 range_offset = [radarData['rg'][0], radarData['rg'][rg_borders_id[1]], radarData['rg'][rg_borders_id[2]]]
-# datetimeRadar = nc4.num2date(radarData['Time'].values, 'seconds since 2001-01-01 00:00:00',
-#                              only_use_cftime_datetimes=False)
-# C1Range = radarData['C1Range'].values
-# C2Range = radarData['C2Range'].values
-# C3Range = radarData['C3Range'].values
-# rangeRadar = np.zeros(len(C1Range) + len(C2Range) + len(C3Range))
-# rangeRadar[0:len(C1Range)] = C1Range
-# rangeRadar[len(C1Range):len(C1Range) + len(C2Range)] = C2Range
-# rangeRadar[len(C1Range) + len(C2Range):len(C1Range) + len(C2Range) + len(C3Range)] = C3Range
-# C1mdv = radarData['C1MeanVel'].values
-# C2mdv = radarData['C2MeanVel'].values
-# C3mdv = radarData['C3MeanVel'].values
-# mdv = np.zeros((len(datetimeRadar), len(rangeRadar)))
-# mdv[:, 0:len(C1Range)] = C1mdv
-# mdv[:, len(C1Range):len(C1Range) + len(C2Range)] = C2mdv
-# mdv[:, len(C1Range) + len(C2Range):len(C1Range) + len(C2Range) + len(C3Range)] = C3mdv
-# mdv[mdv == -999.] = np.nan
-# range_offset = [C1Range[0], C1Range[-1], C2Range[-1]]
-# chirpIntegrations = radarData['SeqIntTime'].values
-# millisec = radarData['Timems'].values / 1000.
-# NtimeRadar = len(datetimeRadar)
-# Nchirps = len(chirpIntegrations)
+
+# calculate SeqIntTime
+radar_aux = xr.open_dataset(radarData['filename'][0])
+sampleDur = radar_aux['SampDur']
+freq = radar_aux['Freq'].values
+MaxVel = radarData['MaxVel']['var'][0].data
+avg_num = radarData['AvgNum']['var'][0].data  # number of averaged chirps in each chirp
+chirp_int_time = calc_chirp_int_time(MaxVel, freq, avg_num)
 
 # plot on mean doppler velocity time height
 fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData, time_interval=plot_time_interval,

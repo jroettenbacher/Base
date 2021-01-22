@@ -1,5 +1,6 @@
 from itertools import groupby
 from scipy import interpolate
+from scipy.interpolate import CubicSpline
 from scipy.signal import correlate
 import numpy as np
 import pandas as pd
@@ -268,6 +269,24 @@ def get_range_bin_borders(no_chirps, container):
     return range_bins
 
 
+def calc_chirp_int_time(MaxVel, freq, avg_num):
+    """
+    Calculate the integration time for each chirp
+    Args:
+        MaxVel (ndarray): Nyquist velocity of each chirp
+        freq (ndarray): radar frequency in GHz
+        avg_num (ndarray): number of chirps averaged for each chirp measurement
+
+    Returns: ndarray with integration time for each chirp
+
+    """
+    chirp_rep_freq = (4 * MaxVel * freq * 10 ** 9) / 299792458  # speed of light
+    chirp_duration = 1 / chirp_rep_freq
+    chirp_int_time = chirp_duration * avg_num
+
+    return chirp_int_time
+
+
 def calc_chirp_timestamps(radar_ts, date, version):
     """ Calculate the exact timestamp for each chirp corresponding with the center or start of the chirp
     The timestamp in the radar file corresponds to the end of a chirp sequence with an accuracy of 0.1 s
@@ -283,7 +302,7 @@ def calc_chirp_timestamps(radar_ts, date, version):
     # make lookup table for chirp durations for each chirptable (see projekt1/remsens/hardware/LIMRAD94/chirptables)
     chirp_durations = pd.DataFrame({"Chirp_No": (1, 2, 3), "tradewindCU": (1.022, 0.947, 0.966),
                                     "Doppler1s": (0.239, 0.342, 0.480), "Cu_small_Tint": (0.225, 0.135, 0.181),
-                                    "Cu_small_Tint2": (0.563, 0.573, 0.453)})
+                                    "Cu_small_Tint2": (0.562, 0.572, 0.453)})
     # calculate start time of each chirp by subtracting the duration of the later chirp(s) + the chirp itself
     # the timestamp then corresponds to the start of the chirp
     # select chirp durations according to date
@@ -373,8 +392,8 @@ def calc_heave_corr(container, date, seapath, mean_hr=True):
                 idc = id_max[j]
                 warnings.warn(f"Heave rate greater 5 * std encountered ({seapath_closest['Heave Rate [m/s]'][idc]})! \n"
                               f"Using average of step before and after. Index: {idc}", UserWarning)
-                # TODO: make more sensible filter, this is a rather sensible filter, because we average over the time
-                #  steps before and after. Although the values are already averages, this should smooth out outliers
+                # make more sensible filter -> this is a rather sensible filter, because we average over the time
+                # steps before and after. Although the values are already averages, this should smooth out outliers
                 avg_hrate = (seapath_closest["Heave Rate [m/s]"][idc - 1] + seapath_closest["Heave Rate [m/s]"][idc + 1]) / 2
                 if avg_hrate > 5 * std:
                     warnings.warn(f"Heave Rate value greater than 5 * std encountered ({avg_hrate})! \n"
