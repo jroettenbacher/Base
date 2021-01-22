@@ -143,6 +143,16 @@
     variable_name = 'RangeRes'
     ncreader = 'aux'
     var_lims = []
+  [LIMRAD94.params.SampDur]
+    variable_name = 'SampDur'
+    ncreader = 'aux'
+    var_unit = 's'
+    var_lims = [0, 5]
+  [LIMRAD94.params.Freq]
+    variable_name = 'Freq'
+    ncreader = 'aux'
+    var_unit = 'GHz'
+    var_lims = [90, 100]
   [LIMRAD94.params.Inc_El]
     variable_name = 'Inc_El'
     ncreader = 'time'
