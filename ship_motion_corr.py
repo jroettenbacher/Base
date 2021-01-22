@@ -8,6 +8,7 @@
 """
 # importing necessary libraries
 import sys
+
 sys.path.append("/projekt1/remsens/work/jroettenbacher/Base/larda")
 sys.path.append('.')
 import pyLARDA
@@ -547,7 +548,8 @@ def f_calculateExactRadarTime(millisec, chirpIntegrations, datetimeRadar):
     return (datetimeChirp)
 
 
-def calc_time_shift(w_radar_meanCol, delta_t_min, delta_t_max, resolution, w_ship_chirp, timeSerieRadar, pathFig, chirp, hour, date):
+def calc_time_shift(w_radar_meanCol, delta_t_min, delta_t_max, resolution, w_ship_chirp, timeSerieRadar, pathFig, chirp,
+                    hour, date):
     """
     author: Claudia Acquistapace, Jan. H. Schween
     date:   25/11/2020
@@ -666,6 +668,14 @@ def f_calcFftSpectra(vel, time):
     w_pow = (abs(w_fft)) ** 2
     w_pow = w_pow[1:int(N / 2) + 1]
     freq = np.arange(int(N / 2)) * 1 / T_len
+    return (w_pow, freq)
+
+
+def calc_fft_spectra(vel, time):
+    from scipy.fft import rfft, rfftfreq
+    w_pow = np.abs(rfft(vel))
+    N = len(vel)
+    freq = rfftfreq(N, 1 / np.mean(np.diff(time)))
     return (w_pow, freq)
 
 
@@ -801,7 +811,8 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, n_ts_run, Cs_w_
             # set time and range slice
             ts_slice, rg_slice = slice(start_idx, end_idx), slice(rg_borders_id[j], rg_borders_id[j + 1])
             mdv_slice = radar_mdv[ts_slice, rg_slice]
-            time_slice = chirp_ts[f'chirp_{j + 1}'][ts_slice]  # select the corresponding exact chirp time for the mdv slice
+            time_slice = chirp_ts[f'chirp_{j + 1}'][
+                ts_slice]  # select the corresponding exact chirp time for the mdv slice
             mdv_series, time_mdv_series, height_id, mdv_mean_col = find_mdv_time_series(mdv_slice, time_slice,
                                                                                         n_ts_run)
 
@@ -899,6 +910,93 @@ def roll_mean_2D(matrix, windowsize, direction):
     return df_roll.values
 
 
+def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_chirps, n_ts_run, seapath):
+    seapath_time = seapath['time_shifted'].values.astype(float) / 10**9  # get time in seconds
+    dt = np.diff(seapath_time)  # get time resolution
+    # calculate angular velocity
+    seapath['pitch_rate'] = np.diff(seapath['pitch']) / dt
+    seapath['roll_rate'] = np.diff(seapath['roll']) / dt
+    seapath = seapath.dropna('time_shifted')  # drop nans for interpolation
+    seapath_time = seapath['time_shifted'].values.astype(float) / 10 ** 9  # get nan free time in seconds
+    # prepare interpolation function for angular velocity
+    Cs_pitch = CubicSpline(seapath_time, seapath['pitch_rate'])
+    Cs_roll = CubicSpline(seapath_time, seapath['roll_rate'])
+    Cs_heave = CubicSpline(seapath_time, seapath['heave_rate_radar'])
+    # split day in 24 equal segments
+    idx = np.int(np.floor(mdv.shape[0] / 24))
+    for i in range(24):
+        start_idx = i * idx
+        if i < 22:
+            end_idx = (i + 1) * idx
+        else:
+            end_idx = mdv.shape[0]
+        for j in range(no_chirps):
+            # set time and range slice
+            ts_slice, rg_slice = slice(start_idx, end_idx), slice(rg_borders_id[j], rg_borders_id[j + 1])
+            mdv_slice = mdv[ts_slice, rg_slice]
+            time_slice = chirp_ts[f'chirp_{j + 1}'][ts_slice]  # select the corresponding exact chirp time for the mdv slice
+            mdv_slice_cor = mdv_cor[ts_slice, rg_slice]
+            time_slice_cor = chirp_ts_shifted[f'chirp_{j + 1}'][ts_slice]
+            mdv_slice_cor_roll = mdv_cor_roll[ts_slice, rg_slice]
+            # find continuous series of mean doppler velocity for fft analysis
+            mdv_series, time_mdv_series, height_id, mdv_mean_col = find_mdv_time_series(mdv_slice, time_slice, n_ts_run)
+            mdv_series_cor, time_mdv_series_cor, height_id_cor, mdv_mean_col_cor = find_mdv_time_series(mdv_slice_cor,
+                                                                                                        time_slice_cor,
+                                                                                                        n_ts_run)
+            mdv_series_roll, time_mdv_series_roll, h_id, mdv_mean_roll = find_mdv_time_series(mdv_slice_cor_roll,
+                                                                                              time_slice_cor,
+                                                                                              n_ts_run)
+            # select angular velocities from the ship at the same time steps
+            heave_sel = Cs_heave(time_mdv_series)
+            pitch_sel = Cs_pitch(time_mdv_series)
+            roll_sel = Cs_roll(time_mdv_series)
+
+            if np.sum(~np.isnan(mdv_series)) == n_ts_run:
+                # CA fft calculation
+                pow_mdv, freq_mdv = f_calcFftSpectra(mdv_series, time_mdv_series)
+                pow_mdv_cor, freq_mdv_cor = f_calcFftSpectra(mdv_series_cor, time_mdv_series_cor)
+                pow_mdv_roll, freq_mdv_roll = f_calcFftSpectra(mdv_series_roll, time_mdv_series_roll)
+                pow_heave, freq_heave = f_calcFftSpectra(heave_sel, time_mdv_series)
+                pow_pitch, freq_pitch = f_calcFftSpectra(pitch_sel, time_mdv_series)
+                pow_roll, freq_roll = f_calcFftSpectra(roll_sel, time_mdv_series)
+                # JR fft calculation
+                # pow_mdv, freq_mdv = calc_fft_spectra(mdv_series, time_mdv_series)
+                # pow_mdv_cor, freq_mdv_cor = calc_fft_spectra(mdv_series_cor, time_mdv_series_cor)
+                # pow_mdv_roll, freq_mdv_roll = calc_fft_spectra(mdv_series_roll, time_mdv_series_roll)
+                # pow_heave, freq_heave = calc_fft_spectra(w_radar_sel, time_mdv_series)
+                # pow_pitch, freq_pitch = calc_fft_spectra(pitch_sel, time_mdv_series)
+                # pow_roll, freq_roll = calc_fft_spectra(roll_sel, time_mdv_series)
+
+                # plot of the power spectra calculated
+                fig, axs = plt.subplots(nrows=2, ncols=1, figsize=(12, 10))
+                axs[0].loglog(freq_mdv, pow_mdv, label='uncorrected mdv', color='black', alpha=0.5)
+                axs[0].loglog(freq_mdv_cor, pow_mdv_cor, label='corrected mdv', color='purple')
+                axs[0].loglog(freq_mdv_roll, pow_mdv_roll, label='corrected smoothed mdv', color='pink')
+                axs[1].loglog(freq_heave, pow_heave, label='heave rate at radar', color='orange')
+                axs[1].loglog(freq_pitch, pow_pitch, label='pitch rate RV Meteor', color='blue')
+                axs[1].loglog(freq_roll, pow_roll, label='roll rate RV Meteor', color='red')
+                # add second x-axis with period in [s]
+                ax2 = axs[0].twiny()
+                new_tick_locations = np.array([0.2, 0.1, 0.06666667, 0.05, 0.04, 0.02, 0.01666667])
+                ax2.set_xlabel('periods [s]')
+                ax2.set_xscale('log')
+                ax2.set_xlim(axs[0].get_xlim())
+                ax2.set_xticks(new_tick_locations)
+                ax2.set_xticklabels(tick_function(new_tick_locations))
+                # add grey dashed lines at same place as Hannes Griesche
+                for ax in axs:
+                    ax.axvline(x=(2 / 2 / np.pi), color='gray', linestyle='--')
+                    ax.axvline(x=(0.1 / 2 / np.pi), color='gray', linestyle='--')
+                    ax.axvline(x=(1 / 2 / np.pi), color='gray', linestyle='--')
+                    ax.legend(frameon=False)
+                    ax.grid()
+
+                fig.suptitle(f"FFT Power Spectrum for {date:%Y%m%d} Chirp {j + 1}, Hour {i}")
+                fig.tight_layout()
+                fig.savefig(f'{pathFig}/{date:%Y%m%d}_fft_check_CA_chirp{j + 1}_hour{i}.png')
+                plt.close()
+
+
 # %%
 
 print(f'processing date: {date:%Y-%m-%d}')
@@ -913,7 +1011,8 @@ roll = ShipDataCenter['roll'].values
 pitch = ShipDataCenter['pitch'].values
 yaw = ShipDataCenter['yaw'].values
 heave = ShipDataCenter['heave'].values
-timeShip = ShipDataCenter['time_shifted'].values.astype('float64')/10**9
+timeShip = ShipDataCenter['time_shifted'].values.astype('float64') / 10 ** 9
+dt = np.round(np.mean(np.diff(timeShip)), 3)
 w_ship = ShipDataCenter['heave_rate'].values
 w_rot = ShipDataCenter['w_rot'].values
 w_radar = ShipDataCenter['heave_rate_radar'].values
@@ -962,7 +1061,8 @@ for var in ['C1Range', 'C2Range', 'C3Range', 'SeqIntTime', 'DoppLen', 'MaxVel', 
     radarData.update({var: larda.read("LIMRAD94", var, time_interval, [0, 'max'])})
 Nchirps = len(radarData['SeqIntTime']['var'][0])
 rg_borders = jr.get_range_bin_borders(3, radarData)
-rg_borders_id = rg_borders - np.array([0, 1, 1, 1])  # transform bin boundaries, necessary because python starts counting at 0
+rg_borders_id = rg_borders - np.array(
+    [0, 1, 1, 1])  # transform bin boundaries, necessary because python starts counting at 0
 
 # calculate SeqIntTime
 radar_aux = xr.open_dataset(radarData['filename'][0])
@@ -981,13 +1081,11 @@ plt.close()
 # %%
 
 Cs = CubicSpline(timeShip_valid, w_radar_valid)  # prepare interpolation of the ship data
-seapath = ShipDataCenter.dropna('time_shifted')
-cs_test = CubicSpline(seapath['time_shifted'].values.astype(float)/10**9, seapath['heave_rate_radar'])
 
 # interpolate w_radar for each chirp on the exact time of the chirp
 w_radar_chirp = dict()
 for i in range(Nchirps):
-    w_radar_chirp[f'chirp_{i+1}'] = Cs(chirp_ts[f'chirp_{i+1}'])
+    w_radar_chirp[f'chirp_{i + 1}'] = Cs(chirp_ts[f'chirp_{i + 1}'])
 
 # %% Caculate time shift between ship and radar for every hour and chirp
 
@@ -996,7 +1094,7 @@ delta_t_max = 3.  # maximum time shift
 resolution = 0.05  # step size between min and max delta_t
 # calculating time shift for mean doppler velocity proceeding per hour and chirp
 # setting the length of the mean doppler velocity time series for calculating time shift
-NtimeStampsRun = np.int(10*60/1.5)  # 10 minutes with time res of 1.5 s
+NtimeStampsRun = np.int(10 * 60 / 1.5)  # 10 minutes with time res of 1.5 s
 
 # find a 10 minute mdv time series in every hour of radar data and for each chirp if possible
 # calculate time shift for each hour and each chirp
@@ -1038,112 +1136,7 @@ fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData_org_roll, time_inte
 fig.savefig(f'{pathFig}/{date:%Y%m%d}_mdv_org_roll.png')
 plt.close()
 
+
 # %%
-# calculation of the power spectra of the correction terms and of the original and corrected mean Doppler velocity time series at a given height
-# interpolating ship correction terms of rotation and heave on the chirp time array
-Cs_rot = CubicSpline(timeShip_valid, w_rot[1:])
-Cs_heave = CubicSpline(timeShip_valid, w_ship[1:])
-w_rot2 = Cs_rot(chirp_ts['chirp_1'])
-w_ship2 = Cs_heave(chirp_ts['chirp_1'])
-
-# plotting ffts of a selected height in the cloud (height selected in user parameter section)
-iHeight = f_closest(radarData['rg'], selHeight)
-time_tmp = chirp_ts_shifted['chirp_1']
-CS_interpfft = CubicSpline(time_tmp, w_radar_exact['chirp_1'])
-CS_interp_rot = CubicSpline(time_tmp, w_rot2)
-CS_interp_heave = CubicSpline(time_tmp, w_ship2)
-
-# deriving values of wship rot and heave at the chirp times using the interpolation on the derived exact time
-org_chirp_time = chirp_ts['chirp_1']
-w_radar_interp = CS_interpfft(org_chirp_time)
-w_rot_interp = CS_interp_rot(org_chirp_time)
-w_ship_interp = CS_interp_heave(org_chirp_time)
-
-# calculating corrected mdv with and without the time shift to the exact value
-W_corr = mdv[:, iHeight] - w_radar_interp
-W_corr_no_shift = mdv[:, iHeight] - w_radar_exact['chirp_1']
-
-# interpolating over nans the two series ( in order to calculate fft tranformation)
-nans, x = nan_helper(W_corr)
-W_corr[nans] = np.interp(x(nans), x(~nans), W_corr[~nans])
-
-nans, x = nan_helper(W_corr_no_shift)
-W_corr_no_shift[nans] = np.interp(x(nans), x(~nans), W_corr_no_shift[~nans])
-
-w_radar_orig = mdv[:, iHeight]
-nans, x = nan_helper(w_radar_orig)
-w_radar_orig[nans] = np.interp(x(nans), x(~nans), w_radar_orig[~nans])
-
-# calculating power spectra of the selected corrected time series
-pow_radarCorr, freq_radarCorr = f_calcFftSpectra(W_corr, org_chirp_time)
-pow_radarCorr_NS, freq_radarCorr_NS = f_calcFftSpectra(W_corr_no_shift, org_chirp_time)
-pow_w_radar, freq_Ship = f_calcFftSpectra(w_radar_interp, org_chirp_time)
-pow_wrot, freq_rot = f_calcFftSpectra(w_rot_interp, org_chirp_time)
-pow_wheave, freq_heave = f_calcFftSpectra(w_ship_interp, org_chirp_time)
-pow_radarOrig, freq_radarOrig = f_calcFftSpectra(w_radar_orig, org_chirp_time)
-# %%%
-
-# plot of the power spectra calculated
-fig, ax = plt.subplots(nrows=3, ncols=1, figsize=(12, 10))
-rcParams['font.sans-serif'] = ['Tahoma']
-matplotlib.rcParams['savefig.dpi'] = 100
-plt.gcf().subplots_adjust(bottom=0.15)
-fig.tight_layout()
-ax = plt.subplot(3, 1, 1)
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
-ax.get_xaxis().tick_bottom()
-ax.get_yaxis().tick_left()
-# ax.set_yscale('log')
-ax.loglog(freq_Ship, pow_w_radar, label='ship', color='black', alpha=0.5)
-ax.loglog(freq_rot, pow_wrot, label='w_rot', color='purple')
-ax.loglog(freq_heave, pow_wheave, label='w_ship', color='orange')
-ax.legend(frameon=False)
-ax2 = ax.twiny()
-new_tick_locations = np.array([0.2, 0.1, 0.06666667, 0.05, 0.04, 0.02, 0.01666667])
-ax2.set_xlabel('periods [s]')
-ax2.set_xscale('log')
-ax2.set_xlim(ax.get_xlim())
-ax2.set_xticks(new_tick_locations)
-ax2.set_xticklabels(tick_function(new_tick_locations))
-
-axt = plt.subplot(3, 1, 2)
-axt.spines["top"].set_visible(False)
-axt.spines["right"].set_visible(False)
-axt.get_xaxis().tick_bottom()
-axt.get_yaxis().tick_left()
-# ax.set_yscale('log')
-axt.loglog(freq_radarOrig, pow_radarOrig, label='radar', color='black')
-axt.loglog(freq_radarCorr, pow_radarCorr, label='corr with time shift', color='pink')
-
-new_tick_locations = np.array([0.2, 0.1, 0.06666667, 0.05, 0.04, 0.02, 0.01666667])
-axt.legend(frameon=False)
-axt2 = ax.twiny()
-axt2.set_xlabel('periods [s]')
-axt2.set_xscale('log')
-axt2.set_xlim(ax.get_xlim())
-axt2.set_xticks(new_tick_locations)
-axt2.set_xticklabels(tick_function(new_tick_locations))
-
-axtt = plt.subplot(3, 1, 3)
-axtt.spines["top"].set_visible(False)
-axtt.spines["right"].set_visible(False)
-axtt.get_xaxis().tick_bottom()
-axtt.get_yaxis().tick_left()
-# ax.set_yscale('log')
-axtt.loglog(freq_radarOrig, pow_radarOrig, label='radar', color='black')
-axtt.loglog(freq_radarCorr_NS, pow_radarCorr_NS, label='corr without time shift', color='green')
-
-axtt.legend(frameon=False)
-axtt2 = ax.twiny()
-new_tick_locations = np.array([0.2, 0.1, 0.06666667, 0.05, 0.04, 0.02, 0.01666667])
-axtt2.set_xlabel('periods [s]')
-axtt2.set_xscale('log')
-axtt2.set_xlim(ax.get_xlim())
-axtt2.set_xticks(new_tick_locations)
-axtt2.set_xticklabels(tick_function(new_tick_locations))
-# ax.set_xlim(0.001, 0.5)
-# ax.set_ylim(10**(-9.), 10)
-fig.tight_layout()
-fig.savefig(f'{pathFig}/{date:%Y%m%d}_chirp1_fft_check.png')
-plt.close()
+# calculation of the power spectra of the original and corrected mean Doppler velocity
+plot_fft_spectra(mdv, chirp_ts, mdv_corr, chirp_ts_shifted, mdv_roll3, Nchirps, NtimeStampsRun, ShipDataCenter)
