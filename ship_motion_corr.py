@@ -795,7 +795,7 @@ fig.tight_layout()
 fig.savefig(f'{pathFig}/{date:%Y%m%d}_wship_heave_timeSeries.png', format='png')
 plt.close()
 
-# %%
+# %% read in radar data and plot it
 time_interval = [date, date + timedelta(0.9999)]  # reading radar data
 radarData = larda.read("LIMRAD94", "VEL", time_interval, [0, 'max'])
 mdv = radarData['var']
@@ -824,7 +824,7 @@ fig, ax = pyLARDA.Transformations.plot_timeheight2(radarData, time_interval=plot
 plt.savefig(f'{pathFig}/{date:%Y%m%d}_mdv_org.png', format='png')
 plt.close()
 
-# %%
+# %% interpolate w_radar onto exact chirp times
 
 Cs = CubicSpline(timeShip_valid, w_radar_valid)  # prepare interpolation of the ship data
 
