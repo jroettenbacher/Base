@@ -18,11 +18,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import pandas as pd
+import time
+import logging
 from datetime import datetime
 from datetime import timedelta
 # import atmos
 import xarray as xr
 from scipy.interpolate import CubicSpline
+
+logger = logging.getLogger(__name__)
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.INFO)
 
 # connect to campaign
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
@@ -190,38 +196,44 @@ def f_calcRMatrix(rollShipArr, pitchShipArr, yawShipArr, NtimeShip):
     return R
 
 
-def read_seapath(date, path=pathFolderTree + '/instruments/RV-METEOR_DSHIP/', **kwargs):
+def read_seapath(date, path=pathFolderTree + '/instruments/RV-METEOR_DSHIP/',
+                 **kwargs):
     """
-    author: Johannes Roettenbacher
-    goal: Read in Seapath measurements from ship from .dat files to a pandas.DataFrame
+    Read in daily Seapath measurements from RV Meteor from .dat files to a pandas.DataFrame
     Args:
         date (datetime.datetime): object with date of current file
         path (str): path to seapath files
-        **kwargs for read_csv
+        kwargs for read_csv
+            output_format (str): whether a pandas data frame or a xarray dataset is returned
 
     Returns:
         seapath (DataFrame): DataFrame with Seapath measurements
 
     """
-    # Seapath attitude and heave data 1Hz
-    # start = time.time()
+    # Seapath attitude and heave data 1 or 10 Hz, choose file depending on date
+    start = time.time()
     # unpack kwargs
     nrows = kwargs['nrows'] if 'nrows' in kwargs else None
     skiprows = kwargs['skiprows'] if 'skiprows' in kwargs else (1, 2)
-    if date < datetime(2020, 1, 27):
+    output_format = kwargs['output_format'] if 'output_format' in kwargs else 'pandas'
+    if date < dt.datetime(2020, 1, 27):
         file = f"{date:%Y%m%d}_DSHIP_seapath_1Hz.dat"
     else:
         file = f"{date:%Y%m%d}_DSHIP_seapath_10Hz.dat"
     # set encoding and separator, skip the rows with the unit and type of measurement
-    seapath = pd.read_csv(path + file, encoding='windows-1252', sep="\t", skiprows=skiprows,
+    seapath = pd.read_csv(f"{path}/{file}", encoding='windows-1252', sep="\t", skiprows=skiprows,
                           index_col='date time', nrows=nrows)
     # transform index to datetime
     seapath.index = pd.to_datetime(seapath.index, infer_datetime_format=True)
     seapath.index.name = 'time'
     seapath.columns = ['yaw', 'heave', 'pitch', 'roll']  # rename columns
-    # logger.info(f"Done reading in Seapath data in {time.time() - start:.2f} seconds")
-    return seapath
+    logger.info(f"Done reading in Seapath data in {time.time() - start:.2f} seconds")
+    if output_format == 'pandas':
+        pass
+    elif output_format == 'xarray':
+        seapath = seapath.to_xarray()
 
+    return seapath
 
 def calc_time_shift(w_radar_meanCol, delta_t_min, delta_t_max, resolution, w_ship_chirp, timeSerieRadar, pathFig, chirp,
                     hour, date):
@@ -736,8 +748,7 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
 
 print(f'processing date: {date:%Y-%m-%d}')
 print('* reading ship data')
-dataset = read_seapath(date)
-ShipDataset = dataset.to_xarray()
+ShipDataset = read_seapath(date, output_format='xarray')
 
 # shifting time stamp for ship data hour
 ShipDataCenter = f_shiftTimeDataset(ShipDataset)
