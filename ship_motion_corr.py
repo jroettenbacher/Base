@@ -63,186 +63,23 @@ selHeight = 1600.  # height in the chirp 1
 #######################################################################################
 
 # definitions of functions necessary for the processing
-def f_closest(array, value):
-    """
-    # closest function
-    #---------------------------------------------------------------------------------
-    # date :  16.10.2017
-    # author: Claudia Acquistapace
-    # goal: return the index of the element of the input array that in closest to the value provided to the function
-    """
-    import numpy as np
-    idx = (np.abs(array - value)).argmin()
-    return idx
-
-
-def f_readShipDataset(shipDataName):
-    """
-    Created on Mer Sep 30 16:06:20 2020
-
-    @author: cacquist
-    @goal: read the ship data file and extract data to an xarray dataset
-
-
-    inputs:
-      shipDataName (ship path+filename string)
-
-    Output: ShipData xarray dataset containing
-    time [sec since 1970-01-01]
-    lat
-    lon
-    heading
-    heave
-    pitch
-    roll
-    absWindDir
-    absWindSpeed
-    relWindDir
-    relWindSpeed
-    heading2
-    """
-    import pandas as pd
-    import xarray as xr
-
-    dataset = pd.read_csv(shipDataName, skiprows=[1, 2],
-                          usecols=['seconds since 1970', 'SYS.STR.PosLat', 'SYS.STR.PosLon', \
-                                   'Seapath.INHDT.Heading', 'Seapath.PSXN.Heave', 'Seapath.PSXN.Pitch', \
-                                   'Seapath.PSXN.Roll', 'Weatherstation.PEUMA.Absolute_wind_direction', \
-                                   'Weatherstation.PEUMA.Absolute_wind_speed',
-                                   'Weatherstation.PEUMA.Relative_wind_direction', \
-                                   'Weatherstation.PEUMA.Relative_wind_speed', 'Seapath.PSXN.Heading'],
-                          low_memory=False)
-    xrDataset = dataset.to_xarray()
-
-    ShipData = xrDataset.rename({'seconds since 1970': 'time', \
-                                 'SYS.STR.PosLat': 'lat', \
-                                 'SYS.STR.PosLon': 'lon', \
-                                 'Seapath.INHDT.Heading': 'heading_INHDT', \
-                                 'Seapath.PSXN.Heave': 'heave', \
-                                 'Seapath.PSXN.Pitch': 'pitch', \
-                                 'Seapath.PSXN.Roll': 'roll', \
-                                 'Weatherstation.PEUMA.Absolute_wind_direction': 'absWindDir', \
-                                 'Weatherstation.PEUMA.Absolute_wind_speed': 'AbsWindSpeed', \
-                                 'Weatherstation.PEUMA.Relative_wind_direction': 'relWindDir', \
-                                 'Weatherstation.PEUMA.Relative_wind_speed': 'relWindSpeed', \
-                                 'Seapath.PSXN.Heading': 'heading_PSXN'})
-    return (ShipData)
-
-
-def f_findMdvTimeSerie(values, time, rangeHeight, NtimeStampsRun, pathFig, chirp):
-    """
-    author: Claudia Acquistapace
-    date: 25 november 2020
-    goal : identify, given a mean doppler velocity matrix, a sequence of length
-    NtimeStampsRun, of values in the matrix at a given height
-    that contains the minimum possible amount of nan values in it.
-
-    Parameters
-    ----------
-    INPUT:
-    values : TYPE ndarray(time, height)
-        DESCRIPTION : matrix of values for which it is necessary to find a serie of non nan values of given lenght
-    time : datetime
-        DESCRIPTION: time array associated with the matrix of values
-    rangeHeight : ndarray
-        DESCRIPTION: height array associated with the matrix of values
-    NtimeStampsRun : scalar
-        DESCRIPTION: length of the sequence of values that are read for scanning the matrix
-        (expressed in interval of the time resolution)
-    pathFig : string
-        DESCRIPTION: string for the output path of the selected plot
-    chirp: int
-        DESCRIPTION: int indicating the chirp of the radar data processed
-    OUTPUT:
-    valuesTimeSerie: type(ndarray) - time series of the length prescribed by NtimeStampsRun corresponding
-    to the minimum amount of nan values found in the series
-    -------
-
-    """
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    import matplotlib.dates as mdates
-    from matplotlib import rcParams
-    import matplotlib
-
-    # extracting date from timestamp format
-    date = pd.to_datetime(time[0], unit='s').strftime(format="%Y%m%d")
-
-    #  concept: scan the matrix using running mean for every height, and check the number of nans in the selected serie.
-    nanAmountMatrix = np.zeros((len(time) - NtimeStampsRun, len(rangeHeight)))
-    nanAmountMatrix.fill(np.nan)
-    for indtime in range(len(time) - NtimeStampsRun):
-        mdvChunk = values[indtime:indtime + NtimeStampsRun, :]
-        # count number of nans in each height
-        nanAmountMatrix[indtime, :] = np.sum(np.isnan(mdvChunk), axis=0)
-
-    # find indeces where nanAmount is minimal
-    ntuples = np.where(nanAmountMatrix == np.nanmin(nanAmountMatrix))
-    i_time_sel = ntuples[0][0]
-    i_height_sel = ntuples[1][0]
-
-    # extract corresponding time Serie of mean Doppler velocity values for the chirp
-    valuesTimeSerie = values[i_time_sel:i_time_sel + NtimeStampsRun, i_height_sel]
-    timeSerie = time[i_time_sel:i_time_sel + NtimeStampsRun]
-    heightSerie = np.repeat(rangeHeight[i_height_sel], NtimeStampsRun)
-
-    ###### adding test for columns ########
-    valuesColumn = values[i_time_sel:i_time_sel + NtimeStampsRun, :]
-    valuesColumnMean = np.nanmean(valuesColumn, axis=1)
-
-    # plotting quicklooks of the values map and the picked time serie interval
-    # labelsizeaxes = 12
-    # fontSizeTitle = 12
-    # fontSizeX = 12
-    # fontSizeY = 12
-    # cbarAspect = 10
-    # fontSizeCbar = 12
-    # fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
-    # rcParams['font.sans-serif'] = ['Tahoma']
-    # matplotlib.rcParams['savefig.dpi'] = 100
-    # plt.gcf().subplots_adjust(bottom=0.15)
-    # ax = plt.subplot(2, 1, 1)
-    # ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-    # ax.xaxis.set_minor_formatter(mdates.DateFormatter("%H:%M"))
-    # ax.xaxis_date()
-    # cax = ax.pcolormesh(time[:-NtimeStampsRun], rangeHeight, nanAmountMatrix.transpose(), vmin=0., vmax=200.,
-    #                     cmap='viridis')
-    # # ax.scatter(timeSerie, heightSerie, s=nanAmountSerie, c='orange', marker='o')
-    # ax.plot(timeSerie, heightSerie, color='orange', linewidth=7.0)
-    # ax.set_ylim(rangeHeight[0], rangeHeight[-1] + 200.)  # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
-    # ax.set_xlim(time[0], time[-200])  # limits of the x-axes
-    # ax.set_title('time-height plot for the day : ' + date, fontsize=fontSizeTitle, loc='left')
-    # ax.set_xlabel("time [hh:mm]", fontsize=fontSizeX)
-    # ax.set_ylabel("height [m]", fontsize=fontSizeY)
-    # cbar = fig.colorbar(cax, orientation='vertical', aspect=cbarAspect)
-    # cbar.set_label(label='Nan Amount [%]', size=fontSizeCbar)
-    # cbar.ax.tick_params(labelsize=labelsizeaxes)
-    #
-    # ax = plt.subplot(2, 1, 2)
-    # ax.spines["top"].set_visible(False)
-    # ax.spines["right"].set_visible(False)
-    # ax.get_xaxis().tick_bottom()
-    # ax.get_yaxis().tick_left()
-    # matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    # matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    # ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-    # ax.xaxis.set_minor_formatter(mdates.DateFormatter("%H:%M"))
-    # ax.xaxis_date()
-    # ax.plot(timeSerie, valuesTimeSerie, color='black', label='selected values at ' + str(heightSerie[0]))
-    # ax.legend(frameon=False)
-    # ax.set_xlim(timeSerie[0], timeSerie[-1])  # limits of the x-axes
-    # fig.savefig(f"{pathFig}/{date}_chirp_{chirp}_quicklooks_mdvSelectedSerie.png", format='png')
-
-    return (valuesTimeSerie, timeSerie, valuesColumnMean)
-
 
 def find_mdv_time_series(mdv_values, radar_time, NtimeStampsRun):
     """
-    author: Claudia Acquistapace
-    date: 25 november 2020
-    goal : identify, given a mean doppler velocity matrix, a sequence of length
-    NtimeStampsRun, of values in the matrix at a given height
-    that contains the minimum possible amount of nan values in it.
+    author: Claudia Acquistapace, Johannes Roettenbacher
+    Identify, given a mean doppler velocity matrix, a sequence of length NtimeStampsRun of values in the matrix
+    at a given height that contains the minimum possible amount of nan values in it.
+
+    Args:
+        mdv_values (ndarray): time x heigth matrix of Doppler Velocity
+        radar_time (ndarray): corresponding radar time stamps in seconds (unix time)
+        NtimeStampsRun (int): number of timestamps needed in a mdv series
+
+    Returns:
+        valuesTimeSerie (ndarray): time series of Doppler velocity with length NtimeStampsRun
+        time_series (ndarray): corresponding time stamps to Doppler velocity time series
+        i_height_sel (int): index of chosen height
+        valuesColumnMean (ndarray): time series of mean Doppler velocity averaged over height with length NtimeStampsRun
 
     """
     #  concept: scan the matrix using running mean for every height, and check the number of nans in the selected serie.
@@ -267,65 +104,6 @@ def find_mdv_time_series(mdv_values, radar_time, NtimeStampsRun):
     valuesColumnMean = np.nanmean(valuesColumn, axis=1)
 
     return valuesTimeSerie, time_series, i_height_sel, valuesColumnMean
-
-
-def plot_2Dmaps(time, height, y, ystring, ymin, ymax, hmin, hmax, timeStartDay, timeEndDay, colormapName, date,
-                yVarName, pathFig):
-    """
-    author: Claudia Acquistapace
-    date: 25 november 2020
-    goal : plot 2d map of the input variable
-    input:
-        time: time coordinate in datetime format
-        height: height coordinate
-        y: numpyarray 2d of the corresponding variable to be mapped
-        ystring: string with name and units of the variable to be plotted
-        ymin: min value to be plotted for the variable
-        ymax: max value to be plotted for the variable
-        timeStartDay: datetime start for the xaxis
-        timeEndDay: datetime end for the xaxis
-        colormapName: string indicating the chosen color map
-        yVarName: name of the variable to be used for filename output
-        pathFig: path where to store the plot
-    """
-    import matplotlib as mpl
-    import matplotlib.pyplot as plt
-    import matplotlib.dates as mdates
-    from matplotlib import rcParams
-    import matplotlib
-
-    labelsizeaxes = 12
-    fontSizeTitle = 12
-    fontSizeX = 12
-    fontSizeY = 12
-    cbarAspect = 10
-    fontSizeCbar = 12
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
-    rcParams['font.sans-serif'] = ['Tahoma']
-    matplotlib.rcParams['savefig.dpi'] = 100
-    plt.gcf().subplots_adjust(bottom=0.15)
-    fig.tight_layout()
-    ax = plt.subplot(1, 1, 1)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.get_xaxis().tick_bottom()
-    ax.get_yaxis().tick_left()
-    matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-    ax.xaxis.set_minor_formatter(mdates.DateFormatter("%H:%M"))
-    ax.xaxis_date()
-    cax = ax.pcolormesh(time, height, y.transpose(), vmin=ymin, vmax=ymax, cmap=colormapName)
-    ax.set_ylim(hmin, hmax)  # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
-    ax.set_xlim(timeStartDay, timeEndDay)  # limits of the x-axes
-    ax.set_title(f'time-height plot for the day : {date:%Y-%m-%d}', fontsize=fontSizeTitle, loc='left')
-    ax.set_xlabel("time [hh:mm]", fontsize=fontSizeX)
-    ax.set_ylabel("height [m]", fontsize=fontSizeY)
-    cbar = fig.colorbar(cax, orientation='vertical', aspect=cbarAspect)
-    cbar.set_label(label=ystring, size=fontSizeCbar)
-    cbar.ax.tick_params(labelsize=labelsizeaxes)
-    fig.tight_layout()
-    fig.savefig(f'{pathFig}/{date:%Y%m%d}_{yVarName}_2dmaps.png', format='png')
 
 
 def f_shiftTimeDataset(dataset):
@@ -412,63 +190,6 @@ def f_calcRMatrix(rollShipArr, pitchShipArr, yawShipArr, NtimeShip):
     return R
 
 
-def plot_timeSeries(x, y, ystring, ymin, ymax, timeStartDay, timeEndDay, date, yVarName, pathFig):
-    """
-    author: Claudia Acquistapace
-    date: 25 november 2020
-    goal : function to plot time series of any variable
-    input:
-        x: time coordinate in datetime format
-        y: numpyarray of the corresponding variable
-        ystrring: string with name and units of the variable to be plotted
-        ymin: min value to be plotted for the variable
-        ymax: max value to be plotted for the variable
-        timeStartDay: datetime start for the xaxis
-        timeEndDay: datetime end for the xaxis
-        date: string with date for the selected time serie
-        yVarName: name of the variable to be used for filename output
-        pathFig: path where to store the plot
-    output: saves a plot in pathFig+date+'_'+yVarName+'_timeSerie.png'
-    """
-    import matplotlib as mpl
-    import matplotlib.pyplot as plt
-    import matplotlib.dates as mdates
-    from matplotlib import rcParams
-    import matplotlib
-
-    labelsizeaxes = 12
-    fontSizeTitle = 12
-    fontSizeX = 12
-    fontSizeY = 12
-    cbarAspect = 10
-    fontSizeCbar = 12
-
-    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
-    rcParams['font.sans-serif'] = ['Tahoma']
-    matplotlib.rcParams['savefig.dpi'] = 100
-    plt.gcf().subplots_adjust(bottom=0.15)
-    fig.tight_layout()
-    ax = plt.subplot(1, 1, 1)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.get_xaxis().tick_bottom()
-    ax.get_yaxis().tick_left()
-    matplotlib.rc('xtick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    matplotlib.rc('ytick', labelsize=labelsizeaxes)  # sets dimension of ticks in the plots
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
-    ax.xaxis.set_minor_formatter(mdates.DateFormatter("%H:%M"))
-    # ax.scatter(x, y, color = "m", marker = "o", s=1)
-    ax.plot(x, y)
-    ax.xaxis_date()
-    ax.set_ylim(ymin, ymax)  # limits of the y-axesn  cmap=plt.cm.get_cmap("viridis", 256)
-    ax.set_xlim(timeStartDay, timeEndDay)  # limits of the x-axes
-    ax.set_title(f'time serie for the day : {date:%Y-%m-%d}', fontsize=fontSizeTitle, loc='left')
-    ax.set_xlabel("time [hh:mm]", fontsize=fontSizeX)
-    ax.set_ylabel(ystring, fontsize=fontSizeY)
-    fig.tight_layout()
-    fig.savefig(f'{pathFig}/{date:%Y%m%d}_{yVarName}_timeSeries.png', format='png')
-
-
 def read_seapath(date, path=pathFolderTree + '/instruments/RV-METEOR_DSHIP/', **kwargs):
     """
     author: Johannes Roettenbacher
@@ -502,54 +223,10 @@ def read_seapath(date, path=pathFolderTree + '/instruments/RV-METEOR_DSHIP/', **
     return seapath
 
 
-def f_calculateExactRadarTime(millisec, chirpIntegrations, datetimeRadar):
-    """
-    date   : 23/11/2020
-    author : Claudia Acquistapace
-    contact: cacquist@uni-koeln.de
-    goal   : function to calculate the exact radar time composing the millisecond part,
-             the chirp integration time and summing everything up to get for each time
-             step, the exact central time stamp of the time step.
-             Exact time of the radar is
-             t_radar_i = t_radar + sampleTms/1000 - sum(j=i,N) chirpIntegrations[j] + chirpIntegrations[i]/2
-             because the time recorded is the final time of the time interval
-
-    input:
-        millisec: numpy array containing milliseconds to be added, expressed in seconds
-        chirpIntegrations: numpy array of integration time of each chirp, expressed in nanoseconds
-        datetimeRadar: datetime array of the radar time stamps
-    output:
-        datetimeChirp matrix type (datetime64[ns]) with dimensions (3,len(datetimeRadar))
-        each row corresponds to the new calculated chirp datetime array as indicated below:
-        timeChirp1 = datetime[0,:]
-        timeChirp2 = datetime[1,:]
-        timeChirp3 = datetime[2,:]
-    """
-
-    # converting time in seconds since 1970
-    timeRadar = datetimeRadar[:].astype('datetime64[s]').astype('int')  # time in seconds since 1970
-
-    # calculating chirp starting time
-    timeChirp = np.zeros((3, len(datetimeRadar)))
-    datetimeChirp = np.empty((3, len(datetimeRadar)), dtype='datetime64[ns]')
-
-    # calculating time stamps of each chirp
-    for i_chirp in range(len(chirpIntegrations)):
-        timeChirp[i_chirp, :] = timeRadar + millisec * 10. ** (-3) - np.sum(chirpIntegrations[i_chirp:]) + \
-                                chirpIntegrations[i_chirp] / 2
-
-    for ind_chirp in range(len(chirpIntegrations)):
-        for ind_time in range(len(timeRadar)):
-            datetimeChirp[ind_chirp, ind_time] = datetime.utcfromtimestamp(timeChirp[ind_chirp, ind_time])
-
-    return (datetimeChirp)
-
-
 def calc_time_shift(w_radar_meanCol, delta_t_min, delta_t_max, resolution, w_ship_chirp, timeSerieRadar, pathFig, chirp,
                     hour, date):
     """
-    author: Claudia Acquistapace, Jan. H. Schween
-    date:   25/11/2020
+    author: Claudia Acquistapace, Jan. H. Schween, Johannes Roettenbacher
     goal:   calculate and estimation of the time lag between the radar time stamps and the ship time stamp
 
     NOTE: adding or subtracting the obtained time shift depends on what you did
@@ -562,6 +239,19 @@ def calc_time_shift(w_radar_meanCol, delta_t_min, delta_t_max, resolution, w_shi
     <Delta w^2> is short for <(w[i]-w[i-1])^2> where w = w_rad - 2*w_ship - this
     is a measure for the stripeness. Its minimum gives an
     estimate how to get the smoothest w data
+    Args:
+        w_radar_meanCol (ndarray): time series of mean Doppler velocity averaged over height with no nan values
+        delta_t_min (float): minimum time shift
+        delta_t_max (float): maximum time shift
+        resolution (float): time step by which to increment possible time shift
+        w_ship_chirp (ndarray): vertical velocity of the radar at the exact chirp time step
+        timeSerieRadar (ndarray): time stamps of the mean Doppler velocity time series (w_radar_meanCol)
+        pathFig (str): file path where figures should be stored
+        chirp (int): which chirp is being processed
+        hour (int): which hour of the day is being processed (0-23)
+        date (datetime): which day is being processed
+
+    Returns: time shift between radar data and ship data in seconds, quicklooks for each calculation
     """
     labelsizeaxes = 12
     fontSizeTitle = 12
@@ -669,33 +359,20 @@ def f_calcFftSpectra(vel, time):
 
 
 def calc_fft_spectra(vel, time):
+    """
+    Calculate the FFT power spectra of a velocity time series
+    Args:
+        vel (ndarray): time series of velocities without nan values
+        time (ndarray): corresponding time stamps in seconds
+
+    Returns: power spectrum and frequencies of velocity time series for plotting
+
+    """
     from scipy.fft import rfft, rfftfreq
     w_pow = np.abs(rfft(vel))
     N = len(vel)
     freq = rfftfreq(N, 1 / np.mean(np.diff(time)))
-    return (w_pow, freq)
-
-
-def nan_helper(y):
-    """
-    author : Claudia Acquistapace
-    date   : 21/12/2020
-    source : this code was found on the web at the following link
-            https://stackoverflow.com/questions/6518811/interpolate-nan-values-in-a-numpy-array
-    goal   : Helper to handle indices and logical indices of NaNs.
-
-    Input  :
-        - y, 1d numpy array with possible NaNs
-    Output :
-        - nans, logical indices of NaNs
-        - index, a function, with signature indices= index(logical_indices),
-          to convert logical indices of NaNs to 'equivalent' indices
-    Example:
-        >>> # linear interpolation of NaNs
-        >>> nans, x= nan_helper(y)
-        >>> y[nans]= np.interp(x(nans), x(~nans), y[~nans])
-    """
-    return np.isnan(y), lambda z: z.nonzero()[0]
+    return w_pow, freq
 
 
 def tick_function(X):
@@ -787,6 +464,22 @@ def calc_heave_rate_claudia(data, x_radar=-11, y_radar=4.07, z_radar=-15.8):
 
 
 def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, n_ts_run, Cs_w_radar, **kwargs):
+    """
+    Calculates the time shift between each chirp time stamp and the ship time stamp for every hour and every chirp.
+    Works on daily files
+    Args:
+        radar_ts (ndarray): radar time stamps in seconds (unix time)
+        radar_mdv (ndarray): time x height matrix of mean Doppler velocity from radar
+        chirp_ts (ndarray): exact chirp time stamps
+        n_ts_run (int): number of time steps necessary for mean Doppler velocity time series
+        Cs_w_radar (scipy.interpolate.CubicSpline): function of vertical velocity of radar against time
+        **kwargs:
+            no_chirps (int): number of chirps in radar measurement
+            plot_fig (bool): plot quicklook
+
+    Returns: time shifted chirp time stamps, array with time shifts for each chirp and hour
+
+    """
     no_chirps = kwargs['no_chirps'] if 'no_chirps' in kwargs else 3
     delta_t_min = kwargs['delta_t_min'] if 'delta_t_min' in kwargs else radar_ts[0] - radar_ts[1]
     delta_t_max = kwargs['delta_t_max'] if 'delta_t_max' in kwargs else radar_ts[1] - radar_ts[0]
@@ -859,6 +552,19 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, n_ts_run, Cs_w_
 
 
 def calc_corr_matrix_claudia(radar_ts, radar_rg, rg_borders_id, chirp_ts_shifted, Cs_w_radar):
+    """
+    Calculate the correction matrix to correct the mean Doppler velocity for the ship vertical motion. Works on daily
+    files.
+    Args:
+        radar_ts (ndarray): original radar time stamps in seconds (unix time)
+        radar_rg (ndarray): radar range gates
+        rg_borders_id (ndarray): indices of chirp boundaries
+        chirp_ts_shifted (dict): hourly shifted chirp time stamps
+        Cs_w_radar (scipy.interpolate.CubicSpline): function of vertical velocity of radar against time
+
+    Returns: correction matrix for mean Doppler velocity
+
+    """
     corr_matrix = np.zeros((len(radar_ts), len(radar_rg)))
     # divide the day in 24 equal slices
     idx = np.int(np.floor(len(radar_ts) / 24))
@@ -900,14 +606,39 @@ def calc_chirp_int_time(MaxVel, freq, avg_num):
 
 
 def roll_mean_2D(matrix, windowsize, direction):
+    """
+    Calculate a rolling mean over a given axis of a 2D array
+    Args:
+        matrix (ndarray): 2D matrix
+        windowsize (int): size of the moving window
+        direction (str): over which axis to apply the mean, 'row' or 'column'
+
+    Returns: 2D matrix of averaged values
+
+    """
     axis = 0 if direction == 'row' else 1
-    df = pd.DataFrame(matrix)
+    df = pd.DataFrame(matrix)  # turn matrix into data frame to use pandas rolling function
     df_roll = df.rolling(window=windowsize, center=True, axis=axis).apply(lambda x: np.nanmean(x))
 
     return df_roll.values
 
 
 def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_chirps, n_ts_run, seapath):
+    """
+    Plot the FFT power spectra of the uncorrected and corrected mean Doppler velocities for each hour and each chirp
+    Args:
+        mdv (ndarray): original radar mean Doppler velocity
+        chirp_ts (ndarray): original exact chirp time stamps
+        mdv_cor (ndarray): radar mean Doppler velocity corrected for heave motion
+        chirp_ts_shifted (ndarray): time shift corrected exact chirp time stamps
+        mdv_cor_roll (ndarry): corrected mean Doppler velocity averaged with a rolling mean over time
+        no_chirps (int): number of chirps in radar sample
+        n_ts_run (int): number of time steps necessary for mean Doppler velocity time series
+        seapath (xrarray.DataSet): data set with ship motion angles and time shifted to center of each measurement
+
+    Returns: plot of FFT power spectra of uncorrected and corrected mean Doppler velocity and of ship motion
+
+    """
     seapath_time = seapath['time_shifted'].values.astype(float) / 10**9  # get time in seconds
     dt = np.diff(seapath_time)  # get time resolution
     # calculate angular velocity
