@@ -524,7 +524,7 @@ def calc_time_shift(w_radar_meanCol, delta_t_min, delta_t_max, resolution, w_shi
     maxCov_w = np.nanmax(cov_ww)
     indMax = np.where(cov_ww == maxCov_w)
     try:
-        print(f'Time shift found for chirp {chirp} at hour {hour}: {DeltaTimeShift[indMin][0]}')
+        logger.info(f'Time shift found for chirp {chirp} at hour {hour}: {DeltaTimeShift[indMin][0]}')
         # calculating time shift for radar data
         timeShift_chirp = DeltaTimeShift[indMin][0]
 
@@ -556,7 +556,7 @@ def calc_time_shift(w_radar_meanCol, delta_t_min, delta_t_max, resolution, w_shi
         fig.savefig(f'{pathFig}/{date:%Y%m%d}_timeShiftQuicklook_chirp{chirp}_hour{hour}.png', format='png')
         plt.close()
     except IndexError:
-        print(f'Not enough data points for time shift calculation in chirp {chirp} at hour {hour}!')
+        logger.info(f'Not enough data points for time shift calculation in chirp {chirp} at hour {hour}!')
         timeShift_chirp = 0
 
     return timeShift_chirp
