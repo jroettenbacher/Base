@@ -463,7 +463,7 @@ def calc_heave_rate_claudia(data, x_radar=-11, y_radar=4.07, z_radar=-15.8):
     return data
 
 
-def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, n_ts_run, Cs_w_radar, **kwargs):
+def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, rg_borders_id, n_ts_run, Cs_w_radar, **kwargs):
     """
     Calculates the time shift between each chirp time stamp and the ship time stamp for every hour and every chirp.
     Works on daily files
@@ -471,6 +471,7 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, n_ts_run, Cs_w_
         radar_ts (ndarray): radar time stamps in seconds (unix time)
         radar_mdv (ndarray): time x height matrix of mean Doppler velocity from radar
         chirp_ts (ndarray): exact chirp time stamps
+        rg_borders_id (ndarray): indices of chirp boundaries
         n_ts_run (int): number of time steps necessary for mean Doppler velocity time series
         Cs_w_radar (scipy.interpolate.CubicSpline): function of vertical velocity of radar against time
         **kwargs:
@@ -510,7 +511,7 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, n_ts_run, Cs_w_
             w_radar_chirpSel = Cs_w_radar(time_mdv_series)
 
             # calculating time shift for the chirp and hour if at least NtimeStampsRun measurements are available
-            if np.sum(~np.isnan(mdv_mean_col)) == NtimeStampsRun:
+            if np.sum(~np.isnan(mdv_mean_col)) == n_ts_run:
                 time_shift_array[ts_slice, j] = calc_time_shift(mdv_mean_col, delta_t_min, delta_t_max, resolution,
                                                                 w_radar_chirpSel, time_mdv_series,
                                                                 pathFig, j + 1, i, date)
@@ -519,14 +520,14 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, n_ts_run, Cs_w_
             chirp_ts_shifted[f'chirp_{j + 1}'][ts_slice] = chirp_ts[f'chirp_{j + 1}'][ts_slice] - time_shift_array[
                 ts_slice, j]
             # get w_radar at the time shifted exact chirp time stamps
-            w_radar_exact = Cs(chirp_ts_shifted[f'chirp_{j + 1}'][ts_slice])
+            w_radar_exact = Cs_w_radar(chirp_ts_shifted[f'chirp_{j + 1}'][ts_slice])
 
             if plot_fig:
                 # plot mdv time series and shifted radar heave rate
                 ts_idx = [h.argnearest(chirp_ts_shifted[f'chirp_{j + 1}'][ts_slice], t) for t in time_mdv_series]
                 plot_time = pd.to_datetime(time_mdv_series, unit='s')
                 plot_df = pd.DataFrame(dict(time=plot_time, mdv_mean_col=mdv_mean_col,
-                                            w_radar_org=Cs(time_mdv_series),
+                                            w_radar_org=Cs_w_radar(time_mdv_series),
                                             w_radar_chirpSel=w_radar_chirpSel,
                                             w_radar_exact_shifted=w_radar_exact[ts_idx])).set_index('time')
                 fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(12, 6))
@@ -565,6 +566,7 @@ def calc_corr_matrix_claudia(radar_ts, radar_rg, rg_borders_id, chirp_ts_shifted
     Returns: correction matrix for mean Doppler velocity
 
     """
+    no_chirps = len(chirp_ts_shifted)
     corr_matrix = np.zeros((len(radar_ts), len(radar_rg)))
     # divide the day in 24 equal slices
     idx = np.int(np.floor(len(radar_ts) / 24))
@@ -623,7 +625,8 @@ def roll_mean_2D(matrix, windowsize, direction):
     return df_roll.values
 
 
-def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_chirps, n_ts_run, seapath):
+def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_chirps, rg_borders_id, n_ts_run,
+                     seapath, **kwargs):
     """
     Plot the FFT power spectra of the uncorrected and corrected mean Doppler velocities for each hour and each chirp
     Args:
@@ -633,12 +636,16 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
         chirp_ts_shifted (ndarray): time shift corrected exact chirp time stamps
         mdv_cor_roll (ndarry): corrected mean Doppler velocity averaged with a rolling mean over time
         no_chirps (int): number of chirps in radar sample
+        rg_borders_id (ndarray): indices of chirp boundaries
         n_ts_run (int): number of time steps necessary for mean Doppler velocity time series
         seapath (xrarray.DataSet): data set with ship motion angles and time shifted to center of each measurement
+        **kwargs
 
     Returns: plot of FFT power spectra of uncorrected and corrected mean Doppler velocity and of ship motion
 
     """
+    date = kwargs['date'] if 'date' in kwargs else seapath['time_shifted'][0]
+    pathFig = kwargs['pathFig'] if 'pathFig' in kwargs else './tmp'
     seapath_time = seapath['time_shifted'].values.astype(float) / 10**9  # get time in seconds
     dt = np.diff(seapath_time)  # get time resolution
     # calculate angular velocity
@@ -826,7 +833,8 @@ NtimeStampsRun = np.int(10 * 60 / 1.5)  # 10 minutes with time res of 1.5 s
 
 # find a 10 minute mdv time series in every hour of radar data and for each chirp if possible
 # calculate time shift for each hour and each chirp
-chirp_ts_shifted, time_shift_array = calc_shifted_chirp_timestamps(radarData['ts'], mdv, chirp_ts, NtimeStampsRun, Cs,
+chirp_ts_shifted, time_shift_array = calc_shifted_chirp_timestamps(radarData['ts'], mdv, chirp_ts, rg_borders_id,
+                                                                   NtimeStampsRun, Cs,
                                                                    no_chirps=Nchirps, pathFig=pathFig,
                                                                    delta_t_min=delta_t_min, delta_t_max=delta_t_max,
                                                                    date=date, plot_fig=True)
@@ -865,6 +873,6 @@ fig.savefig(f'{pathFig}/{date:%Y%m%d}_mdv_org_roll.png')
 plt.close()
 
 
-# %%
+# %% plot fft spectra
 # calculation of the power spectra of the original and corrected mean Doppler velocity
 plot_fft_spectra(mdv, chirp_ts, mdv_corr, chirp_ts_shifted, mdv_roll3, Nchirps, NtimeStampsRun, ShipDataCenter)
