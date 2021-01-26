@@ -99,36 +99,40 @@ if __name__ == '__main__':
     while plot_dt < end_dt:
         plot_interval = [plot_dt, plot_dt+datetime.timedelta(hours=1)]
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[0, 3000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_low_{begin_dt:%Y-%m-%d}.png")
+        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_low_{plot_dt:%Y-%m-%d_%H}.png")
         plt.close()
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[3000, 6000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_mid_{begin_dt:%Y-%m-%d}.png")
+        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_mid_{plot_dt:%Y-%m-%d_%H}.png")
         plt.close()
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[6000, 9000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_high_{begin_dt:%Y-%m-%d}.png")
+        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_high_{plot_dt:%Y-%m-%d_%H}.png")
         plt.close()
         plot_dt = plot_dt + datetime.timedelta(hours=1)
 
     # read out mean Doppler velocity, replace -999 with nan, apply rolling mean, set nan to -999 and update mean Doppler
     # velocity in moments
+    radarMoments['VEL_roll'] = radarMoments['VEL'].copy()  # create new container for averaged mean Doppler velocity
     vel = radarMoments['VEL']['var'].copy()
     vel[radarMoments['VEL']['mask']] = np.nan
     vel_mean = Trans.roll_mean_2D(vel, 3, 'row')
     vel_mean[radarMoments['VEL']['mask']] = -999
-    radarMoments['VEL']['var'] = vel_mean
+    radarMoments['VEL_roll']['var'] = vel_mean
 
     # get hourly quicklooks after rolling mean
     plot_dt = begin_dt
     while plot_dt < end_dt:
         plot_interval = [plot_dt, plot_dt + datetime.timedelta(hours=1)]
-        fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[0, 3000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_low_roll_{begin_dt:%Y-%m-%d}.png")
+        fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[0, 3000],
+                                         time_interval=plot_interval)
+        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_low_roll_{plot_dt:%Y-%m-%d_%H}.png")
         plt.close()
-        fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[3000, 6000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_mid_roll_{begin_dt:%Y-%m-%d}.png")
+        fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[3000, 6000],
+                                         time_interval=plot_interval)
+        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_mid_roll_{plot_dt:%Y-%m-%d_%H}.png")
         plt.close()
-        fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[6000, 9000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_high_roll_{begin_dt:%Y-%m-%d}.png")
+        fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[6000, 9000],
+                                         time_interval=plot_interval)
+        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_high_roll_{plot_dt:%Y-%m-%d_%H}.png")
         plt.close()
         plot_dt = plot_dt + datetime.timedelta(hours=1)
 
