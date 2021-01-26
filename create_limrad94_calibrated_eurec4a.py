@@ -23,7 +23,7 @@ sys.path.append(LARDA_PATH)
 import pyLARDA
 import pyLARDA.helpers as h
 import pyLARDA.SpectraProcessing as sp
-import pyLARDA.Transforamtions as Trans
+import pyLARDA.Transformations as Trans
 from larda.pyLARDA.NcWrite import rpg_radar2nc_eurec4a
 
 __author__ = "Willi Schimmel"
