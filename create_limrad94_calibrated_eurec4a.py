@@ -96,7 +96,7 @@ if __name__ == '__main__':
     radarMoments = sp.spectra2moments(radarZSpec, larda.connectors['LIMRAD94'].system_info['params'], **limrad94_settings)
     # read out mean Doppler velocity, replace -999 with nan, apply rolling mean, set nan to -999 and update mean Doppler
     # velocity in moments
-    fig, ax = Trans.plot_timeheight_2(radarMoments['VEL'])
+    fig, ax = Trans.plot_timeheight2(radarMoments['VEL'])
     plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_{begin_dt:%Y-%m-%d}.png")
     plt.close()
 
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     vel_mean[radarMoments['VEL']['mask']] = -999
     radarMoments['VEL']['var'] = vel_mean
 
-    fig, ax = Trans.plot_timeheight_2(radarMoments['VEL'])
+    fig, ax = Trans.plot_timeheight2(radarMoments['VEL'])
     plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_roll_{begin_dt:%Y-%m-%d}.png")
     plt.close()
 
