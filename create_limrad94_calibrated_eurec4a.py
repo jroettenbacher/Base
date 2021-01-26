@@ -94,6 +94,9 @@ if __name__ == '__main__':
     # new spectra processor v2
     radarZSpec = sp.load_spectra_rpgfmcw94(larda, TIME_SPAN_, **limrad94_settings)
     radarMoments = sp.spectra2moments(radarZSpec, larda.connectors['LIMRAD94'].system_info['params'], **limrad94_settings)
+    # add output from heave correction to radarMoments
+    for var in ['heave_cor', 'heave_cor_bins', 'time_shift_array']:
+        radarMoments[f'{var}'] = radarZSpec[f'{var}']
     # get hourly quicklooks
     plot_dt = begin_dt
     while plot_dt < end_dt:
