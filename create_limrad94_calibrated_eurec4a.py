@@ -78,7 +78,7 @@ if __name__ == '__main__':
         'heave_correction': True,  # correct for heave motion of ship
         'heave_corr_version': 'claudia',
         'add': False,  # add or subtract heave rate (move spectra to left or right)
-        'shift': -19,  # number of time steps by which to shift seapath data of RV-Meteor
+        'shift': 0,  # number of time steps by which to shift seapath data of RV-Meteor
     }
 
     range_ = [0, 'max']
