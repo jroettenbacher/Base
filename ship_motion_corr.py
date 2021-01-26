@@ -478,7 +478,6 @@ def calc_heave_rate_claudia(data, x_radar=-11, y_radar=4.07, z_radar=-15.8):
 def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, rg_borders_id, n_ts_run, Cs_w_radar, **kwargs):
     """
     Calculates the time shift between each chirp time stamp and the ship time stamp for every hour and every chirp.
-    Works on daily files
     Args:
         radar_ts (ndarray): radar time stamps in seconds (unix time)
         radar_mdv (ndarray): time x height matrix of mean Doppler velocity from radar
@@ -503,10 +502,12 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, rg_borders_id, 
 
     time_shift_array = np.zeros((len(radar_ts), no_chirps))
     chirp_ts_shifted = chirp_ts
-    idx = np.int(np.floor(len(radar_ts) / 24))
-    for i in range(24):
+    # get total hours in data and then loop through each hour
+    hours = np.int(np.ceil(radar_ts.shape[0] * np.mean(np.diff(radar_ts)) / 60 / 60))
+    idx = np.int(np.floor(len(radar_ts) / hours))
+    for i in range(hours):
         start_idx = i * idx
-        if i < 22:
+        if i < hours-1:
             end_idx = (i + 1) * idx
         else:
             end_idx = time_shift_array.shape[0]
@@ -522,7 +523,7 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, rg_borders_id, 
             # selecting w_radar values of the chirp over the same time interval as the mdv_series
             w_radar_chirpSel = Cs_w_radar(time_mdv_series)
 
-            # calculating time shift for the chirp and hour if at least NtimeStampsRun measurements are available
+            # calculating time shift for the chirp and hour if at least n_ts_run measurements are available
             if np.sum(~np.isnan(mdv_mean_col)) == n_ts_run:
                 time_shift_array[ts_slice, j] = calc_time_shift(mdv_mean_col, delta_t_min, delta_t_max, resolution,
                                                                 w_radar_chirpSel, time_mdv_series,
@@ -566,8 +567,7 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, rg_borders_id, 
 
 def calc_corr_matrix_claudia(radar_ts, radar_rg, rg_borders_id, chirp_ts_shifted, Cs_w_radar):
     """
-    Calculate the correction matrix to correct the mean Doppler velocity for the ship vertical motion. Works on daily
-    files.
+    Calculate the correction matrix to correct the mean Doppler velocity for the ship vertical motion.
     Args:
         radar_ts (ndarray): original radar time stamps in seconds (unix time)
         radar_rg (ndarray): radar range gates
@@ -580,15 +580,17 @@ def calc_corr_matrix_claudia(radar_ts, radar_rg, rg_borders_id, chirp_ts_shifted
     """
     no_chirps = len(chirp_ts_shifted)
     corr_matrix = np.zeros((len(radar_ts), len(radar_rg)))
-    # divide the day in 24 equal slices
-    idx = np.int(np.floor(len(radar_ts) / 24))
-    for i in range(24):
+    # get total hours in data and then loop through each hour
+    hours = np.int(np.ceil(radar_ts.shape[0] * np.mean(np.diff(radar_ts)) / 60 / 60))
+    # divide the day in equal hourly slices
+    idx = np.int(np.floor(len(radar_ts) / hours))
+    for i in range(hours):
         start_idx = i * idx
-        if i < 22:
+        if i < hours-1:
             end_idx = (i + 1) * idx
         else:
             end_idx = len(radar_ts)
-        for j in range(Nchirps):
+        for j in range(no_chirps):
             # set time and range slice
             ts_slice, rg_slice = slice(start_idx, end_idx), slice(rg_borders_id[j], rg_borders_id[j + 1])
             # get w_radar at the time shifted exact chirp time stamps
@@ -658,22 +660,23 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
     """
     date = kwargs['date'] if 'date' in kwargs else seapath['time_shifted'][0]
     pathFig = kwargs['pathFig'] if 'pathFig' in kwargs else './tmp'
-    seapath_time = seapath['time_shifted'].values.astype(float) / 10**9  # get time in seconds
+    seapath_time = seapath['time'].values.astype(float) / 10**9  # get time in seconds
     dt = np.diff(seapath_time)  # get time resolution
     # calculate angular velocity
     seapath['pitch_rate'] = np.diff(seapath['pitch']) / dt
     seapath['roll_rate'] = np.diff(seapath['roll']) / dt
-    seapath = seapath.dropna('time_shifted')  # drop nans for interpolation
-    seapath_time = seapath['time_shifted'].values.astype(float) / 10 ** 9  # get nan free time in seconds
+    seapath = seapath.dropna('time')  # drop nans for interpolation
+    seapath_time = seapath['time'].values.astype(float) / 10 ** 9  # get nan free time in seconds
     # prepare interpolation function for angular velocity
     Cs_pitch = CubicSpline(seapath_time, seapath['pitch_rate'])
     Cs_roll = CubicSpline(seapath_time, seapath['roll_rate'])
     Cs_heave = CubicSpline(seapath_time, seapath['heave_rate_radar'])
-    # split day in 24 equal segments
-    idx = np.int(np.floor(mdv.shape[0] / 24))
-    for i in range(24):
+    # split day in hourly segments
+    hours = np.int(np.ceil(chirp_ts.shape[0] * np.mean(np.diff(chirp_ts)) / 60 / 60))
+    idx = np.int(np.floor(mdv.shape[0] / hours))
+    for i in range(hours):
         start_idx = i * idx
-        if i < 22:
+        if i < hours-1:
             end_idx = (i + 1) * idx
         else:
             end_idx = mdv.shape[0]
@@ -733,9 +736,11 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
                 # add grey dashed lines at same place as Hannes Griesche
                 for ax in axs:
                     ax.axvline(x=(2 / 2 / np.pi), color='gray', linestyle='--')
-                    ax.axvline(x=(0.1 / 2 / np.pi), color='gray', linestyle='--')
                     ax.axvline(x=(1 / 2 / np.pi), color='gray', linestyle='--')
-                    ax.legend(frameon=False)
+                    ax.axvline(x=(0.1 / 2 / np.pi), color='gray', linestyle='--')
+                    ax.set_ylabel("Signal [m$^2$ s$^{-2}$]")
+                    ax.set_xlabel("Frequenzy [Hz]")
+                    ax.legend()
                     ax.grid()
 
                 fig.suptitle(f"FFT Power Spectrum for {date:%Y%m%d} Chirp {j + 1}, Hour {i}")

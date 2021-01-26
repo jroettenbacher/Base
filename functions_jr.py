@@ -565,7 +565,6 @@ def calc_time_shift(w_radar_meanCol, delta_t_min, delta_t_max, resolution, w_shi
 def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, rg_borders_id, n_ts_run, Cs_w_radar, **kwargs):
     """
     Calculates the time shift between each chirp time stamp and the ship time stamp for every hour and every chirp.
-    Works on daily files
     Args:
         radar_ts (ndarray): radar time stamps in seconds (unix time)
         radar_mdv (ndarray): time x height matrix of mean Doppler velocity from radar
@@ -590,10 +589,12 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, rg_borders_id, 
 
     time_shift_array = np.zeros((len(radar_ts), no_chirps))
     chirp_ts_shifted = chirp_ts
-    idx = np.int(np.floor(len(radar_ts) / 24))
-    for i in range(24):
+    # get total hours in data and then loop through each hour
+    hours = np.int(np.ceil(radar_ts.shape[0] * np.mean(np.diff(radar_ts)) / 60 / 60))
+    idx = np.int(np.floor(len(radar_ts) / hours))
+    for i in range(hours):
         start_idx = i * idx
-        if i < 22:
+        if i < hours-1:
             end_idx = (i + 1) * idx
         else:
             end_idx = time_shift_array.shape[0]
@@ -609,7 +610,7 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, rg_borders_id, 
             # selecting w_radar values of the chirp over the same time interval as the mdv_series
             w_radar_chirpSel = Cs_w_radar(time_mdv_series)
 
-            # calculating time shift for the chirp and hour if at least NtimeStampsRun measurements are available
+            # calculating time shift for the chirp and hour if at least n_ts_run measurements are available
             if np.sum(~np.isnan(mdv_mean_col)) == n_ts_run:
                 time_shift_array[ts_slice, j] = calc_time_shift(mdv_mean_col, delta_t_min, delta_t_max, resolution,
                                                                 w_radar_chirpSel, time_mdv_series,
@@ -653,8 +654,7 @@ def calc_shifted_chirp_timestamps(radar_ts, radar_mdv, chirp_ts, rg_borders_id, 
 
 def calc_corr_matrix_claudia(radar_ts, radar_rg, rg_borders_id, chirp_ts_shifted, Cs_w_radar):
     """
-    Calculate the correction matrix to correct the mean Doppler velocity for the ship vertical motion. Works on daily
-    files.
+    Calculate the correction matrix to correct the mean Doppler velocity for the ship vertical motion.
     Args:
         radar_ts (ndarray): original radar time stamps in seconds (unix time)
         radar_rg (ndarray): radar range gates
@@ -667,11 +667,13 @@ def calc_corr_matrix_claudia(radar_ts, radar_rg, rg_borders_id, chirp_ts_shifted
     """
     no_chirps = len(chirp_ts_shifted)
     corr_matrix = np.zeros((len(radar_ts), len(radar_rg)))
-    # divide the day in 24 equal slices
-    idx = np.int(np.floor(len(radar_ts) / 24))
-    for i in range(24):
+    # get total hours in data and then loop through each hour
+    hours = np.int(np.ceil(radar_ts.shape[0] * np.mean(np.diff(radar_ts)) / 60 / 60))
+    # divide the day in equal hourly slices
+    idx = np.int(np.floor(len(radar_ts) / hours))
+    for i in range(hours):
         start_idx = i * idx
-        if i < 22:
+        if i < hours-1:
             end_idx = (i + 1) * idx
         else:
             end_idx = len(radar_ts)
