@@ -77,7 +77,7 @@ if __name__ == '__main__':
         'ghost_echo_2': True,  # removes curtain like ghost echos
         'dealiasing': True,  # spectrum de-aliasing
         'heave_correction': True,  # correct for heave motion of ship
-        'heave_corr_version': 'ca',
+        'heave_corr_version': 'jr',
         'add': False,  # add or subtract heave rate (move spectra to left or right)
         'shift': 0,  # number of time steps by which to shift seapath data of RV-Meteor
     }
@@ -102,13 +102,13 @@ if __name__ == '__main__':
     while plot_dt < end_dt:
         plot_interval = [plot_dt, plot_dt+datetime.timedelta(hours=1)]
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[0, 3000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_low_{plot_dt:%Y-%m-%d_%H}.png")
+        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_mdv_cor_low_{plot_dt:%Y-%m-%d_%H}.png")
         plt.close()
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[3000, 6000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_mid_{plot_dt:%Y-%m-%d_%H}.png")
+        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_mdv_cor_mid_{plot_dt:%Y-%m-%d_%H}.png")
         plt.close()
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[6000, 9000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_high_{plot_dt:%Y-%m-%d_%H}.png")
+        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_mdv_cor_high_{plot_dt:%Y-%m-%d_%H}.png")
         plt.close()
         plot_dt = plot_dt + datetime.timedelta(hours=1)
 
@@ -127,15 +127,15 @@ if __name__ == '__main__':
         plot_interval = [plot_dt, plot_dt + datetime.timedelta(hours=1)]
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[0, 3000],
                                          time_interval=plot_interval)
-        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_low_roll_{plot_dt:%Y-%m-%d_%H}.png")
+        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_mdv_cor_low_roll_{plot_dt:%Y-%m-%d_%H}.png")
         plt.close()
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[3000, 6000],
                                          time_interval=plot_interval)
-        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_mid_roll_{plot_dt:%Y-%m-%d_%H}.png")
+        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_mdv_cor_mid_roll_{plot_dt:%Y-%m-%d_%H}.png")
         plt.close()
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[6000, 9000],
                                          time_interval=plot_interval)
-        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_high_roll_{plot_dt:%Y-%m-%d_%H}.png")
+        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_mdv_cor_high_roll_{plot_dt:%Y-%m-%d_%H}.png")
         plt.close()
         plot_dt = plot_dt + datetime.timedelta(hours=1)
 
