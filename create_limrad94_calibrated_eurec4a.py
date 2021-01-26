@@ -24,6 +24,7 @@ import pyLARDA
 import pyLARDA.helpers as h
 import pyLARDA.SpectraProcessing as sp
 import pyLARDA.Transformations as Trans
+import matplotlib.pyplot as plt
 from larda.pyLARDA.NcWrite import rpg_radar2nc_eurec4a
 
 __author__ = "Willi Schimmel"
@@ -93,7 +94,21 @@ if __name__ == '__main__':
     # new spectra processor v2
     radarZSpec = sp.load_spectra_rpgfmcw94(larda, TIME_SPAN_, **limrad94_settings)
     radarMoments = sp.spectra2moments(radarZSpec, larda.connectors['LIMRAD94'].system_info['params'], **limrad94_settings)
-    radarMoments['VEL']['var'] = Trans.roll_mean_2D(radarMoments['VEL']['var'].copy(), 3, 'row')
+    # read out mean Doppler velocity, replace -999 with nan, apply rolling mean, set nan to -999 and update mean Doppler
+    # velocity in moments
+    fig, ax = Trans.plot_timeheight_2(radarMoments['VEL'])
+    plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_{begin_dt:%Y-%m-%d}.png")
+    plt.close()
+
+    vel = radarMoments['VEL']['var'].copy()
+    vel[radarMoments['VEL']['mask']] = np.nan
+    vel_mean = Trans.roll_mean_2D(vel, 3, 'row')
+    vel_mean[radarMoments['VEL']['mask']] = -999
+    radarMoments['VEL']['var'] = vel_mean
+
+    fig, ax = Trans.plot_timeheight_2(radarMoments['VEL'])
+    plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_roll_{begin_dt:%Y-%m-%d}.png")
+    plt.close()
 
     # load additional variables
     radarMoments.update({
