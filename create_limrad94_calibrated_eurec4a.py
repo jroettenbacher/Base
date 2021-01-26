@@ -77,7 +77,7 @@ if __name__ == '__main__':
         'ghost_echo_2': True,  # removes curtain like ghost echos
         'dealiasing': False,  # spectrum de-aliasing
         'heave_correction': True,  # correct for heave motion of ship
-        'heave_corr_version': 'claudia',
+        'heave_corr_version': 'ca',
         'add': False,  # add or subtract heave rate (move spectra to left or right)
         'shift': 0,  # number of time steps by which to shift seapath data of RV-Meteor
     }
@@ -94,21 +94,43 @@ if __name__ == '__main__':
     # new spectra processor v2
     radarZSpec = sp.load_spectra_rpgfmcw94(larda, TIME_SPAN_, **limrad94_settings)
     radarMoments = sp.spectra2moments(radarZSpec, larda.connectors['LIMRAD94'].system_info['params'], **limrad94_settings)
+    # get hourly quicklooks
+    plot_dt = begin_dt
+    while plot_dt < end_dt:
+        plot_interval = [plot_dt, plot_dt+datetime.timedelta(hours=1)]
+        fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[0, 3000], time_interval=plot_interval)
+        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_low_{begin_dt:%Y-%m-%d}.png")
+        plt.close()
+        fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[3000, 6000], time_interval=plot_interval)
+        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_mid_{begin_dt:%Y-%m-%d}.png")
+        plt.close()
+        fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[6000, 9000], time_interval=plot_interval)
+        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_high_{begin_dt:%Y-%m-%d}.png")
+        plt.close()
+        plot_dt = plot_dt + datetime.timedelta(hours=1)
+
     # read out mean Doppler velocity, replace -999 with nan, apply rolling mean, set nan to -999 and update mean Doppler
     # velocity in moments
-    fig, ax = Trans.plot_timeheight2(radarMoments['VEL'])
-    plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_{begin_dt:%Y-%m-%d}.png")
-    plt.close()
-
     vel = radarMoments['VEL']['var'].copy()
     vel[radarMoments['VEL']['mask']] = np.nan
     vel_mean = Trans.roll_mean_2D(vel, 3, 'row')
     vel_mean[radarMoments['VEL']['mask']] = -999
     radarMoments['VEL']['var'] = vel_mean
 
-    fig, ax = Trans.plot_timeheight2(radarMoments['VEL'])
-    plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_roll_{begin_dt:%Y-%m-%d}.png")
-    plt.close()
+    # get hourly quicklooks after rolling mean
+    plot_dt = begin_dt
+    while plot_dt < end_dt:
+        plot_interval = [plot_dt, plot_dt + datetime.timedelta(hours=1)]
+        fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[0, 3000], time_interval=plot_interval)
+        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_low_roll_{begin_dt:%Y-%m-%d}.png")
+        plt.close()
+        fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[3000, 6000], time_interval=plot_interval)
+        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_mid_roll_{begin_dt:%Y-%m-%d}.png")
+        plt.close()
+        fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[6000, 9000], time_interval=plot_interval)
+        plt.savefig(f"{PATH}/RV-Meteor_mdv_cor_high_roll_{begin_dt:%Y-%m-%d}.png")
+        plt.close()
+        plot_dt = plot_dt + datetime.timedelta(hours=1)
 
     # load additional variables
     radarMoments.update({
