@@ -38,7 +38,7 @@
     altitude = 16
     duration = [["20200114", "20200229"]]
     systems = ["LIMRAD94",  "HATPRO", "CEILO", "LIMRAD94_cn_input", "LIMRAD94_cni", "LIMRAD94_cni_hc",
-               "LIMRAD94_cni_hc_dea", "LIMRAD94_30s", "LIMRAD94_tmp", "LIMRAD94_heave_cor_ca", "LIMRAD94_heave_cor_jr"]
+               "LIMRAD94_cni_hc_dea", "LIMRAD94_30s", "LIMRAD94_tmp", "LIMRAD94_cni_hc_ca", "LIMRAD94_cni_hc_jr"]
     mira_azi_zero = -999
     cloudnet_stationname = 'none'
     param_config_file = 'params_eurec4a.toml'
