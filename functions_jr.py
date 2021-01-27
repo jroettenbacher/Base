@@ -730,7 +730,7 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
     date = kwargs['date'] if 'date' in kwargs else seapath['time'][0]
     pathFig = kwargs['pathFig'] if 'pathFig' in kwargs else './tmp'
     seapath_time = seapath['time'].values.astype(float) / 10**9  # get time in seconds
-    dt = np.diff(seapath_time)  # get time resolution
+    dt = np.diff(seapath_time, prepend=np.nan)  # get time resolution
     # calculate angular velocity
     seapath['pitch_rate'] = np.diff(seapath['pitch'], prepend=np.nan) / dt
     seapath['roll_rate'] = np.diff(seapath['roll'], prepend=np.nan) / dt
