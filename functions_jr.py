@@ -732,8 +732,8 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
     seapath_time = seapath['time'].values.astype(float) / 10**9  # get time in seconds
     dt = np.diff(seapath_time)  # get time resolution
     # calculate angular velocity
-    seapath['pitch_rate'] = np.diff(seapath['pitch']) / dt
-    seapath['roll_rate'] = np.diff(seapath['roll']) / dt
+    seapath['pitch_rate'] = np.diff(seapath['pitch'], prepend=np.nan) / dt
+    seapath['roll_rate'] = np.diff(seapath['roll'], prepend=np.nan) / dt
     seapath = seapath.dropna('time')  # drop nans for interpolation
     seapath_time = seapath['time'].values.astype(float) / 10 ** 9  # get nan free time in seconds
     # prepare interpolation function for angular velocity
