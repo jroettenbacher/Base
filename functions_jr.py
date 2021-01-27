@@ -247,7 +247,7 @@ def calc_heave_rate(seapath, x_radar=-11, y_radar=4.07, z_radar=15.8, only_heave
 
     # add heave rate to seapath data frame
     # the first calculated heave rate corresponds to the second time step
-    heave_rate = pd.DataFrame({'heave_rate': heave_rate}, index=seapath.index[1:])
+    heave_rate = pd.DataFrame({'heave_rate_radar': heave_rate}, index=seapath.index[1:])
     seapath = seapath.join(heave_rate)
 
     logger.info(f"Done with heave rate calculation in {time.time() - t1:.2f} seconds")
