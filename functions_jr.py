@@ -727,7 +727,7 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
     Returns: plot of FFT power spectra of uncorrected and corrected mean Doppler velocity and of ship motion
 
     """
-    date = kwargs['date'] if 'date' in kwargs else seapath['time_shifted'][0]
+    date = kwargs['date'] if 'date' in kwargs else seapath['time'][0]
     pathFig = kwargs['pathFig'] if 'pathFig' in kwargs else './tmp'
     seapath_time = seapath['time'].values.astype(float) / 10**9  # get time in seconds
     dt = np.diff(seapath_time)  # get time resolution
