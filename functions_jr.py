@@ -719,6 +719,7 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
         chirp_ts_shifted (ndarray): time shift corrected exact chirp time stamps
         mdv_cor_roll (ndarry): corrected mean Doppler velocity averaged with a rolling mean over time
         no_chirps (int): number of chirps in radar sample
+        rg_borders_id (ndarray): indices of chirp boundaries
         n_ts_run (int): number of time steps necessary for mean Doppler velocity time series
         seapath (xrarray.DataSet): data set with ship motion angles and time shifted to center of each measurement
         **kwargs
@@ -728,22 +729,23 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
     """
     date = kwargs['date'] if 'date' in kwargs else seapath['time_shifted'][0]
     pathFig = kwargs['pathFig'] if 'pathFig' in kwargs else './tmp'
-    seapath_time = seapath['time_shifted'].values.astype(float) / 10**9  # get time in seconds
+    seapath_time = seapath['time'].values.astype(float) / 10**9  # get time in seconds
     dt = np.diff(seapath_time)  # get time resolution
     # calculate angular velocity
     seapath['pitch_rate'] = np.diff(seapath['pitch']) / dt
     seapath['roll_rate'] = np.diff(seapath['roll']) / dt
-    seapath = seapath.dropna('time_shifted')  # drop nans for interpolation
-    seapath_time = seapath['time_shifted'].values.astype(float) / 10 ** 9  # get nan free time in seconds
+    seapath = seapath.dropna('time')  # drop nans for interpolation
+    seapath_time = seapath['time'].values.astype(float) / 10 ** 9  # get nan free time in seconds
     # prepare interpolation function for angular velocity
     Cs_pitch = CubicSpline(seapath_time, seapath['pitch_rate'])
     Cs_roll = CubicSpline(seapath_time, seapath['roll_rate'])
     Cs_heave = CubicSpline(seapath_time, seapath['heave_rate_radar'])
-    # split day in 24 equal segments
-    idx = np.int(np.floor(mdv.shape[0] / 24))
-    for i in range(24):
+    # split day in hourly segments
+    hours = np.int(np.ceil(chirp_ts.shape[0] * np.mean(np.diff(chirp_ts)) / 60 / 60))
+    idx = np.int(np.floor(mdv.shape[0] / hours))
+    for i in range(hours):
         start_idx = i * idx
-        if i < 22:
+        if i < hours-1:
             end_idx = (i + 1) * idx
         else:
             end_idx = mdv.shape[0]
@@ -803,9 +805,11 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
                 # add grey dashed lines at same place as Hannes Griesche
                 for ax in axs:
                     ax.axvline(x=(2 / 2 / np.pi), color='gray', linestyle='--')
-                    ax.axvline(x=(0.1 / 2 / np.pi), color='gray', linestyle='--')
                     ax.axvline(x=(1 / 2 / np.pi), color='gray', linestyle='--')
-                    ax.legend(frameon=False)
+                    ax.axvline(x=(0.1 / 2 / np.pi), color='gray', linestyle='--')
+                    ax.set_ylabel("Signal [m$^2$ s$^{-2}$]")
+                    ax.set_xlabel("Frequenzy [Hz]")
+                    ax.legend()
                     ax.grid()
 
                 fig.suptitle(f"FFT Power Spectrum for {date:%Y%m%d} Chirp {j + 1}, Hour {i}")
