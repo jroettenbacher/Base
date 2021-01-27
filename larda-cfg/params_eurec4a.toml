@@ -725,6 +725,190 @@
     var_units = '-'
     var_lims = []
 
+[LIMRAD94_cni_hc_ca]
+  [LIMRAD94_cni_hc_ca.path.nc]
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_ca/'
+    matching_subdirs = '(rv-meteor_cloudradar_\d{8}.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
+  [LIMRAD94_cni_hc_ca.generic]
+    # this general settings need to be handed down to the params
+    colormap = "gist_rainbow"
+    which_path = 'nc'
+    time_variable = 'time'
+    range_variable = 'range'
+    chirp_variable = 'chirp'
+    # time_millisec_variable = 'Timems'
+    time_conversion = 'since20200101'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    rg_unit = 'm'
+    identifier_var_unit = 'Units'
+    fill_value = -999.0
+    description_file = 'limrad94_general.rst'
+  [LIMRAD94_cni_hc_ca.params.Ze]
+    variable_name = 'Ze'
+    var_unit = 'mm^6/m^3'
+    colormap = 'jet'
+    var_lims = [1.0e-5, 1.0e2]
+  [LIMRAD94_cni_hc_ca.params.Vel]
+    variable_name = 'v'
+    colormap = 'jet'
+    var_unit = 'm/s'
+    var_lims = [-4, 3]
+  [LIMRAD94_cni_hc_ca.params.Vel_roll]
+    variable_name = 'v_roll'
+    colormap = 'jet'
+    var_unit = 'm/s'
+    var_lims = [-4, 3]
+  [LIMRAD94_cni_hc_ca.params.heave_cor]
+    variable_name = 'heave_cor'
+    colormap = 'jet'
+    var_unit = 'm/s'
+    var_lims = [-1.5, 1.5]
+  [LIMRAD94_cni_hc_ca.params.heave_cor_bins]
+    variable_name = 'heave_cor_bins'
+    colormap = 'jet'
+    var_unit = '-'
+    var_lims = [-30, 30]
+  [LIMRAD94_cni_hc_ca.params.time_shift]
+    variable_name = 'time_shift'
+    ncreader = 'aux'
+    colormap = 'jet'
+    var_unit = 's'
+    var_lims = [-3, 3]
+  [LIMRAD94_cni_hc_ca.params.ldr]
+    variable_name = 'ldr'
+    colormap = 'LDR'
+    var_lims = []
+  [LIMRAD94_cni_hc_ca.params.skew]
+    variable_name = 'Skew'
+    colormap = 'jet'
+    var_unit = ''
+    var_lims = [-1, 1]
+  [LIMRAD94_cni_hc_ca.params.kurt]
+    variable_name = 'kurt'
+    colormap = 'jet'
+    var_unit = ''
+    var_lims = [0, 3]
+  [LIMRAD94_cni_hc_ca.params.DiffAtt]
+    variable_name = 'DiffAtt'
+    colormap = 'jet'
+    var_lims = []
+  [LIMRAD94_cni_hc_ca.params.bt]
+    variable_name = 'bt'
+    ncreader = 'time'
+    var_lims = []
+  [LIMRAD94_cni_hc_ca.params.LWP]
+    variable_name = 'lwp'
+    ncreader = 'time'
+    var_lims = [-100, 1000]
+  [LIMRAD94_cni_hc_ca.params.rr]
+    variable_name = 'rain'
+    ncreader = 'time'
+    var_lims = [0, 500]
+  [LIMRAD94_cni_hc_ca.params.SurfRelHum]
+    variable_name = 'SurfRelHum'
+    ncreader = 'time'
+    var_lims = [0, 100]
+  [LIMRAD94_cni_hc_ca.params.range_offsets]
+    variable_name = 'range_offsets'
+    ncreader = 'aux'
+    var_lims = []
+
+[LIMRAD94_cni_hc_jr]
+  [LIMRAD94_cni_hc_jr.path.nc]
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_jr/'
+    matching_subdirs = '(rv-meteor_cloudradar_\d{8}.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
+  [LIMRAD94_cni_hc_jr.generic]
+    # this general settings need to be handed down to the params
+    colormap = "gist_rainbow"
+    which_path = 'nc'
+    time_variable = 'time'
+    range_variable = 'range'
+    chirp_variable = 'chirp'
+    # time_millisec_variable = 'Timems'
+    time_conversion = 'since20200101'
+    range_conversion = 'none'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    rg_unit = 'm'
+    identifier_var_unit = 'Units'
+    fill_value = -999.0
+    description_file = 'limrad94_general.rst'
+  [LIMRAD94_cni_hc_jr.params.Ze]
+    variable_name = 'Ze'
+    var_unit = 'mm^6/m^3'
+    colormap = 'jet'
+    var_lims = [1.0e-5, 1.0e2]
+  [LIMRAD94_cni_hc_jr.params.Vel]
+    variable_name = 'v'
+    colormap = 'jet'
+    var_unit = 'm/s'
+    var_lims = [-4, 3]
+  [LIMRAD94_cni_hc_jr.params.Vel_roll]
+    variable_name = 'v_roll'
+    colormap = 'jet'
+    var_unit = 'm/s'
+    var_lims = [-4, 3]
+  [LIMRAD94_cni_hc_jr.params.heave_cor]
+    variable_name = 'heave_cor'
+    colormap = 'jet'
+    var_unit = 'm/s'
+    var_lims = [-1.5, 1.5]
+  [LIMRAD94_cni_hc_jr.params.heave_cor_bins]
+    variable_name = 'heave_cor_bins'
+    colormap = 'jet'
+    var_unit = '-'
+    var_lims = [-30, 30]
+  [LIMRAD94_cni_hc_jr.params.time_shift]
+    variable_name = 'time_shift'
+    ncreader = 'aux'
+    colormap = 'jet'
+    var_unit = 's'
+    var_lims = [-3, 3]
+  [LIMRAD94_cni_hc_jr.params.ldr]
+    variable_name = 'ldr'
+    colormap = 'LDR'
+    var_lims = []
+  [LIMRAD94_cni_hc_jr.params.skew]
+    variable_name = 'Skew'
+    colormap = 'jet'
+    var_unit = ''
+    var_lims = [-1, 1]
+  [LIMRAD94_cni_hc_jr.params.kurt]
+    variable_name = 'kurt'
+    colormap = 'jet'
+    var_unit = ''
+    var_lims = [0, 3]
+  [LIMRAD94_cni_hc_jr.params.DiffAtt]
+    variable_name = 'DiffAtt'
+    colormap = 'jet'
+    var_lims = []
+  [LIMRAD94_cni_hc_jr.params.bt]
+    variable_name = 'bt'
+    ncreader = 'time'
+    var_lims = []
+  [LIMRAD94_cni_hc_jr.params.LWP]
+    variable_name = 'lwp'
+    ncreader = 'time'
+    var_lims = [-100, 1000]
+  [LIMRAD94_cni_hc_jr.params.rr]
+    variable_name = 'rain'
+    ncreader = 'time'
+    var_lims = [0, 500]
+  [LIMRAD94_cni_hc_jr.params.SurfRelHum]
+    variable_name = 'SurfRelHum'
+    ncreader = 'time'
+    var_lims = [0, 100]
+  [LIMRAD94_cni_hc_jr.params.range_offsets]
+    variable_name = 'range_offsets'
+    ncreader = 'aux'
+    var_lims = []
+
 [LIMRAD94_tmp]
   [LIMRAD94_tmp.path.nc]
     base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/tmp/'
