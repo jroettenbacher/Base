@@ -714,9 +714,9 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
     Plot the FFT power spectra of the uncorrected and corrected mean Doppler velocities for each hour and each chirp
     Args:
         mdv (ndarray): original radar mean Doppler velocity
-        chirp_ts (ndarray): original exact chirp time stamps
+        chirp_ts (dict): original exact chirp time stamps
         mdv_cor (ndarray): radar mean Doppler velocity corrected for heave motion
-        chirp_ts_shifted (ndarray): time shift corrected exact chirp time stamps
+        chirp_ts_shifted (dict): time shift corrected exact chirp time stamps
         mdv_cor_roll (ndarry): corrected mean Doppler velocity averaged with a rolling mean over time
         no_chirps (int): number of chirps in radar sample
         rg_borders_id (ndarray): indices of chirp boundaries
@@ -741,7 +741,7 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
     Cs_roll = CubicSpline(seapath_time, seapath['roll_rate'])
     Cs_heave = CubicSpline(seapath_time, seapath['heave_rate_radar'])
     # split day in hourly segments
-    hours = np.int(np.ceil(chirp_ts.shape[0] * np.mean(np.diff(chirp_ts)) / 60 / 60))
+    hours = np.int(np.ceil(chirp_ts['chirp_1'].shape[0] * np.mean(np.diff(chirp_ts['chirp_1'])) / 60 / 60))
     idx = np.int(np.floor(mdv.shape[0] / hours))
     for i in range(hours):
         start_idx = i * idx
