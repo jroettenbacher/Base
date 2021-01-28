@@ -77,7 +77,7 @@ if __name__ == '__main__':
         'ghost_echo_2': True,  # removes curtain like ghost echos
         'dealiasing': True,  # spectrum de-aliasing
         'heave_correction': True,  # correct for heave motion of ship
-        'heave_corr_version': 'jr',
+        'heave_corr_version': 'ca',
         'add': False,  # add or subtract heave rate (move spectra to left or right)
         'shift': 0,  # number of time steps by which to shift seapath data of RV-Meteor
     }

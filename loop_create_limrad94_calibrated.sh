@@ -1,7 +1,7 @@
 #!/usr/bin/env ksh
 
 cd /projekt1/remsens/work/jroettenbacher/Base
-path='/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_jr'
+path='/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_ca'
 for date in {117..126}; do
 	echo "##################################################"
 	echo "#     STARTING DATE 20200${date}                 #"
