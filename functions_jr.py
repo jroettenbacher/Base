@@ -30,6 +30,16 @@ def set_presentation_plot_style():
     plt.rc('figure', **figure)
 
 
+def set_colorblind_friendly_plot_style():
+    font = {'size': 16, 'sans-serif': ['Times New Roman']}
+    figure = {'figsize': [12, 8], 'dpi': 300}
+    plt.rc('font', **font)
+    plt.rc('figure', **figure)
+    # set new colorblind friendly color cycle
+    CB_color_cycle = ["#6699CC", "#117733", "#CC6677", "#DDCC77"]
+    plt.rcParams['axes.prop_cycle'] = plt.cycler(color=CB_color_cycle)
+
+
 # from https://confluence.ecmwf.int/display/COPSRV/CDS+web+API+%28cdsapi%29+training#
 def days_of_month(y, m):
     """create a list of days in a month"""
