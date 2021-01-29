@@ -3,7 +3,7 @@
 home=/projekt1/remsens/work/jroettenbacher/Base
 python=/home/jroettenbacher/.conda/envs/jr_base/bin/python3
 cd ${home}
-version="ca"
+version="jr"
 path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_"${version}
 for date in {117..126}; do
 	echo "##################################################"
