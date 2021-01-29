@@ -68,6 +68,9 @@ if __name__ == '__main__':
         begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
         end_dt = datetime.datetime.strptime(date + ' 00:59:55', '%Y%m%d %H:%M:%S')
 
+    PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/tmp'
+    heave_corr_version = kwargs['heave_corr_version'] if 'heave_corr_version' in kwargs else 'jr'
+
     limrad94_settings = {
         'despeckle': True,  # 2D convolution (5x5 window), removes single non-zero values, very slow!
         'estimate_noise': True,  # estimating noise in spectra, when no fill_value is encountered
@@ -77,7 +80,7 @@ if __name__ == '__main__':
         'ghost_echo_2': True,  # removes curtain like ghost echos
         'dealiasing': True,  # spectrum de-aliasing
         'heave_correction': True,  # correct for heave motion of ship
-        'heave_corr_version': 'ca',
+        'heave_corr_version': heave_corr_version,
         'add': False,  # add or subtract heave rate (move spectra to left or right)
         'shift': 0,  # number of time steps by which to shift seapath data of RV-Meteor
     }
@@ -86,7 +89,6 @@ if __name__ == '__main__':
     limrad94_settings.update({'NF': float(kwargs['NF']) if 'NF' in kwargs else 6.0})
     site_ = kwargs['site'] if 'site' in kwargs else 'rv-meteor'
     limrad94_settings.update({'site': site_})
-    PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/tmp'
 
     log.info(f'Date: {begin_dt:%Y-%m-%d, %H:%M:%S} - {end_dt:%H:%M:%S}')
     TIME_SPAN_ = [begin_dt, end_dt]
@@ -102,13 +104,13 @@ if __name__ == '__main__':
     while plot_dt < end_dt:
         plot_interval = [plot_dt, plot_dt+datetime.timedelta(hours=1)]
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[0, 3000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_mdv_cor_low_{plot_dt:%Y-%m-%d_%H}.png")
+        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_low_{heave_corr_version}.png")
         plt.close()
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[3000, 6000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_mdv_cor_mid_{plot_dt:%Y-%m-%d_%H}.png")
+        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_mid_{heave_corr_version}.png")
         plt.close()
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[6000, 9000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_mdv_cor_high_{plot_dt:%Y-%m-%d_%H}.png")
+        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_high_{heave_corr_version}.png")
         plt.close()
         plot_dt = plot_dt + datetime.timedelta(hours=1)
 
@@ -127,15 +129,15 @@ if __name__ == '__main__':
         plot_interval = [plot_dt, plot_dt + datetime.timedelta(hours=1)]
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[0, 3000],
                                          time_interval=plot_interval)
-        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_mdv_cor_low_roll_{plot_dt:%Y-%m-%d_%H}.png")
+        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_low_roll_{heave_corr_version}.png")
         plt.close()
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[3000, 6000],
                                          time_interval=plot_interval)
-        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_mdv_cor_mid_roll_{plot_dt:%Y-%m-%d_%H}.png")
+        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_mid_roll_{heave_corr_version}.png")
         plt.close()
         fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[6000, 9000],
                                          time_interval=plot_interval)
-        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_mdv_cor_high_roll_{plot_dt:%Y-%m-%d_%H}.png")
+        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_high_roll_{heave_corr_version}.png")
         plt.close()
         plot_dt = plot_dt + datetime.timedelta(hours=1)
 
