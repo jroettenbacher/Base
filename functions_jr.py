@@ -729,6 +729,7 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
     """
     date = kwargs['date'] if 'date' in kwargs else seapath.index[0]
     pathFig = kwargs['pathFig'] if 'pathFig' in kwargs else './tmp'
+    version = kwargs['version'] if 'version' in kwargs else 'jr'
     seapath_time = seapath.index.values.astype(float) / 10**9  # get time in seconds
     dt = np.diff(seapath_time, prepend=np.nan)  # get time resolution
     # calculate angular velocity
@@ -814,7 +815,7 @@ def plot_fft_spectra(mdv, chirp_ts, mdv_cor, chirp_ts_shifted, mdv_cor_roll, no_
 
                 fig.suptitle(f"FFT Power Spectrum for {date:%Y%m%d} Chirp {j + 1}, Hour {i}")
                 fig.tight_layout()
-                fig.savefig(f'{pathFig}/{date:%Y%m%d}_fft_check_CA_chirp{j + 1}_hour{i}.png')
+                fig.savefig(f'{pathFig}/{date:%Y%m%d}_fft_check_chirp{j + 1}_hour{i}_{version}.png')
                 plt.close()
 
 
