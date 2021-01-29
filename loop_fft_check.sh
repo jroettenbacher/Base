@@ -9,7 +9,7 @@ for v in ${version[*]}; do
     echo "##################################################"
     echo "#     STARTING DATE 20200${date}                 #"
     echo "##################################################"
-    /home/jroettenbacher/.conda/envs/jr_base/bin/python3 ${home}/heave_cor_fft_check.py date=20200${date} version=${v} 2>&1 | tee ${home}/log/${today}heave_cor_ff_check_200${date}.log
+    /home/jroettenbacher/.conda/envs/jr_base/bin/python3 ${home}/heave_corr_fft_check.py date=20200${date} version=${v} 2>&1 | tee ${home}/log/${today}heave_cor_ff_check_200${date}.log
     echo "Done with 20200${date}"
   done
 
@@ -17,7 +17,7 @@ for v in ${version[*]}; do
     echo "##################################################"
     echo "#     STARTING DATE 20200${date}                 #"
     echo "##################################################"
-    /home/jroettenbacher/.conda/envs/jr_base/bin/python3 ${home}/heave_cor_fft_check.py date=20200${date} version=${v} 2>&1 | tee ${home}/log/${today}heave_cor_ff_check_200${date}.log
+    /home/jroettenbacher/.conda/envs/jr_base/bin/python3 ${home}/heave_corr_fft_check.py date=20200${date} version=${v} 2>&1 | tee ${home}/log/${today}heave_cor_ff_check_200${date}.log
     echo "Done with 20200${date}"
   done
   echo "##################################################"
