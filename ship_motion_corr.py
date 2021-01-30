@@ -10,7 +10,7 @@
 import sys
 
 sys.path.append("/projekt1/remsens/work/jroettenbacher/Base/larda")
-sys.path.append('..')
+sys.path.append('.')
 import pyLARDA
 import pyLARDA.helpers as h
 import functions_jr as jr

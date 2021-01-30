@@ -14,7 +14,7 @@ import warnings
 import logging
 import sys
 sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
-sys.path.append('')
+sys.path.append('.')
 import pyLARDA
 import pyLARDA.helpers as h
 from pyLARDA.SpectraProcessing import seconds_to_fstring
@@ -1629,7 +1629,7 @@ if __name__ == '__main__':
     import sys, time
     import datetime as dt
     sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
-    sys.path.append('')
+    sys.path.append('.')
     import pyLARDA
     import numpy as np
     import logging
