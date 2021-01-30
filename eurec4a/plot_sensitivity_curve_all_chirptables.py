@@ -11,7 +11,7 @@ import sys
 
 # just needed to find pyLARDA from this location
 sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
-sys.path.append('.')
+sys.path.append('..')
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import AutoMinorLocator

@@ -7,7 +7,7 @@ author: Johannes Roettenbacher
 
 import sys
 sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
-sys.path.append('.')
+sys.path.append('..')
 import datetime as dt
 import logging
 import functions_jr as jr

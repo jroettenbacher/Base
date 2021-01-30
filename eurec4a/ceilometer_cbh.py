@@ -3,7 +3,7 @@ import datetime
 import sys
 # path to local larda source code - no data needed locally
 sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
-sys.path.append('.')
+sys.path.append('..')
 import numpy as np
 import time
 import pyLARDA
