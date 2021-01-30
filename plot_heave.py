@@ -78,16 +78,16 @@ if end_dt.date() > begin_dt.date():
     plt.title(f"Probability Density Function of {var[:-6]} - DSHIP\n"
               f" EUREC4A RV-Meteor {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d}")
     plt.tight_layout()
-    filename = f"{output_path}RV-Meteor_seapath_{var[:-6]}_PDF_{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}_log.png"
+    filename = f"{plot_path}/RV-Meteor_seapath_{var[:-6]}_PDF_{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}_log.png"
     plt.savefig(filename, dpi=250)
-    print(f"{filename} saved to {output_path}")
+    print(f"{filename} saved to {plot_path}")
 else:
     plt.title(f"Probability Density Function of {var[:-6]} - DSHIP\n"
               f" EUREC4A RV-Meteor {begin_dt:%Y-%m-%d}")
     plt.tight_layout()
-    filename = f"{output_path}RV-Meteor_seapath_{var[:-6]}_PDF_{begin_dt:%Y%m%d}_log.png"
+    filename = f"{plot_path}/RV-Meteor_seapath_{var[:-6]}_PDF_{begin_dt:%Y%m%d}_log.png"
     plt.savefig(filename, dpi=250)
-    print(f"{filename} saved to {output_path}")
+    print(f"{filename} saved to {plot_path}")
 plt.close()
 
 ########################################################################################################################
@@ -104,16 +104,16 @@ ax.legend()
 fig.autofmt_xdate()
 if end_dt.date() > begin_dt.date():
     ax.set_title(f"Time Series of {var[:-6]} - DSHIP\n"
-              f" EUREC4A RV-Meteor {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d}")
+                 f" EUREC4A RV-Meteor {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d}")
     fig.tight_layout()
-    filename = f"{output_path}RV-Meteor_seapath_{var[:-6]}_TS_{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}.png"
+    filename = f"{plot_path}/RV-Meteor_seapath_{var[:-6]}_TS_{begin_dt:%Y%m%d}-{end_dt:%Y%m%d}.png"
     fig.savefig(filename, dpi=250)
-    print(f"{filename} saved to {output_path}")
+    print(f"{filename} saved to {plot_path}")
 else:
     ax.set_title(f"Time Series of {var[:-6]} - DSHIP\n"
-              f" EUREC4A RV-Meteor {begin_dt:%Y-%m-%d}")
+                 f" EUREC4A RV-Meteor {begin_dt:%Y-%m-%d}")
     fig.tight_layout()
-    filename = f"{output_path}RV-Meteor_seapath_{var[:-6]}_TS_{begin_dt:%Y%m%d}.png"
+    filename = f"{plot_path}/RV-Meteor_seapath_{var[:-6]}_TS_{begin_dt:%Y%m%d}.png"
     fig.savefig(filename, dpi=250)
-    print(f"{filename} saved to {output_path}")
+    print(f"{filename} saved to {plot_path}")
 plt.close()
