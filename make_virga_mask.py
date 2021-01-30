@@ -290,19 +290,28 @@ if save_csv:
 if plot_data:
     radar_ze.update(var_unit="dBZ", var_lims=[-60, 20])
     title = f"{location} Cloud Radar Reflectivity with Virga Detection {time_interval[0]:%Y-%m-%d}"
-    t = [begin_dt, begin_dt + dt.timedelta(hours=12), end_dt]
-    for i in range(2):
+    t = [begin_dt, begin_dt + dt.timedelta(hours=3), begin_dt + dt.timedelta(hours=6),
+         begin_dt + dt.timedelta(hours=9), begin_dt + dt.timedelta(hours=12),
+         begin_dt + dt.timedelta(hours=15), begin_dt + dt.timedelta(hours=18),
+         begin_dt + dt.timedelta(hours=21), end_dt]
+    for i in range(len(t)-1):
         fig, ax = pyLARDA.Transformations.plot_timeheight2(radar_ze, range_interval=[0, 2000],
                                                            time_interval=[t[i], t[i+1]], z_converter='lin2z',
                                                            rg_converter=False,
                                                            title=f"{title} {i+1}")
+        # add cloud base height
+        time_list = [h.ts_to_dt(ts) for ts in ceilo_cbh['ts']]
+        ax.scatter(time_list, ceilo_cbh['var'][:, 0], s=0.2, color='k', label='first ceilometer cloud base')
+        lgd1 = ax.legend(loc=1)
+        lgd1.legendHandles[0]._sizes = [30]
         for points_b, points_t in zip(virgae['points_b'], virgae['points_t']):
             # append the top points to the bottom points in reverse order for drawing a polygon
             points = points_b + points_t[::-1]
             ax.add_patch(Polygon(points, closed=True, fc='pink', ec='black', alpha=0.5))
         # add legend for virga polygons
         virga_lgd = [Patch(facecolor='pink', edgecolor='black', label="Virga")]
-        ax.legend(handles=virga_lgd, bbox_to_anchor=[1, -0.1], loc="lower left",  prop={'size': 12})
+        lgd2 = ax.legend(handles=virga_lgd, bbox_to_anchor=[1, -0.1], loc="lower left",  prop={'size': 12})
+        ax.add_artist(lgd1)
         figname = f"{csv_outpath}/{location}_radar-Ze_virga-masked_{time_interval[0]:%Y%m%d}_{i+1}.png"
         fig.savefig(figname)
         plt.close()
