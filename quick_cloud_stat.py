@@ -31,24 +31,26 @@ date = sys.argv[1]
 chunk_size = float(sys.argv[2])
 print(f"Running quick_cloud_stat.py for date={date} and chunk_size={chunk_size:.0f}")
 # define date YYYYMMDD
-#date = "20200125"
-#chunk_size = 1  # chunk size in hours
+# date = "20200125"
+# chunk_size = 1  # chunk size in hours
 
 dt_date = datetime.datetime.strptime(date, "%Y%m%d")  # transform to datetime for plot title
 # load data from Catalpa
-path = "/home/remsens/data/LIMRAD94/cloudnet_input"
+# path = "/home/remsens/data/LIMRAD94/cloudnet_input"
+# load data from LIM server
+path = "/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input"
 # load local data
 # path = "./data/cloudnet_input/"
 
 # define path where to write csv file (no / at end of path please)
 output_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
 # local output path
-# output_path = "."
+# output_path = "./tmp"
 
 # define output path for plots (no / at end of path please)
 plot_path = "/home/remsens/code/larda3/scripts/plots/radar_hydro_frac"
 # local path
-# plot_path = "."
+# plot_path = "./tmp"
 
 # define upper ranges for lower, mid and high troposphere in meters
 low, mid, high = 1200, 6000, 12000
@@ -64,8 +66,8 @@ nc_time = nc.num2date(limrad94_ds.variables["time"][:],
                       calendar="standard")
 # get length of file timewise, first as datetime.timedelta, extract seconds, convert to decimal hours
 # and round to the next full hour
-hours = np.ceil((nc_time.max() - nc_time.min()).seconds / 3600)
-Ze = limrad94_ds.variables["Ze"][:]  # unit [mm6/m3], dimensions : range, time
+hours = np.ceil((max(nc_time) - min(nc_time)).seconds / 3600)
+Ze = limrad94_ds.variables["Ze"][:]  # unit [mm6/m3], dimensions : time, range
 range_bins = limrad94_ds.variables["range"][:]  # unit m
 # get indices for corresponding low mid and high upper ranges
 ind = [0]  # start with zero to define lower boundary
@@ -77,7 +79,7 @@ for i in [low, mid, high]:
 ########################################################################################################################
 num_chunks = int(hours / chunk_size)  # get number of chunks by dividing number of observed hours by chunk size
 time_chunk = int(np.floor(len(nc_time) / num_chunks))  # get rounded down number of profiles in each time chunk
-Ze_CF = np.empty((len(Ze[:]), num_chunks))
+Ze_CF = np.empty((len(range_bins), num_chunks))
 Ze_CF_max_low = np.empty((2, num_chunks))
 Ze_CF_max_low_mid_high = np.empty((6, num_chunks))
 Ze_CF_max_all = np.empty((2, num_chunks))
@@ -86,7 +88,7 @@ for i in range(0, Ze_CF.shape[1]):
     # loop through all time chunks
     # select all rows (height bins) but only the columns (time) of the current time chunk
     # this has an overlap of one time step
-    Ze_low_3h = Ze[:, slice(time_chunk * i, time_chunk * (i + 1))]
+    Ze_low_3h = Ze[slice(time_chunk * i, time_chunk * (i + 1)), :]
     for j in range(0, Ze_CF.shape[0]):
         # loop though all rows (height bins)
         # mean hydrometeor fraction profile per 3h chunk
