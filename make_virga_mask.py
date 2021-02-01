@@ -43,7 +43,7 @@ if 'date' in kwargs:
     date = str(kwargs['date'])
     begin_dt = dt.datetime.strptime(date, "%Y%m%d")
 else:
-    begin_dt = dt.datetime(2020, 1, 25, 0, 0, 0)
+    begin_dt = dt.datetime(2020, 1, 24, 0, 0, 0)
 end_dt = begin_dt + dt.timedelta(hours=23, minutes=59, seconds=59)
 time_interval = [begin_dt, end_dt]
 
@@ -159,9 +159,9 @@ for i in np.where(virga_flag)[0]:
 virga = h.put_in_container(virga_mask, radar_ze_ip, name="virga_mask", paramkey="virga", var_unit="-", var_lims=[0, 1])
 location = virga['paraminfo']['location']
 if save_fig:
-    fig, ax = pyLARDA.Transformations.plot_timeheight2(virga, range_interval=[0, 1000])
+    fig, ax = pyLARDA.Transformations.plot_timeheight2(virga, range_interval=[0, 3000])
     virga_dt = [h.ts_to_dt(t) for t in virga['ts']]
-    ax.plot(virga_dt, h_ceilo, ".", color="purple")
+    ax.scatter(virga_dt, h_ceilo, s=0.2, color="purple")
     figname = f"./tmp/{location}_virga_ceilo-res_{time_interval[0]:%Y%m%d}.png"
     fig.savefig(figname)
     plt.close()
@@ -186,9 +186,9 @@ for j in range(len(ts_list)-1):
 virga_hr = h.put_in_container(virga_mask_hr, radar_ze, name="virga_mask", paramkey="virga", var_unit="-",
                               var_lims=[0, 1])
 if save_fig:
-    fig, ax = pyLARDA.Transformations.plot_timeheight2(virga_hr, range_interval=[0, 1000])
+    fig, ax = pyLARDA.Transformations.plot_timeheight2(virga_hr, range_interval=[0, 3000])
     virga_dt = [h.ts_to_dt(t) for t in virga['ts']]
-    ax.plot(virga_dt, h_ceilo, ".", color="purple")
+    ax.scatter(virga_dt, h_ceilo, s=0.2, color="purple")
     figname = f"./tmp/{location}_virga_radar-res_{time_interval[0]:%Y%m%d}.png"
     fig.savefig(figname)
     plt.close()
@@ -233,9 +233,9 @@ real_virgas = h.put_in_container(real_virgas_hr, radar_ze, name="virga_mask", pa
                                  var_lims=[0, 1])
 
 if save_fig:
-    fig, ax = pyLARDA.Transformations.plot_timeheight2(real_virgas, range_interval=[0, 1000])
+    fig, ax = pyLARDA.Transformations.plot_timeheight2(real_virgas, range_interval=[0, 3000])
     virga_dt = [h.ts_to_dt(t) for t in virga['ts']]
-    ax.plot(virga_dt, h_ceilo, ".", color="purple")
+    ax.scatter(virga_dt, h_ceilo, s=0.2, color="purple")
     figname = f"./tmp/{location}_real_virga_radar-res_{time_interval[0]:%Y%m%d}.png"
     fig.savefig(figname)
     plt.close()
@@ -295,7 +295,7 @@ if plot_data:
          begin_dt + dt.timedelta(hours=15), begin_dt + dt.timedelta(hours=18),
          begin_dt + dt.timedelta(hours=21), end_dt]
     for i in range(len(t)-1):
-        fig, ax = pyLARDA.Transformations.plot_timeheight2(radar_ze, range_interval=[0, 2000],
+        fig, ax = pyLARDA.Transformations.plot_timeheight2(radar_ze, range_interval=[0, 3000],
                                                            time_interval=[t[i], t[i+1]], z_converter='lin2z',
                                                            rg_converter=False,
                                                            title=f"{title} {i+1}")
