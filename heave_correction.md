@@ -16,29 +16,49 @@ The heave rate or heave velocity is heave per second and thus has an unit of m/s
 **Solution:**  
 Correct the mean Doppler velocity of each chirp by the heave rate, calculated from measurements of the motion angles by the RV-Meteor. 
 
-**Progress description:**  
+## 1.1 Progress Description
+
 In the following the development of the whole correction is described. 
 
-*Calculate heave rate*
+***Calculate heave rate***
 
-The first step is to calculate the heave rate at the radar position. For this an approach from Hannes Griesche was applied (see Sec. 2.3). Claudia Acquistapage from the Uni Cologne, who was also working on motion correction for the same radar, developed a different approach (see Sec. 2.4). The difference between the two can be seen in Sec. 2.5. the difference between the two is probably related to the fact, that Claudia also shifts the ship time stamps by half the sample frequency, so that they correspond with the center of the measurement.
+The first step is to calculate the heave rate at the radar position. For this an approach from Hannes Griesche was applied (see Sec. 2.3). Claudia Acquistapage from the Uni Cologne, who was also working on motion correction for the same radar, developed a different approach (see Sec. 2.4). The difference between the two can be seen in Sec. 2.5. It  is probably related to the fact that Claudia also shifts the ship time stamps by half the sample frequency, so that they correspond with the center of the measurement.
 
-*Time shift correction*
+***Time shift correction***
 
 Another problem that had to be considered was a possible time shift between the radar and the ship time. Although both times were retrieved by a GPS sensor, there was a possibility that the signal processing of the radar would take some time before the time stamp was written to the measurement. To detect a possible time shift between the two signals, a cross correlation was performed between the mean Doppler velocity averaged over height and the heave rate interpolated to the same time resolution. For P07 a shift of **1.9** seconds and for P09 a shift of **1.6** seconds was detected and needed to be corrected for.
 Radar time lacks behind the ship time, therefore the ship time was shifted back in time.
 
 Claudia uses a more precise approach by calculating the time shift for every hour and every chirp, when possible. Thus, this approach was adapted in is now the one which is used.
 
-*Correcting for heave rate*
+***Correcting for heave rate***
 
 At first the whole correction was only applied to the mean Doppler velocity as reported by the radar. To do this a python function called `heave_correction` was  written. By using the chirp duration times for each chirp, exact time stamps for each chirp could be calculated, allowing for the possibility to correct the heave rate in each chirp. This is possible because the Measurement Reference Unit (MRU) of the RV-Meteor measured at higher sampling frequency as the radar. 
 
 It was quickly discovered, that it would make more sense to directly correct the Doppler spectra, which are shifted by a number of bins, corresponding to the heave rate. The corresponding function: `heave_correction_spectra`
 
-After the heave correction the Doppler spectra are also dealiased.
+Claudias's approach again differs from Johannes' approach in that she interpolated the heave rate onto the exact time shifted chirp time stamps. Johannes uses the time step closest to the exact chirp time stamps and then averages the heave rate over the chirp integration time, which is only possible due to the higher sampling frequency of the MRU on the RV Meteor compared to the RV M.S. Merian.
 
-**Correction:** 
+***After the Correction***
+
+After the heave correction the Doppler spectra are also dealiased and speckle filtered by Willi's routines. As a final step a 3 time step rolling mean is applied over every row of the mean Doppler velocity.
+
+***Comparing both approaches***
+
+After comparing both approaches some differences can be seen (compare power point). However, sometimes it looks like Claudia's approach works better, and sometimes Johannes' approach delivers visually more appealing results. The differences are rather small though and thus it is decided to use Claudia's approach, since then the two radar data sets are processed more similiarly.
+It can also be seen, that the rolling mean has the biggest influence on the mean Doppler velocity and leads to nice homogeneous results. This also shows in the FFT analysis, which has been done.
+
+***Further resources***
+
+The power point can be found here: `/projekt1/remsens/work/jroettenbacher/heave_correction/RV_Meteor_heave_correction_progress.pptx`
+
+Hourly quicklooks for comparing the two approaches and the influence of the rolling average can be found here: `/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_jr/hourly_quicklooks`
+
+The FFT plots can be found here: `/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_jr/fft_check`
+
+Replace `jr`with `ca` to get quicklooks from Claudia's approach. You can copy the hourly quicklooks in the same folder to jump between them. This helps to see the differences better.
+
+## 1.2 Theoretical thoughts about the correction
 
 | Real MDV [m/s] <br />measured in Radar CS | Heave Rate [m/s] <br />measured in Ship CS | Measured MDV [m/s] | Corrected MDV [m/s] |
 | ----------------------------------------- | ------------------------------------------ | ------------------ | ------------------- |
@@ -53,6 +73,8 @@ After the heave correction the Doppler spectra are also dealiased.
 **Probable Solution:** The ship and earth coordinate system are defined with the z-axis downward, meaning positive is down. Whereas the radar coordinate system in which the MDV is measured is defined with the z-axis upward, meaning positive is up. Thus, to correct the measured Doppler velocity the sign has to be switched.
 
 ## 2. Different Ways to Calculate Heave Rate
+
+In this section the theoretical background needed to calculate the heave rate at a certain location on a ship is explained. Three different approaches are shown.
 
 ### 2.1 Placement of Radar on Ship
 
@@ -270,9 +292,10 @@ def heave_correction_spectra(data, date, path_to_seapath="/projekt2/remsens/data
 
 * calls all of the above functions
 * shift heave rate by given time steps (eg. 19 or 16) (deprecated)
+* calculates time shift for each chirp and hour
 * calculate Doppler resolution
 * translate heave rate into Doppler bins
-* shift spectra to left or right
+* shift spectra to left (or right)
 
 ## Code
 
