@@ -147,6 +147,8 @@ if __name__ == '__main__':
             'ldr', 'DiffAtt', 'MaxVel', 'Azm', 'Elv', 'bt', 'rr', 'LWP', 'SurfRelHum'
         ]
     })
+    # add the uncorrected mean Doppler velocity again
+    radarMoments['VEL_uncor'] = larda.read("LIMRAD94", 'VEL', TIME_SPAN_, range_)
 
     # mask ldr since it was not calculated by this software (loading it from LV1 data)
     radarMoments['DiffAtt']['var'] = np.ma.masked_where(radarMoments['Ze']['mask'], radarMoments['DiffAtt']['var'])
