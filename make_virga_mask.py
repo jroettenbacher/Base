@@ -91,6 +91,7 @@ for i in range(len(rg_radar_all)):
     try:
         rg = rg_radar_all[i][0]
         if len(rg_radar_all[i]) >= min_vert_ext:
+            # TODO: add a height threshold -> 1000 m to exclude low level liquid clouds
             h_radar.append(radar_ze_ip['rg'][rg])
             first_radar_ze.append(radar_ze_ip['var'][i, rg])  # save reflectivity at lowest radar range gate
         else:
@@ -212,6 +213,8 @@ while t_idx < len(virga_hr['ts']):
         while virga_hr['var'][t_idx:(t_idx+max_hori_gap), :].any():
             h_ids = np.where(virga_hr['var'][t_idx, :])[0]
             if len(h_ids) > 0:
+                # TODO: add check for maximum vertical gap -> there can be no values between cbh and first radar echo,
+                # TODO: leading to a mask that covers lots of nan values. This introduces a bias in the thickness stat!
                 if (h_ids[-1] - h_ids[0]) > min_vert_ext:
                     real_virgas_hr[t_idx, h_ids] = True  # set virga mask with only big virgas
                     v.append((t_idx, h_ids[0], h_ids[-1]))
