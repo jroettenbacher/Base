@@ -121,7 +121,7 @@ if __name__ == '__main__':
     radarMoments['VEL_roll'] = radarMoments['VEL'].copy()  # create new container for averaged mean Doppler velocity
     vel = radarMoments['VEL']['var'].copy()
     vel[radarMoments['VEL']['mask']] = np.nan
-    vel_mean = Trans.roll_mean_2D(vel, 3, 'row')
+    vel_mean = Trans.roll_mean_2D(vel, 3, 'time')
     vel_mean[radarMoments['VEL']['mask']] = -999
     radarMoments['VEL_roll']['var'] = vel_mean
 
