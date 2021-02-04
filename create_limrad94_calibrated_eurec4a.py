@@ -25,7 +25,7 @@ import pyLARDA.helpers as h
 import pyLARDA.SpectraProcessing as sp
 import pyLARDA.Transformations as Trans
 import matplotlib.pyplot as plt
-from larda.pyLARDA.NcWrite import rpg_radar2nc_eurec4a
+from pyLARDA.NcWrite import rpg_radar2nc_eurec4a
 
 __author__ = "Willi Schimmel"
 __copyright__ = "Copyright 2020, Generates Calibrated RPG-Radar files for Cloudnetpy"
@@ -64,12 +64,13 @@ if __name__ == '__main__':
         begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
         end_dt = datetime.datetime.strptime(date + ' 23:59:55', '%Y%m%d %H:%M:%S')
     else:
-        date = '20200216'
+        date = '20200202'
         begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
-        end_dt = datetime.datetime.strptime(date + ' 00:59:55', '%Y%m%d %H:%M:%S')
+        end_dt = datetime.datetime.strptime(date + ' 23:59:55', '%Y%m%d %H:%M:%S')
 
     PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/tmp'
     heave_corr_version = kwargs['heave_corr_version'] if 'heave_corr_version' in kwargs else 'jr'
+    for_aeris = kwargs['for_aeris'] if 'for_aeris' in kwargs else False
 
     limrad94_settings = {
         'despeckle': True,  # 2D convolution (5x5 window), removes single non-zero values, very slow!
@@ -81,6 +82,7 @@ if __name__ == '__main__':
         'dealiasing': True,  # spectrum de-aliasing
         'heave_correction': True,  # correct for heave motion of ship
         'heave_corr_version': heave_corr_version,
+        'for_aeris': for_aeris,  # include more variables for upload to aeris
         'add': False,  # add or subtract heave rate (move spectra to left or right)
         'shift': 0,  # number of time steps by which to shift seapath data of RV-Meteor
     }
@@ -160,12 +162,13 @@ if __name__ == '__main__':
     radarMoments['Ze']['var'] = h.lin2z(radarMoments['Ze']['var'])
     radarMoments['Ze'].update({'var_unit': "dBZ", 'var_lims': [-60, 20]})
 
-    # read in lat lon time series from RV Meteor
-    dship = sp.read_dship(begin_dt.strftime("%Y%m%d"), cols=[0, 4, 5])
-    dship_closest = sp.find_closest_timesteps(dship, radarMoments['Ze']['ts'])
-    # extract lat lon arrays and save to dictionary to hand over to NcWrite.rpg_radar2nc_eurec4a()
-    radarMoments['lat'] = dship_closest["SYS.STR.PosLat"].values
-    radarMoments['lon'] = dship_closest["SYS.STR.PosLon"].values
+    if for_aeris:
+        # read in lat lon time series from RV Meteor
+        dship = sp.read_dship(begin_dt.strftime("%Y%m%d"), cols=[0, 4, 5])
+        dship_closest = sp.find_closest_timesteps(dship, radarMoments['Ze']['ts'])
+        # extract lat lon arrays and save to dictionary to hand over to NcWrite.rpg_radar2nc_eurec4a()
+        radarMoments['lat'] = dship_closest["SYS.STR.PosLat"].values
+        radarMoments['lon'] = dship_closest["SYS.STR.PosLon"].values
 
     # write nc file
     flag = rpg_radar2nc_eurec4a(
