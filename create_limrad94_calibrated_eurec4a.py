@@ -163,6 +163,8 @@ if __name__ == '__main__':
     # convert from mm6 m-3 to dBZ
     radarMoments['Ze']['var'] = h.lin2z(radarMoments['Ze']['var'])
     radarMoments['Ze'].update({'var_unit': "dBZ", 'var_lims': [-60, 20]})
+    #mask LDR=-100 (-100 means there is a signal, but not clear enough to calculate LDR)
+    radarMoments['ldr']['var'] = np.ma.masked_less_equal(radarMoments['ldr']['var'], -100)
 
     if for_aeris:
         # read in lat lon time series from RV Meteor
