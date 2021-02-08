@@ -68,8 +68,8 @@ if __name__ == '__main__':
         begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
         end_dt = datetime.datetime.strptime(date + ' 00:59:55', '%Y%m%d %H:%M:%S')
 
-    PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/tmp'
-    heave_corr_version = kwargs['heave_corr_version'] if 'heave_corr_version' in kwargs else 'jr'
+    PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/cloudnet/calibrated'
+    heave_corr_version = kwargs['heave_corr_version'] if 'heave_corr_version' in kwargs else 'ca'
     for_aeris = kwargs['for_aeris'] if 'for_aeris' in kwargs else False
 
     limrad94_settings = {
@@ -177,7 +177,6 @@ if __name__ == '__main__':
     # write nc file
     flag = rpg_radar2nc_eurec4a(
         radarMoments,
-        # f'{PATH}/limrad94/{begin_dt.year}/',
         f'{PATH}',
         larda_git_path=LARDA_PATH,
         version='python',
