@@ -14,3 +14,4 @@ Thumbs.db
 /.ipynb_checkpoints/
 /quality_control/
 plot_one_spectrum.py
+/tmp
