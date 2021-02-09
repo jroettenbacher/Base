@@ -2,7 +2,7 @@
 
 import sys
 # just needed to find pyLARDA from this location
-sys.path.append('/home/remsens/code/larda3/larda/')
+sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
 
 import matplotlib
@@ -30,13 +30,13 @@ if 'date' in kwargs:
     begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
     end_dt = datetime.datetime.strptime(date + ' 23:59:55', '%Y%m%d %H:%M:%S')
 else:
-    begin_dt = datetime.datetime(2020, 1, 17, 0, 0, 5)
-    end_dt = datetime.datetime(2020, 1, 26, 23, 30, 55)
+    begin_dt = datetime.datetime(2020, 2, 2, 11, 0, 5)
+    end_dt = datetime.datetime(2020, 2, 2, 12, 0, 5)
 
 if 'plot_range' in kwargs:
     plot_range = [0, int(kwargs['plot_range'])]
 else:
-    plot_range = [0, 15000]
+    plot_range = [0, 3000]
 
 #  read in moments
 system = "LIMRAD94"
@@ -48,21 +48,21 @@ radar_MDV = larda.read(system, "VEL", [begin_dt, end_dt], plot_range)
 # radar_RHV = larda.read(system, "RHV", [begin_dt, end_dt], plot_range)
 # radar_PhiDP = larda.read(system, "PhiDP", [begin_dt, end_dt], plot_range)
 # radar_SurfWS = larda.read(system, "SurfWS", [begin_dt, end_dt])
-
-name = f'plots/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{plot_range[1]/1000:.0f}km'
+location = radar_MDV["paraminfo"]["location"]
+name = f'plots/{location}_{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1]/1000:.0f}km'
 
 # fig, _ = pyLARDA.Transformations.plot_timeseries(radar_SurfWS, title=True, z_converter='lin2z')
 # fig.savefig(name+'_SurfWS.png', dpi=250)
 # print(f'figure saved :: {name}_SurfWS.png')
 
 radar_Z['var_unit'] = 'dBZ'
-fig, _ = pyLARDA.Transformations.plot_timeheight(radar_Z, rg_converter=True, title=True, z_converter='lin2z')
+fig, _ = pyLARDA.Transformations.plot_timeheight2(radar_Z, rg_converter=True, title=True, z_converter='lin2z')
 fig.savefig(name+'_Z.png', dpi=250)
 print(f'figure saved :: {name}_Z.png')
 
-# fig, _ = pyLARDA.Transformations.plot_timeheight(radar_MDV, rg_converter=True, title=True)
-# fig.savefig(name+'_MDV.png', dpi=250)
-# print(f'figure saved :: {name}_MDV.png')
+fig, _ = pyLARDA.Transformations.plot_timeheight2(radar_MDV, range_interval=[0, 3000])
+fig.savefig(name+'_MDV.png', dpi=250)
+print(f'figure saved :: {name}_MDV.png')
 #
 # fig, _ = pyLARDA.Transformations.plot_timeheight(radar_sw, rg_converter = True, title = True)
 # fig.savefig(name + '_width.png', dpi = 250)
