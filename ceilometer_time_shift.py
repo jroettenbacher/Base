@@ -24,8 +24,8 @@ import pandas as pd
 import xarray as xr
 import numpy as np
 
-inpath = "/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_CEILOMETER/before_time_correction"
-outpath = "/projekt2/remsens/data/campaigns/eurec4a/RV-METEOR_CEILOMETER/time_corrected"
+inpath = "/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_CEILOMETER/before_time_correction"
+outpath = "/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_CEILOMETER/time_corrected"
 # date range for which time needs to be shifted
 begin_dt = dt.datetime(2020, 1, 16, 0, 0, 0)
 end_dt = dt.datetime(2020, 1, 26, 0, 0, 0)
@@ -44,7 +44,7 @@ for file in all_files:
 
 os.chdir(inpath)
 # read in all nc files in date range
-ds = xr.open_mfdataset(infiles, parallel=True, combine='nested', concat_dim='time', engine='netcdf4', decode_times=True)
+ds = xr.open_mfdataset(infiles, data_vars='minimal')
 # search for maximum difference between consecutive time steps
 ix = np.asarray(np.where(ds.time.diff('time') == ds.time.diff('time').max())).flatten()
 time_res = np.asarray(ds.time.diff('time').median())  # median time resolution of measurement
@@ -57,16 +57,25 @@ time[0:indices[2]] = time[0:indices[2]] + correction  # move time skip to beginn
 
 # correct dataset, add new attributes
 ds = ds.assign_coords(time=time)
-ds.time.assign_attrs({'long_name': "time UTC", 'axis': "T"})
 ds["time"].encoding = {'units': "seconds since 1904-01-01 00:00:00.000 00:00", 'calendar': "standard"}
+ds["time"] = ds.time.assign_attrs({'long_name': "time UTC", 'axis': "T"})
 ds = ds.assign_attrs(comment="This file was corrected for a time lag. It was lagging behind 348 seconds. "
                              "That error was corrected on Jan 26 04:56:46 UTC, which introduced a time skip. "
                              "This time skip was moved to the beginning of Jan 16. For further information contact: "
                              "johannes.roettenbacher@web.de, Uni Leipzig")
 ds = ds.assign_attrs(day="removed")
+# set _FillValue attribute to None, so it is not written. Needs to be done to assure that the corrected and non
+# corrected files are as similar as possible
+encoding = dict()
+for var in ds:
+    encoding[f'{var}'] = {'_FillValue': None}
+for coord in ds.coords:
+    encoding[f'{coord}'] = {'_FillValue': None}
 
+encoding.pop('time')
 # group by day and write to outfiles
 days, dss = zip(*ds.groupby("time.day"))
 paths = [f"202001{d}_FSMETEOR_CHM170158.nc" for d in days]
 os.chdir(outpath)
-xr.save_mfdataset(dss, paths, format='NETCDF4')
+for d, path in zip(dss, paths):
+    d.to_netcdf(path, encoding=encoding, unlimited_dims=['time'], format='NETCDF4')
