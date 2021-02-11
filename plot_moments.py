@@ -54,7 +54,7 @@ radar_MDV = larda.read(system, "VEL", [begin_dt, end_dt], plot_range)
 # read in temperature and cloudnet classification
 cloudnet = "CLOUDNET_LIMRAD"
 T = larda.read(cloudnet, "T", [begin_dt, end_dt], plot_range)
-classification = larda.read(cloudnet, "target_classification", [begin_dt, end_dt], plot_range)
+classification = larda.read(cloudnet, "CLASS", [begin_dt, end_dt], plot_range)
 T = pyLARDA.Transformations.combine(toC, [T], {'var_unit': "C"})
 contour_T = {'data': T, 'levels': np.arange(-40, 16, 5)}
 
@@ -65,6 +65,7 @@ name = f'plots/{location}_{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_rang
 # fig.savefig(name+'_SurfWS.png', dpi=250)
 # print(f'figure saved :: {name}_SurfWS.png')
 
+# plot classification with temperature contour lines
 fig, ax = pyLARDA.Transformations.plot_timeheight2(classification, contour=contour_T)
 fig.savefig(name+'_class.png', dpi=250)
 print(f'figure saved :: {name}_class.png')
