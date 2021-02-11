@@ -1016,17 +1016,17 @@
 [CLOUDNET_LIMRAD]
   [CLOUDNET_LIMRAD.path.categorize]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv-meteor_eurec4a/cloudnet/processed/limrad94/categorize-py/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/cloudnet/processed/limrad94/categorize-py/'
     matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
   [CLOUDNET_LIMRAD.path.productsiwc]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv-meteor_eurec4a/cloudnet/products/limrad94/iwc-cloudnetpy/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/cloudnet/products/limrad94/iwc-cloudnetpy/'
     matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
   [CLOUDNET_LIMRAD.path.productsclass]
     # mastering regex (here to exclude ppi and stuff)
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv-meteor_eurec4a/cloudnet/products/limrad94/classification-cloudnetpy/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/cloudnet/products/limrad94/classification-cloudnetpy/'
     matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_'
   [CLOUDNET_LIMRAD.generic]
