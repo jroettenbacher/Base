@@ -1072,6 +1072,7 @@
     variable_name = 'temperature'
     which_path = 'categorize'
     range_variable = 'model_height'
+    time_variable = 'model_time'
     interp_rg_join = true
     var_lims = [240.0, 320.0]
   [CLOUDNET_LIMRAD.params.q]
