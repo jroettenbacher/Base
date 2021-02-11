@@ -1041,7 +1041,6 @@
     # if identifier is given read from ncfile, else define here
     identifier_rg_unit = 'units'
     identifier_var_lims = 'plot_range'
-    identifier_fill_value = 'missing_value'
     identifier_var_unit = 'units'
     identifier_history = 'history'
     #var_lims = [-40, 20]
