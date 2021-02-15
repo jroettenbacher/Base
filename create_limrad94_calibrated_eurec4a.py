@@ -49,7 +49,7 @@ if __name__ == '__main__':
     start_time = time.time()
 
     log = logging.getLogger('pyLARDA')
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
     log.addHandler(logging.StreamHandler())
 
     larda = pyLARDA.LARDA().connect('eurec4a')
