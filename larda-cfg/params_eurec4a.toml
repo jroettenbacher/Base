@@ -457,7 +457,7 @@
   [LIMRAD94_cn_input.params.ldr]
     variable_name = 'ldr'
     colormap = 'LDR'
-    var_lims = []
+    var_lims = [-30, 0]
   [LIMRAD94_cn_input.params.skew]
     variable_name = 'Skew'
     colormap = 'jet'
@@ -781,7 +781,8 @@
   [LIMRAD94_cni_hc_ca.params.ldr]
     variable_name = 'ldr'
     colormap = 'LDR'
-    var_lims = []
+    var_unit = 'dB'
+    var_lims = [-30, 0]
   [LIMRAD94_cni_hc_ca.params.sw]
     variable_name = 'width'
     colormap = 'jet'
@@ -808,14 +809,17 @@
   [LIMRAD94_cni_hc_ca.params.LWP]
     variable_name = 'lwp'
     ncreader = 'time'
+    var_unit = 'g m-2'
     var_lims = [-100, 1000]
   [LIMRAD94_cni_hc_ca.params.rr]
     variable_name = 'rain'
     ncreader = 'time'
+    var_unit = 'mm h-1'
     var_lims = [0, 500]
   [LIMRAD94_cni_hc_ca.params.SurfRelHum]
     variable_name = 'SurfRelHum'
     ncreader = 'time'
+    var_unit = '%'
     var_lims = [0, 100]
   [LIMRAD94_cni_hc_ca.params.range_offsets]
     variable_name = 'range_offsets'
@@ -883,7 +887,8 @@
   [LIMRAD94_cni_hc_jr.params.ldr]
     variable_name = 'ldr'
     colormap = 'LDR'
-    var_lims = []
+    var_unit = 'dB'
+    var_lims = [-30, 0]
   [LIMRAD94_cni_hc_jr.params.skew]
     variable_name = 'Skew'
     colormap = 'jet'
@@ -905,14 +910,17 @@
   [LIMRAD94_cni_hc_jr.params.LWP]
     variable_name = 'lwp'
     ncreader = 'time'
+    var_unit = 'g m-2'
     var_lims = [-100, 1000]
   [LIMRAD94_cni_hc_jr.params.rr]
     variable_name = 'rain'
     ncreader = 'time'
+    var_unit = 'mm h-1'
     var_lims = [0, 500]
   [LIMRAD94_cni_hc_jr.params.SurfRelHum]
     variable_name = 'SurfRelHum'
     ncreader = 'time'
+    var_unit = '%'
     var_lims = [0, 100]
   [LIMRAD94_cni_hc_jr.params.range_offsets]
     variable_name = 'range_offsets'
