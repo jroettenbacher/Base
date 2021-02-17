@@ -812,10 +812,12 @@
   [LIMRAD94_cni_hc_ca.params.rr]
     variable_name = 'rain'
     ncreader = 'time'
+    var_unit = 'mm h-1'
     var_lims = [0, 500]
   [LIMRAD94_cni_hc_ca.params.SurfRelHum]
     variable_name = 'SurfRelHum'
     ncreader = 'time'
+    var_unit = '%'
     var_lims = [0, 100]
   [LIMRAD94_cni_hc_ca.params.range_offsets]
     variable_name = 'range_offsets'
@@ -909,10 +911,12 @@
   [LIMRAD94_cni_hc_jr.params.rr]
     variable_name = 'rain'
     ncreader = 'time'
+    var_unit = 'mm h-1'
     var_lims = [0, 500]
-  [LIMRAD94_cni_hc_jr.params.SurfRelHum]
+  [LIMRAD94_cni_hc_ca.params.SurfRelHum]
     variable_name = 'SurfRelHum'
     ncreader = 'time'
+    var_unit = '%'
     var_lims = [0, 100]
   [LIMRAD94_cni_hc_jr.params.range_offsets]
     variable_name = 'range_offsets'
