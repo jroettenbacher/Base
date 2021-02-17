@@ -748,7 +748,7 @@
     fill_value = -999.0
     description_file = 'limrad94_general.rst'
   [LIMRAD94_cni_hc_ca.params.Ze]
-    variable_name = 'Ze'
+    variable_name = 'Zh'
     var_unit = 'mm^6/m^3'
     colormap = 'jet'
     var_lims = [1.0e-5, 1.0e2]
@@ -845,7 +845,7 @@
     fill_value = -999.0
     description_file = 'limrad94_general.rst'
   [LIMRAD94_cni_hc_jr.params.Ze]
-    variable_name = 'Ze'
+    variable_name = 'Zh'
     var_unit = 'mm^6/m^3'
     colormap = 'jet'
     var_lims = [1.0e-5, 1.0e2]
