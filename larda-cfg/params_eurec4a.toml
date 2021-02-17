@@ -808,6 +808,7 @@
   [LIMRAD94_cni_hc_ca.params.LWP]
     variable_name = 'lwp'
     ncreader = 'time'
+    var_unit = 'g m-2'
     var_lims = [-100, 1000]
   [LIMRAD94_cni_hc_ca.params.rr]
     variable_name = 'rain'
@@ -907,6 +908,7 @@
   [LIMRAD94_cni_hc_jr.params.LWP]
     variable_name = 'lwp'
     ncreader = 'time'
+    var_unit = 'g m-2'
     var_lims = [-100, 1000]
   [LIMRAD94_cni_hc_jr.params.rr]
     variable_name = 'rain'
