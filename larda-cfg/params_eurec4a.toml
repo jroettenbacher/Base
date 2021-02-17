@@ -913,7 +913,7 @@
     ncreader = 'time'
     var_unit = 'mm h-1'
     var_lims = [0, 500]
-  [LIMRAD94_cni_hc_ca.params.SurfRelHum]
+  [LIMRAD94_cni_hc_jr.params.SurfRelHum]
     variable_name = 'SurfRelHum'
     ncreader = 'time'
     var_unit = '%'
