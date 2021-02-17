@@ -8,34 +8,20 @@
 #
 import datetime
 import sys
-
-PATH_TO_LARDA = '/projekt1/remsens/work/jroettenbacher/Base/larda'
-
-sys.path.append(PATH_TO_LARDA)
-
-import pyLARDA
-QUICKLOOK_PATH = '(projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/quicklooks)'
-
-
+import pandas as pd
 import logging
 import numpy as np
-
 import time
+
+PATH_TO_LARDA = '/projekt1/remsens/work/jroettenbacher/Base/larda'
+sys.path.append(PATH_TO_LARDA)
+import pyLARDA
 import pyLARDA.helpers as h
+QUICKLOOK_PATH = '(projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/quicklooks)'
 
 if __name__ == '__main__':
 
-
     start_time = time.time()
-
-    # gather command line arguments
-    method_name, args, kwargs = h._method_info_from_argv(sys.argv)
-
-    # gather argument
-    begin_dt = datetime.datetime(int(args[2]), int(args[1]), int(args[0]), 0, 1)
-    end_dt = datetime.datetime(int(args[2]), int(args[1]), int(args[0]), 23, 59)
-
-    print(f'date :: {begin_dt:%Y%m%d}')
 
     log = logging.getLogger('pyLARDA')
     log.setLevel(logging.INFO)
@@ -43,6 +29,11 @@ if __name__ == '__main__':
     # Load LARDA
     larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 
+    begin_dts = pd.date_range("20200117", "20200227")
+    for begin_dt in begin_dts:
+        end_dt = begin_dt + datetime.timedelta(hours=23, minutes=59, seconds=55)
+
+    print(f'date :: {begin_dt:%Y%m%d}')
     TIME_SPAN_ = [begin_dt, end_dt]
     PLOT_RANGE_ = [0, 12000]
 
@@ -50,7 +41,9 @@ if __name__ == '__main__':
 
     # load all variables
     limrad94_mom.update({var: larda.read("LIMRAD94_cni_hc_ca", var, TIME_SPAN_, PLOT_RANGE_) for var in
-                         ['Ze', 'ldr', 'rr', 'sw', 'LWP', 'SurfRelHum', 'SurfWS', 'SurfTemp']})
+                         ['Ze', 'rr', 'sw', 'LWP', 'SurfRelHum', 'ldr']})
+    limrad94_mom.update({var: larda.read("LIMRAD94", var, TIME_SPAN_, PLOT_RANGE_) for var in
+                         ['SurfWS', 'SurfTemp']})
     limrad94_mom.update({'VEL': larda.read("LIMRAD94_cni_hc_ca", "Vel_roll", TIME_SPAN_, PLOT_RANGE_)})
 
     # mask ldr since it was not calculated by this software (loading it from LV1 data)
@@ -73,7 +66,7 @@ if __name__ == '__main__':
 
     if plot_remsen_ql:
         fig, ax = pyLARDA.Transformations.remsens_limrad_quicklooks(limrad94_mom, plot_range=PLOT_RANGE_, timespan='24h')
-        fig_name = f'{begin_dt:%Y%m%d}_QL_LIMRAD94.png'
+        fig_name = f'{begin_dt:%Y%m%d}_QL_LIMRAD94_final.png'
         fig.savefig(fig_name, dpi=_DPI)
         print(f"   Saved to  {fig_name}")
 
