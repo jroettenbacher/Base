@@ -782,6 +782,11 @@
     variable_name = 'ldr'
     colormap = 'LDR'
     var_lims = []
+  [LIMRAD94_cni_hc_ca.params.sw]
+    variable_name = 'width'
+    colormap = 'jet'
+    var_unit = 'm/s'
+    var_lims = [0.01, 2.0]
   [LIMRAD94_cni_hc_ca.params.skew]
     variable_name = 'Skew'
     colormap = 'jet'
@@ -870,6 +875,11 @@
     colormap = 'jet'
     var_unit = 's'
     var_lims = [-3, 3]
+  [LIMRAD94_cni_hc_jr.params.sw]
+    variable_name = 'width'
+    colormap = 'jet'
+    var_unit = 'm/s'
+    var_lims = [0.01, 2.0]
   [LIMRAD94_cni_hc_jr.params.ldr]
     variable_name = 'ldr'
     colormap = 'LDR'
