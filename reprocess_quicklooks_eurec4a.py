@@ -49,6 +49,7 @@ if __name__ == '__main__':
         # mask ldr since it was not calculated by this software (loading it from LV1 data)
         limrad94_mom['ldr']['var'] = np.ma.masked_where(limrad94_mom['Ze']['mask'], limrad94_mom['ldr']['var'])
         limrad94_mom['VEL']['var'] = np.ma.masked_where(limrad94_mom['Ze']['mask'], limrad94_mom['VEL']['var'])
+        limrad94_mom['Ze']['var'] = h.z2lin(limrad94_mom['Ze']['var'])
 
         ########################################################################################################FONT=CYBERMEDIUM
         #
