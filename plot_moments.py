@@ -66,7 +66,8 @@ name = f'plots/{location}_{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_rang
 # print(f'figure saved :: {name}_SurfWS.png')
 
 # plot classification with temperature contour lines
-fig, ax = pyLARDA.Transformations.plot_timeheight2(classification, contour=contour_T)
+title = f"{location}, {begin_dt:%d %b %Y}                           Target Classification"
+fig, ax = pyLARDA.Transformations.plot_timeheight2(classification, contour=contour_T, title=title, title_loc='left')
 fig.savefig(name+'_class.png', dpi=250)
 print(f'figure saved :: {name}_class.png')
 
