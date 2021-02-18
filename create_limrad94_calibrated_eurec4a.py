@@ -26,7 +26,7 @@ import pyLARDA.SpectraProcessing as sp
 import pyLARDA.Transformations as Trans
 import matplotlib.pyplot as plt
 from pyLARDA.NcWrite import rpg_radar2nc_eurec4a
-
+from distutils.util import strtobool
 __author__ = "Willi Schimmel"
 __copyright__ = "Copyright 2020, Generates Calibrated RPG-Radar files for Cloudnetpy"
 __credits__ = ["Willi Schimmel", "Teresa Vogl", "Martin Radenz"]
@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
     PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/cloudnet/calibrated'
     heave_corr_version = kwargs['heave_corr_version'] if 'heave_corr_version' in kwargs else 'ca'
-    for_aeris = kwargs['for_aeris'] if 'for_aeris' in kwargs else False
+    for_aeris = strtobool(kwargs['for_aeris']) if 'for_aeris' in kwargs else False
 
     limrad94_settings = {
         'despeckle': True,  # 2D convolution (5x5 window), removes single non-zero values, very slow!
