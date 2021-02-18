@@ -749,9 +749,9 @@
     description_file = 'limrad94_general.rst'
   [LIMRAD94_cni_hc_ca.params.Ze]
     variable_name = 'Zh'
-    var_unit = 'mm^6/m^3'
+    var_unit = 'dBZ'
     colormap = 'jet'
-    var_lims = [1.0e-5, 1.0e2]
+    var_lims = [-40, 20]
   [LIMRAD94_cni_hc_ca.params.Vel]
     variable_name = 'v'
     colormap = 'jet'
@@ -850,9 +850,9 @@
     description_file = 'limrad94_general.rst'
   [LIMRAD94_cni_hc_jr.params.Ze]
     variable_name = 'Zh'
-    var_unit = 'mm^6/m^3'
+    var_unit = 'dBZ'
     colormap = 'jet'
-    var_lims = [1.0e-5, 1.0e2]
+    var_lims = [-40, 20]
   [LIMRAD94_cni_hc_jr.params.Vel]
     variable_name = 'v'
     colormap = 'jet'
