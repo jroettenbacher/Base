@@ -17,7 +17,7 @@ PATH_TO_LARDA = '/projekt1/remsens/work/jroettenbacher/Base/larda'
 sys.path.append(PATH_TO_LARDA)
 import pyLARDA
 import pyLARDA.helpers as h
-QUICKLOOK_PATH = '(projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/quicklooks)'
+QUICKLOOK_PATH = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/quicklooks'
 
 if __name__ == '__main__':
 
