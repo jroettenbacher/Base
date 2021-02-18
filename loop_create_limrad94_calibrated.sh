@@ -4,7 +4,7 @@ home=/projekt1/remsens/work/jroettenbacher/Base
 python=/home/jroettenbacher/.conda/envs/jr_base/bin/python3
 cd ${home}
 version="ca"
-path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/upload_to_aeris_v1"
+path="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/upload_to_aeris_v1.1"
 for date in {117..126}; do
 	echo "##################################################"
 	echo "#     STARTING DATE 20200${date}                 #"
