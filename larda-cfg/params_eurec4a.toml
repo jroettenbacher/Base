@@ -757,8 +757,8 @@
     colormap = 'jet'
     var_unit = 'm/s'
     var_lims = [-4, 3]
-  [LIMRAD94_cni_hc_ca.params.Vel_roll]
-    variable_name = 'v_roll'
+  [LIMRAD94_cni_hc_ca.params.Vel_no_roll]
+    variable_name = 'v_no_rolling_mean_applied'
     colormap = 'jet'
     var_unit = 'm/s'
     var_lims = [-4, 3]
@@ -858,8 +858,8 @@
     colormap = 'jet'
     var_unit = 'm/s'
     var_lims = [-4, 3]
-  [LIMRAD94_cni_hc_jr.params.Vel_roll]
-    variable_name = 'v_roll'
+  [LIMRAD94_cni_hc_jr.params.Vel_no_roll]
+    variable_name = 'v_no_rolling_mean_applied'
     colormap = 'jet'
     var_unit = 'm/s'
     var_lims = [-4, 3]

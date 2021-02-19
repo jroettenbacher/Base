@@ -44,7 +44,7 @@ if __name__ == '__main__':
                              ['Ze', 'rr', 'sw', 'LWP', 'SurfRelHum', 'ldr']})
         limrad94_mom.update({var: larda.read("LIMRAD94", var, TIME_SPAN_, PLOT_RANGE_) for var in
                              ['SurfWS', 'SurfTemp']})
-        limrad94_mom.update({'VEL': larda.read("LIMRAD94_cni_hc_ca", "Vel_roll", TIME_SPAN_, PLOT_RANGE_)})
+        limrad94_mom.update({'VEL': larda.read("LIMRAD94_cni_hc_ca", "Vel", TIME_SPAN_, PLOT_RANGE_)})
 
         # mask ldr since it was not calculated by this software (loading it from LV1 data)
         limrad94_mom['ldr']['var'] = np.ma.masked_where(limrad94_mom['Ze']['mask'], limrad94_mom['ldr']['var'])
