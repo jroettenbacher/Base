@@ -15,7 +15,7 @@ RUSER="eurec4a"  # define user
 PASS="pass4eurec4a!"  # define password
 # define local directory
 #LCD="/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/upload_to_aeris"  # LIMRAD94 data (30s averages)
-LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/upload_to_aeris_v1"  # LIMRAD94 heave corrected, original res data
+LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/upload_to_aeris_v1.1"  # LIMRAD94 heave corrected, original res data
 #LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_CEILOMETER/upload_to_aeris"  # ceilometer data (nc files)
 #LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/HATPRO/upload_to_aeris"  # HATPRO data and plots
 #LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP/upload_to_aeris"  # DSHIP data
