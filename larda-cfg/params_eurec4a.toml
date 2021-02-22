@@ -728,7 +728,7 @@
 [LIMRAD94_cni_hc_ca]
   [LIMRAD94_cni_hc_ca.path.nc]
     base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_ca/'
-    matching_subdirs = '(eurec4a_rv-meteor_cloudradar_\d{8}*.nc)'
+    matching_subdirs = '(eurec4a_rv-meteor_cloudradar_\d{8}.*.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   [LIMRAD94_cni_hc_ca.generic]
     # this general settings need to be handed down to the params
@@ -829,7 +829,7 @@
 [LIMRAD94_cni_hc_jr]
   [LIMRAD94_cni_hc_jr.path.nc]
     base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_jr/'
-    matching_subdirs = '(eurec4a_rv-meteor_cloudradar_\d{8}*.nc)'
+    matching_subdirs = '(eurec4a_rv-meteor_cloudradar_\d{8}.*.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   [LIMRAD94_cni_hc_jr.generic]
     # this general settings need to be handed down to the params
