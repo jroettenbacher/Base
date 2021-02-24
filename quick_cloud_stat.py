@@ -8,7 +8,7 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.ticker import (MultipleLocator, AutoMinorLocator, FormatStrFormatter)
 import datetime
-import sys
+import functions_jr as jr
 
 # goal: for daily eurec4a files, take Ze and divide it into chunks of 3hrs.
 # For each 3hr time-height chunk and each range between first range gate and 1200m (eurec4a: range gate 41),
@@ -27,12 +27,10 @@ import sys
 ########################################################################################################################
 # command line input from user
 
-date = sys.argv[1]
-chunk_size = float(sys.argv[2])
+kwargs = jr.read_command_line_args()
+date = kwargs['date'] if 'date' in kwargs else '20200209'
+chunk_size = kwargs['chunk_size'] if 'chunk_size' in kwargs else 1  # chunk size in hours
 print(f"Running quick_cloud_stat.py for date={date} and chunk_size={chunk_size:.0f}")
-# define date YYYYMMDD
-# date = "20200125"
-# chunk_size = 1  # chunk size in hours
 
 dt_date = datetime.datetime.strptime(date, "%Y%m%d")  # transform to datetime for plot title
 # load data from Catalpa
