@@ -1625,6 +1625,22 @@ def merge_csv(path, outname, **kwargs):
     logger.info(f"Merged all csv files in {path} and saved to {outname}")
 
 
+def read_command_line_args():
+    """
+    Read out command line arguments and save them to a dictionary. Expects arguments in the form key=value.
+
+    Returns: dictionary with command line arguments as dict[key] = value
+
+    """
+    args = dict()
+    for arg in sys.argv[1:]:
+        if arg.count('=') == 1:
+            key, value = arg.split('=')
+            args[key] = value
+
+    return args
+
+
 if __name__ == '__main__':
     import sys, time
     import datetime as dt
