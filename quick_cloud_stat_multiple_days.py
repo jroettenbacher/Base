@@ -25,18 +25,19 @@ larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 ########################################################################################################################
 # Set Date, Chunk Size and Paths
 ########################################################################################################################
-begin_dt = datetime.datetime(2020, 2, 1, 0, 0, 5)
-end_dt = datetime.datetime(2020, 2, 17, 23, 59, 55)
+begin_dt = datetime.datetime(2020, 2, 9, 15, 58, 5)
+end_dt = datetime.datetime(2020, 2, 9, 16, 10, 55)
 # begin_dt2 = datetime.datetime(2020, 2, 1, 0, 0, 5)
 # end_dt2 = datetime.datetime(2020, 2, 17, 23, 59, 55)
 # if chunk size is smaller 12: x hourly hydro fractions are calculated and plotted -> should be used for one day only
 # if chunk size is greater 11 the mean, median and std of the x hr chunks are calculated and plotted
 # if chunk size is 'max' then the hydrometer fraction over the whole period is calculated and plotted (like BAMS paper)
-chunk_size = 12  # chunk size in hours or 'max'
+chunk_size = 'max'  # chunk size in hours or 'max'
 assert chunk_size in [1, 3, 12, 'max'] or chunk_size > 12, "Not a valid chunk size given"
 
 # define output path for plots (no / at end of path please)
-plot_path = "/projekt1/remsens/work/jroettenbacher/plots/radar_hydro_frac"
+# plot_path = "/projekt1/remsens/work/jroettenbacher/plots/radar_hydro_frac"
+plot_path = "./tmp"
 
 ########################################################################################################################
 # read in nc files
@@ -46,7 +47,7 @@ plot_path = "/projekt1/remsens/work/jroettenbacher/plots/radar_hydro_frac"
 ########################################################################################################################
 # read in files with larda
 ########################################################################################################################
-Ze = larda.read("LIMRAD94_cn_input", "Ze", [begin_dt, end_dt], [0, 'max'])
+Ze = larda.read("LIMRAD94_cni_hc_ca", "Ze", [begin_dt, end_dt], [0, 'max'])
 # mask values = -999
 Ze["var"] = np.ma.masked_where(Ze["var"] == -999, Ze["var"])
 # overwrite mask in larda container
@@ -140,7 +141,7 @@ plt.style.use("default")
 plt.rcParams.update({'font.size': 16, 'figure.figsize': (10, 10)})
 
 if chunk_size == 'max':
-    hydro_frac_plt = hydro_frac.reset_index()
+    hydro_frac_plt = hydro_frac.reset_index().loc[:125, :]
 
     fig, ax = plt.subplots()
     ax.plot(hydro_frac_plt['hydro_frac'], hydro_frac_plt['Height_m'], label="Hydrometeor Fraction", linewidth=3)
@@ -149,7 +150,7 @@ if chunk_size == 'max':
     ax.set_xlabel("Hydrometeor Fraction")
     ax.set_title(
         f"Hydrometeor Fraction in the whole Troposphere Eurec4a "
-        f"\n RV-Meteor - {begin_dt:%Y-%m-%d} - {end_dt:%Y-%m-%d} "
+        f"\n RV-Meteor - {begin_dt:%Y-%m-%d %H:%M} - {end_dt:%Y-%m-%d %H:%M} "
         f"\nCloudradar Uni Leipzig")
     ax.yaxis.set_minor_locator(AutoMinorLocator(5))
     ax.xaxis.set_minor_locator(AutoMinorLocator(2))

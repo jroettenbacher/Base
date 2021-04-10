@@ -457,7 +457,7 @@
   [LIMRAD94_cn_input.params.ldr]
     variable_name = 'ldr'
     colormap = 'LDR'
-    var_lims = []
+    var_lims = [-30, 0]
   [LIMRAD94_cn_input.params.skew]
     variable_name = 'Skew'
     colormap = 'jet'
@@ -728,7 +728,7 @@
 [LIMRAD94_cni_hc_ca]
   [LIMRAD94_cni_hc_ca.path.nc]
     base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_ca/'
-    matching_subdirs = '(rv-meteor_cloudradar_\d{8}.nc)'
+    matching_subdirs = '(eurec4a_rv-meteor_cloudradar_\d{8}.*.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   [LIMRAD94_cni_hc_ca.generic]
     # this general settings need to be handed down to the params
@@ -748,17 +748,17 @@
     fill_value = -999.0
     description_file = 'limrad94_general.rst'
   [LIMRAD94_cni_hc_ca.params.Ze]
-    variable_name = 'Ze'
-    var_unit = 'mm^6/m^3'
+    variable_name = 'Zh'
+    var_unit = 'dBZ'
     colormap = 'jet'
-    var_lims = [1.0e-5, 1.0e2]
+    var_lims = [-40, 20]
   [LIMRAD94_cni_hc_ca.params.Vel]
     variable_name = 'v'
     colormap = 'jet'
     var_unit = 'm/s'
     var_lims = [-4, 3]
-  [LIMRAD94_cni_hc_ca.params.Vel_roll]
-    variable_name = 'v_roll'
+  [LIMRAD94_cni_hc_ca.params.Vel_no_roll]
+    variable_name = 'v_no_rolling_mean_applied'
     colormap = 'jet'
     var_unit = 'm/s'
     var_lims = [-4, 3]
@@ -781,7 +781,13 @@
   [LIMRAD94_cni_hc_ca.params.ldr]
     variable_name = 'ldr'
     colormap = 'LDR'
-    var_lims = []
+    var_unit = 'dB'
+    var_lims = [-30, 0]
+  [LIMRAD94_cni_hc_ca.params.sw]
+    variable_name = 'width'
+    colormap = 'jet'
+    var_unit = 'm/s'
+    var_lims = [0.01, 2.0]
   [LIMRAD94_cni_hc_ca.params.skew]
     variable_name = 'Skew'
     colormap = 'jet'
@@ -803,14 +809,17 @@
   [LIMRAD94_cni_hc_ca.params.LWP]
     variable_name = 'lwp'
     ncreader = 'time'
+    var_unit = 'g m-2'
     var_lims = [-100, 1000]
   [LIMRAD94_cni_hc_ca.params.rr]
     variable_name = 'rain'
     ncreader = 'time'
+    var_unit = 'mm h-1'
     var_lims = [0, 500]
   [LIMRAD94_cni_hc_ca.params.SurfRelHum]
     variable_name = 'SurfRelHum'
     ncreader = 'time'
+    var_unit = '%'
     var_lims = [0, 100]
   [LIMRAD94_cni_hc_ca.params.range_offsets]
     variable_name = 'range_offsets'
@@ -820,7 +829,7 @@
 [LIMRAD94_cni_hc_jr]
   [LIMRAD94_cni_hc_jr.path.nc]
     base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_jr/'
-    matching_subdirs = '(rv-meteor_cloudradar_\d{8}.nc)'
+    matching_subdirs = '(eurec4a_rv-meteor_cloudradar_\d{8}.*.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   [LIMRAD94_cni_hc_jr.generic]
     # this general settings need to be handed down to the params
@@ -840,17 +849,17 @@
     fill_value = -999.0
     description_file = 'limrad94_general.rst'
   [LIMRAD94_cni_hc_jr.params.Ze]
-    variable_name = 'Ze'
-    var_unit = 'mm^6/m^3'
+    variable_name = 'Zh'
+    var_unit = 'dBZ'
     colormap = 'jet'
-    var_lims = [1.0e-5, 1.0e2]
+    var_lims = [-40, 20]
   [LIMRAD94_cni_hc_jr.params.Vel]
     variable_name = 'v'
     colormap = 'jet'
     var_unit = 'm/s'
     var_lims = [-4, 3]
-  [LIMRAD94_cni_hc_jr.params.Vel_roll]
-    variable_name = 'v_roll'
+  [LIMRAD94_cni_hc_jr.params.Vel_no_roll]
+    variable_name = 'v_no_rolling_mean_applied'
     colormap = 'jet'
     var_unit = 'm/s'
     var_lims = [-4, 3]
@@ -870,10 +879,16 @@
     colormap = 'jet'
     var_unit = 's'
     var_lims = [-3, 3]
+  [LIMRAD94_cni_hc_jr.params.sw]
+    variable_name = 'width'
+    colormap = 'jet'
+    var_unit = 'm/s'
+    var_lims = [0.01, 2.0]
   [LIMRAD94_cni_hc_jr.params.ldr]
     variable_name = 'ldr'
     colormap = 'LDR'
-    var_lims = []
+    var_unit = 'dB'
+    var_lims = [-30, 0]
   [LIMRAD94_cni_hc_jr.params.skew]
     variable_name = 'Skew'
     colormap = 'jet'
@@ -895,14 +910,17 @@
   [LIMRAD94_cni_hc_jr.params.LWP]
     variable_name = 'lwp'
     ncreader = 'time'
+    var_unit = 'g m-2'
     var_lims = [-100, 1000]
   [LIMRAD94_cni_hc_jr.params.rr]
     variable_name = 'rain'
     ncreader = 'time'
+    var_unit = 'mm h-1'
     var_lims = [0, 500]
   [LIMRAD94_cni_hc_jr.params.SurfRelHum]
     variable_name = 'SurfRelHum'
     ncreader = 'time'
+    var_unit = '%'
     var_lims = [0, 100]
   [LIMRAD94_cni_hc_jr.params.range_offsets]
     variable_name = 'range_offsets'
@@ -1012,6 +1030,143 @@
     var_unit = ''
     colormap = 'PRGn'
     var_lims = [ -1, 1 ]
+
+[CLOUDNET_LIMRAD]
+  [CLOUDNET_LIMRAD.path.categorize]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/cloudnet/processed/limrad94/categorize-py/'
+    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-'
+  [CLOUDNET_LIMRAD.path.productsiwc]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/cloudnet/products/limrad94/iwc-cloudnetpy/'
+    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-'
+  [CLOUDNET_LIMRAD.path.productsclass]
+    # mastering regex (here to exclude ppi and stuff)
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/cloudnet/products/limrad94/classification-cloudnetpy/'
+    matching_subdirs = '(\d{4}\/\d{8}.*.nc)'
+    date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-'
+  [CLOUDNET_LIMRAD.generic]
+    # this general settings need to be handed down to the params
+    time_variable = 'time'
+    range_variable = 'height'
+    colormap = "gist_rainbow"
+    time_conversion = 'beginofday'
+    range_conversion = 'sealevel2range'
+    var_conversion = 'none'
+    ncreader = 'timeheight'
+    # if identifier is given read from ncfile, else define here
+    identifier_rg_unit = 'units'
+    identifier_var_lims = 'plot_range'
+    identifier_var_unit = 'units'
+    identifier_history = 'history'
+    #var_lims = [-40, 20]
+  [CLOUDNET_LIMRAD.params.Z]
+    variable_name = 'Z'
+    which_path = 'categorize'
+    var_unit = 'mm^6/m^3'
+    colormap = 'jet'
+    var_lims = [ -50, 20 ]
+  [CLOUDNET_LIMRAD.params.VEL]
+    variable_name = 'v'
+    which_path = 'categorize'
+    var_conversion = 'none'
+    colormap = 'jet'
+    var_lims = [-4, 2]
+  [CLOUDNET_LIMRAD.params.width]
+    variable_name = 'width'
+    which_path = 'categorize'
+    var_conversion = 'none'
+    colormap = 'jet'
+    var_lims = [0, 1    ]
+  [CLOUDNET_LIMRAD.params.LDR]
+    variable_name = 'ldr'
+    which_path = 'categorize'
+    var_conversion = 'z2lin'
+    colormap = 'LDR'
+    var_lims = [-30, 0]
+  [CLOUDNET_LIMRAD.params.T]
+    variable_name = 'temperature'
+    which_path = 'categorize'
+    range_variable = 'model_height'
+    time_variable = 'model_time'
+    interp_rg_join = true
+    var_lims = [240.0, 320.0]
+  [CLOUDNET_LIMRAD.params.q]
+    variable_name = 'specific_humidity'
+    which_path = 'categorize'
+    range_variable = 'model_height'
+  [CLOUDNET_LIMRAD.params.P]
+    variable_name = 'pressure'
+    which_path = 'categorize'
+    range_variable = 'model_height'
+    interp_rg_join = true
+    var_lims = [800.0, 1200.0]
+  [CLOUDNET_LIMRAD.params.UWIND]
+    variable_name = 'uwind'
+    which_path = 'categorize'
+    range_variable = 'model_height'
+  [CLOUDNET_LIMRAD.params.VWIND]
+    variable_name = 'vwind'
+    which_path = 'categorize'
+    range_variable = 'model_height'
+  [CLOUDNET_LIMRAD.params.IWC]
+    variable_name = 'iwc'
+    which_path = 'productsiwc'
+  [CLOUDNET_LIMRAD.params.LWP]
+    variable_name = 'lwp'
+    which_path = 'categorize'
+    ncreader = 'time'
+    var_lims = [-25, 500]
+  [CLOUDNET_LIMRAD.params.beta]
+    variable_name = 'beta'
+    which_path = 'categorize'
+    var_lims = [1e-7, 1e-4]
+    var_converter = 'log'
+    colormap = 'jet'
+  [CLOUDNET_LIMRAD.params.depol]
+    variable_name = 'lidar_depolarisation'
+    which_path = 'categorize'
+    var_unit = '%'
+    var_lims = [0.0, 0.2]
+    colormap = 'jet'
+  [CLOUDNET_LIMRAD.params.CLASS]
+    variable_name = 'target_classification'
+    which_path = 'productsclass'
+    var_unit = ""
+    var_lims = [0, 10]
+    colormap = 'cloudnet_target_new'
+    fill_value = -99
+    identifier_var_def = 'definition'
+  [CLOUDNET_LIMRAD.params.detection_status]
+    variable_name = 'detection_status'
+    which_path = 'productsclass'
+    var_unit = ""
+    var_lims = [0, 10]
+    colormap = 'cloudnet_detection_status'
+    fill_value = -99
+    identifier_var_def = 'definition'
+  [CLOUDNET_LIMRAD.params.Baseheight]
+    variable_name = 'cloud_base_height'
+    which_path = 'productsclass'
+    ncreader = 'time'
+    #var_unit = "m"
+    var_lims = [0, 12000]
+  [CLOUDNET_LIMRAD.params.Topheight]
+    variable_name = 'cloud_top_height'
+    which_path = 'productsclass'
+    ncreader = 'time'
+    #var_unit = ""
+    var_lims = [0, 12000]
+    #colormap = 'cloudnet_target'
+    #fill_value = -99
+  [CLOUDNET_LIMRAD.params.LWC]
+    variable_name = 'lwc_adiabatic'
+    which_path = 'productslwc'
+  [CLOUDNET_LIMRAD.params.LWC_S]
+    variable_name = 'lwc'
+    which_path = 'productslwcs'
 
 [HATPRO]
   [HATPRO.path.lv2_prw]

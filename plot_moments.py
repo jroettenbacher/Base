@@ -2,18 +2,20 @@
 
 import sys
 # just needed to find pyLARDA from this location
-sys.path.append('/home/remsens/code/larda3/larda/')
+sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
-
-import matplotlib
-
-matplotlib.use('Agg')
 
 import pyLARDA
 import pyLARDA.helpers as h
 import datetime
+import numpy as np
 
 import logging
+
+
+def toC(datalist):
+    return datalist[0]['var'] - 273.15, datalist[0]['mask']
+
 
 log = logging.getLogger('pyLARDA')
 log.setLevel(logging.INFO)
@@ -30,13 +32,13 @@ if 'date' in kwargs:
     begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
     end_dt = datetime.datetime.strptime(date + ' 23:59:55', '%Y%m%d %H:%M:%S')
 else:
-    begin_dt = datetime.datetime(2020, 1, 17, 0, 0, 5)
-    end_dt = datetime.datetime(2020, 1, 26, 23, 30, 55)
+    begin_dt = datetime.datetime(2020, 2, 15, 0, 0, 5)
+    end_dt = datetime.datetime(2020, 2, 15, 23, 59, 55)
 
 if 'plot_range' in kwargs:
     plot_range = [0, int(kwargs['plot_range'])]
 else:
-    plot_range = [0, 15000]
+    plot_range = [0, 12000]
 
 #  read in moments
 system = "LIMRAD94"
@@ -49,20 +51,34 @@ radar_MDV = larda.read(system, "VEL", [begin_dt, end_dt], plot_range)
 # radar_PhiDP = larda.read(system, "PhiDP", [begin_dt, end_dt], plot_range)
 # radar_SurfWS = larda.read(system, "SurfWS", [begin_dt, end_dt])
 
-name = f'plots/{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{plot_range[1]/1000:.0f}km'
+# read in temperature and cloudnet classification
+cloudnet = "CLOUDNET_LIMRAD"
+T = larda.read(cloudnet, "T", [begin_dt, end_dt], plot_range)
+classification = larda.read(cloudnet, "CLASS", [begin_dt, end_dt], plot_range)
+T = pyLARDA.Transformations.combine(toC, [T], {'var_unit': "C"})
+contour_T = {'data': T, 'levels': np.arange(-40, 16, 5)}
+
+location = radar_MDV["paraminfo"]["location"]
+name = f'plots/{location}_{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_{plot_range[1]/1000:.0f}km'
 
 # fig, _ = pyLARDA.Transformations.plot_timeseries(radar_SurfWS, title=True, z_converter='lin2z')
 # fig.savefig(name+'_SurfWS.png', dpi=250)
 # print(f'figure saved :: {name}_SurfWS.png')
 
+# plot classification with temperature contour lines
+title = f"{location}, {begin_dt:%d %b %Y}                           Target Classification"
+fig, ax = pyLARDA.Transformations.plot_timeheight2(classification, contour=contour_T, title=title, title_loc='left')
+fig.savefig(name+'_class.png', dpi=250)
+print(f'figure saved :: {name}_class.png')
+
 radar_Z['var_unit'] = 'dBZ'
-fig, _ = pyLARDA.Transformations.plot_timeheight(radar_Z, rg_converter=True, title=True, z_converter='lin2z')
+fig, _ = pyLARDA.Transformations.plot_timeheight2(radar_Z, rg_converter=True, z_converter='lin2z')
 fig.savefig(name+'_Z.png', dpi=250)
 print(f'figure saved :: {name}_Z.png')
 
-# fig, _ = pyLARDA.Transformations.plot_timeheight(radar_MDV, rg_converter=True, title=True)
-# fig.savefig(name+'_MDV.png', dpi=250)
-# print(f'figure saved :: {name}_MDV.png')
+fig, _ = pyLARDA.Transformations.plot_timeheight2(radar_MDV, range_interval=[6000, 9000])
+fig.savefig(name+'_MDV.png', dpi=250)
+print(f'figure saved :: {name}_MDV.png')
 #
 # fig, _ = pyLARDA.Transformations.plot_timeheight(radar_sw, rg_converter = True, title = True)
 # fig.savefig(name + '_width.png', dpi = 250)

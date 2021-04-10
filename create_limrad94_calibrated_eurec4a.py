@@ -26,7 +26,7 @@ import pyLARDA.SpectraProcessing as sp
 import pyLARDA.Transformations as Trans
 import matplotlib.pyplot as plt
 from pyLARDA.NcWrite import rpg_radar2nc_eurec4a
-
+from distutils.util import strtobool
 __author__ = "Willi Schimmel"
 __copyright__ = "Copyright 2020, Generates Calibrated RPG-Radar files for Cloudnetpy"
 __credits__ = ["Willi Schimmel", "Teresa Vogl", "Martin Radenz"]
@@ -66,11 +66,11 @@ if __name__ == '__main__':
     else:
         date = '20200202'
         begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
-        end_dt = datetime.datetime.strptime(date + ' 23:59:55', '%Y%m%d %H:%M:%S')
+        end_dt = datetime.datetime.strptime(date + ' 00:59:55', '%Y%m%d %H:%M:%S')
 
-    PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/tmp'
-    heave_corr_version = kwargs['heave_corr_version'] if 'heave_corr_version' in kwargs else 'jr'
-    for_aeris = kwargs['for_aeris'] if 'for_aeris' in kwargs else False
+    PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/cloudnet/calibrated'
+    heave_corr_version = kwargs['heave_corr_version'] if 'heave_corr_version' in kwargs else 'ca'
+    for_aeris = strtobool(kwargs['for_aeris']) if 'for_aeris' in kwargs else False
 
     limrad94_settings = {
         'despeckle': True,  # 2D convolution (5x5 window), removes single non-zero values, very slow!
@@ -101,20 +101,21 @@ if __name__ == '__main__':
     # add output from heave correction to radarMoments
     for var in ['heave_cor', 'heave_cor_bins', 'time_shift_array']:
         radarMoments[f'{var}'] = radarZSpec[f'{var}']
-    # get hourly quicklooks
-    plot_dt = begin_dt
-    while plot_dt < end_dt:
-        plot_interval = [plot_dt, plot_dt+datetime.timedelta(hours=1)]
-        fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[0, 3000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_low_{heave_corr_version}.png")
-        plt.close()
-        fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[3000, 6000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_mid_{heave_corr_version}.png")
-        plt.close()
-        fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[6000, 9000], time_interval=plot_interval)
-        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_high_{heave_corr_version}.png")
-        plt.close()
-        plot_dt = plot_dt + datetime.timedelta(hours=1)
+    if log.level < 20:
+        # get hourly quicklooks
+        plot_dt = begin_dt
+        while plot_dt < end_dt:
+            plot_interval = [plot_dt, plot_dt+datetime.timedelta(hours=1)]
+            fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[0, 3000], time_interval=plot_interval)
+            plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_low_{heave_corr_version}.png")
+            plt.close()
+            fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[3000, 6000], time_interval=plot_interval)
+            plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_mid_{heave_corr_version}.png")
+            plt.close()
+            fig, ax = Trans.plot_timeheight2(radarMoments['VEL'], range_interval=[6000, 9000], time_interval=plot_interval)
+            plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_high_{heave_corr_version}.png")
+            plt.close()
+            plot_dt = plot_dt + datetime.timedelta(hours=1)
 
     # read out mean Doppler velocity, replace -999 with nan, apply rolling mean, set nan to -999 and update mean Doppler
     # velocity in moments
@@ -125,23 +126,24 @@ if __name__ == '__main__':
     vel_mean[radarMoments['VEL']['mask']] = -999
     radarMoments['VEL_roll']['var'] = vel_mean
 
-    # get hourly quicklooks after rolling mean
-    plot_dt = begin_dt
-    while plot_dt < end_dt:
-        plot_interval = [plot_dt, plot_dt + datetime.timedelta(hours=1)]
-        fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[0, 3000],
-                                         time_interval=plot_interval)
-        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_low_roll_{heave_corr_version}.png")
-        plt.close()
-        fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[3000, 6000],
-                                         time_interval=plot_interval)
-        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_mid_roll_{heave_corr_version}.png")
-        plt.close()
-        fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[6000, 9000],
-                                         time_interval=plot_interval)
-        plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_high_roll_{heave_corr_version}.png")
-        plt.close()
-        plot_dt = plot_dt + datetime.timedelta(hours=1)
+    if log.level < 20:
+        # get hourly quicklooks after rolling mean
+        plot_dt = begin_dt
+        while plot_dt < end_dt:
+            plot_interval = [plot_dt, plot_dt + datetime.timedelta(hours=1)]
+            fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[0, 3000],
+                                             time_interval=plot_interval)
+            plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_low_roll_{heave_corr_version}.png")
+            plt.close()
+            fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[3000, 6000],
+                                             time_interval=plot_interval)
+            plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_mid_roll_{heave_corr_version}.png")
+            plt.close()
+            fig, ax = Trans.plot_timeheight2(radarMoments['VEL_roll'], range_interval=[6000, 9000],
+                                             time_interval=plot_interval)
+            plt.savefig(f"{PATH}/hourly_quicklooks/RV-Meteor_{plot_dt:%Y-%m-%d_%H}_mdv_cor_high_roll_{heave_corr_version}.png")
+            plt.close()
+            plot_dt = plot_dt + datetime.timedelta(hours=1)
 
     # load additional variables
     radarMoments.update({
@@ -161,6 +163,8 @@ if __name__ == '__main__':
     # convert from mm6 m-3 to dBZ
     radarMoments['Ze']['var'] = h.lin2z(radarMoments['Ze']['var'])
     radarMoments['Ze'].update({'var_unit': "dBZ", 'var_lims': [-60, 20]})
+    #mask LDR=-100 (-100 means there is a signal, but not clear enough to calculate LDR)
+    radarMoments['ldr']['var'] = np.ma.masked_less_equal(radarMoments['ldr']['var'], -100)
 
     if for_aeris:
         # read in lat lon time series from RV Meteor
@@ -173,7 +177,6 @@ if __name__ == '__main__':
     # write nc file
     flag = rpg_radar2nc_eurec4a(
         radarMoments,
-        # f'{PATH}/limrad94/{begin_dt.year}/',
         f'{PATH}',
         larda_git_path=LARDA_PATH,
         version='python',
