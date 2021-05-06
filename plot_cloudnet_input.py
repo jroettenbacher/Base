@@ -25,7 +25,8 @@ log.setLevel(logging.WARNING)
 log.addHandler(logging.StreamHandler())
 
 # define plot path
-plot_path = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/quicklooks/MDV_cor"
+# plot_path = "/projekt2/remsens/data/campaigns/eurec4a/LIMRAD94/quicklooks/MDV_cor"
+plot_path = "../plots"
 # Load LARDA
 larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 
@@ -36,21 +37,21 @@ if 'date_begin' in kwargs:
     date_begin = str(kwargs['date_begin'])
     begin_dt = datetime.datetime.strptime(date_begin + ' 00:00:05', '%Y%m%d %H:%M:%S')
 else:
-    begin_dt = datetime.datetime(2020, 1, 17, 2, 45, 5)
+    begin_dt = datetime.datetime(2020, 2, 9, 15, 55, 0)
 
 if 'date_end' in kwargs:
     date_end = str(kwargs['date_end'])
     end_dt = datetime.datetime.strptime(date_end + ' 23:59:55', '%Y%m%d %H:%M:%S')
 else:
-    end_dt = datetime.datetime(2020, 1, 17, 3, 15, 55)
+    end_dt = datetime.datetime(2020, 2, 9, 16, 15, 55)
 
 if 'plot_range' in kwargs:
     plot_range = [0, int(kwargs['plot_range'])]
 else:
-    plot_range = [0, 3000]
+    plot_range = [0, 4000]
 
 # read in moments
-system = "LIMRAD94_cn_input"
+system = "LIMRAD94_cni_hc_ca"
 radar_Z = larda.read(system, "Ze", [begin_dt, end_dt], plot_range)
 # mask values = -999
 radar_Z["var"] = np.ma.masked_where(radar_Z["var"] == -999, radar_Z["var"])
@@ -62,12 +63,12 @@ radar_MDV = larda.read(system, "Vel", [begin_dt, end_dt], plot_range)
 radar_MDV["mask"] = radar_Z["var"].mask
 # radar_MDV["var_lims"] = [-7, 7]
 
-radar_MDV_cor = larda.read(system, "Vel_cor", [begin_dt, end_dt], plot_range)
-# overwrite mask in larda container
-radar_MDV_cor["mask"] = radar_Z["var"].mask
-# radar_MDV_cor["var_lims"] = [-7, 7]
+# radar_MDV_cor = larda.read(system, "Vel_cor", [begin_dt, end_dt], plot_range)
+# # overwrite mask in larda container
+# radar_MDV_cor["mask"] = radar_Z["var"].mask
+# # radar_MDV_cor["var_lims"] = [-7, 7]
 
-heave_corr = larda.read(system, "heave_corr", [begin_dt, end_dt], plot_range)
+# heave_corr = larda.read(system, "heave_corr", [begin_dt, end_dt], plot_range)
 
 # radar_sw = larda.read(system, "sw", [begin_dt, end_dt], plot_range)
 # # overwrite mask in larda container
@@ -84,7 +85,7 @@ heave_corr = larda.read(system, "heave_corr", [begin_dt, end_dt], plot_range)
 # var = np.ma.masked_where(var == -999, var)
 
 name = f'{plot_path}/' \
-       f'{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_preliminary_{plot_range[1] / 1000:.0f}km_cloudnet_input'
+       f'{begin_dt:%Y%m%d_%H%M}_{end_dt:%Y%m%d_%H%M}_hcor_{plot_range[1] / 1000:.0f}km_cloudnet_input'
 
 # plot Roll and pitch
 # fig, ax = pyLARDA.Transformations.plot_timeseries(radar_Inc_El)
@@ -93,12 +94,13 @@ name = f'{plot_path}/' \
 #     formatted_datetime = formatted_datetime + '-' + (h.ts_to_dt(radar_Inc_El['ts'][-1])).strftime("%d")
 # ax.set_title(radar_Inc_El['paraminfo']['location'] + ', ' + formatted_datetime, fontsize=20)
 # fig.savefig(f"{name}_Inc_El.png", dpi=250)
+
 # radar_Z['var_unit'] = 'dBZ'
 # radar_Z['colormap'] = 'jet'
-# fig, _ = pyLARDA.Transformations.plot_timeheight(radar_Z, range_interval=plot_range, rg_converter=True, title=True,
-#                                                  z_converter='lin2z')
-# fig.savefig(name + '_Z.png', dpi=250)
-# print(f'figure saved :: {name}_Z.png')
+fig, _ = pyLARDA.Transformations.plot_timeheight2(radar_Z)
+fig.savefig(name + '_Z.png', dpi=250)
+print(f'figure saved :: {name}_Z.png')
+plt.close()
 #
 # fig, ax = pyLARDA.Transformations.plot_timeheight(radar_Z, range_interval=plot_range, rg_converter=True, title=True,
 #                                                   z_converter='lin2z')
