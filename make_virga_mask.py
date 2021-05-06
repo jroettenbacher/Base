@@ -330,7 +330,7 @@ if plot_data:
 #                                                    rg_converter=False)
 # # add cloud base height
 # time_list = [h.ts_to_dt(ts) for ts in ceilo_cbh['ts']]
-# ax.scatter(time_list, ceilo_cbh['var'][:, 0], s=0.2, color='k', label='first ceilometer cloud base')
+# ax.scatter(time_list, ceilo_cbh['var'][:, 0], s=3, color='k', label='first ceilometer cloud base')
 # lgd1 = ax.legend(loc=1)
 # lgd1.legendHandles[0]._sizes = [30]
 # for points_b, points_t in zip(virgae['points_b'], virgae['points_t']):
@@ -341,7 +341,7 @@ if plot_data:
 # virga_lgd = [Patch(facecolor='pink', edgecolor='black', label="Virga")]
 # lgd2 = ax.legend(handles=virga_lgd, bbox_to_anchor=[1, -0.1], loc="lower left", prop={'size': 12})
 # ax.add_artist(lgd1)
-# figname = f"{csv_outpath}/{location}_radar-Ze_virga-masked_{time_interval[0]:%Y%m%d}_custom.png"
+# figname = f"../plots/{location}_radar-Ze_virga-masked_{time_interval[0]:%Y%m%d}_custom.png"
 # fig.savefig(figname)
 # plt.close()
 # log.info(f"Saved {figname}")
