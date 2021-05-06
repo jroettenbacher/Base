@@ -43,13 +43,15 @@ if 'date' in kwargs:
     date = str(kwargs['date'])
     begin_dt = dt.datetime.strptime(date, "%Y%m%d")
 else:
-    begin_dt = dt.datetime(2020, 1, 24, 0, 0, 0)
+    begin_dt = dt.datetime(2020, 2, 9, 0, 0, 0)
 end_dt = begin_dt + dt.timedelta(hours=23, minutes=59, seconds=59)
 time_interval = [begin_dt, end_dt]
 
 # read in data
-radar_ze = larda.read("LIMRAD94_cn_input", "Ze", time_interval, [0, 'max'])
-radar_vel = larda.read("LIMRAD94_cn_input", "Vel", time_interval, [0, 'max'])
+# system = "LIMRAD94_cni_hc_ca"
+system = "LIMRAD94_cn_input"
+radar_ze = larda.read(system, "Ze", time_interval, [0, 'max'])
+radar_vel = larda.read(system, "Vel", time_interval, [0, 'max'])
 radar_cloud_mask = larda.read("LIMRAD94_cn_input", "cloud_bases_tops", time_interval, [0, 'max'])
 ceilo_cbh = larda.read("CEILO", "cbh", time_interval)
 rainrate = jr.read_rainrate()  # read in rain rate from RV-Meteor DWD rain sensor
@@ -77,7 +79,7 @@ rain_flag_dwd_ip = f_rr(ceilo_cbh['ts'])  # interpolate DWD RR to ceilo time val
 rain_flag_dwd_ip = rain_flag_dwd_ip == 1  # turn mask from integer to bool
 
 # get height of first ceilo cloud base and radar echo
-h_ceilo = ceilo_cbh['var'].data[:, 0]
+h_ceilo = ceilo_cbh['var'][:, 0]
 # get arrays which have the indices at which a signal is measured in a timestep, each array corresponds to one timestep
 rg_radar_all = [np.asarray(~radar_ze_ip['mask'][t, :]).nonzero()[0] for t in range(radar_ze_ip['ts'].shape[0])]
 
@@ -319,6 +321,30 @@ if plot_data:
         fig.savefig(figname)
         plt.close()
         log.info(f"Saved {figname}")
+
+# # custom virga plot
+# t1 = dt.datetime(2020, 2, 9, 15, 55, 0)
+# t2 = dt.datetime(2020, 2, 9, 16, 15, 0)
+# fig, ax = pyLARDA.Transformations.plot_timeheight2(radar_ze, range_interval=[0, 3000],
+#                                                    time_interval=[t1, t2],
+#                                                    rg_converter=False)
+# # add cloud base height
+# time_list = [h.ts_to_dt(ts) for ts in ceilo_cbh['ts']]
+# ax.scatter(time_list, ceilo_cbh['var'][:, 0], s=0.2, color='k', label='first ceilometer cloud base')
+# lgd1 = ax.legend(loc=1)
+# lgd1.legendHandles[0]._sizes = [30]
+# for points_b, points_t in zip(virgae['points_b'], virgae['points_t']):
+#     # append the top points to the bottom points in reverse order for drawing a polygon
+#     points = points_b + points_t[::-1]
+#     ax.add_patch(Polygon(points, closed=True, fc='pink', ec='black', alpha=0.5))
+# # add legend for virga polygons
+# virga_lgd = [Patch(facecolor='pink', edgecolor='black', label="Virga")]
+# lgd2 = ax.legend(handles=virga_lgd, bbox_to_anchor=[1, -0.1], loc="lower left", prop={'size': 12})
+# ax.add_artist(lgd1)
+# figname = f"{csv_outpath}/{location}_radar-Ze_virga-masked_{time_interval[0]:%Y%m%d}_custom.png"
+# fig.savefig(figname)
+# plt.close()
+# log.info(f"Saved {figname}")
 
 # # plot rainrate and used rainflag
 # rainrate["Flag"] = rain_flag_dwd
