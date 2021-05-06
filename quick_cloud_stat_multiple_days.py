@@ -26,7 +26,7 @@ larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 # Set Date, Chunk Size and Paths
 ########################################################################################################################
 begin_dt = datetime.datetime(2020, 2, 9, 15, 58, 5)
-end_dt = datetime.datetime(2020, 2, 9, 16, 10, 55)
+end_dt = datetime.datetime(2020, 2, 9, 16, 15, 55)
 # begin_dt2 = datetime.datetime(2020, 2, 1, 0, 0, 5)
 # end_dt2 = datetime.datetime(2020, 2, 17, 23, 59, 55)
 # if chunk size is smaller 12: x hourly hydro fractions are calculated and plotted -> should be used for one day only
