@@ -12,6 +12,7 @@ import datetime as dt
 from dateutil.relativedelta import relativedelta
 import warnings
 import logging
+import os
 import sys
 sys.path.append('/projekt1/remsens/work/jroettenbacher/Base/larda')
 sys.path.append('.')
