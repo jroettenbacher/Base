@@ -138,14 +138,14 @@ if chunk_size != 'max':
 print("Start plotting...")
 # some layout stuff
 plt.style.use("default")
-plt.rcParams.update({'font.size': 16, 'figure.figsize': (10, 10)})
+plt.rcParams.update({'font.size': 11, 'figure.figsize': (5, 6)})
 
 if chunk_size == 'max':
     hydro_frac_plt = hydro_frac.reset_index().loc[:125, :]
 
     fig, ax = plt.subplots()
     ax.plot(hydro_frac_plt['hydro_frac'], hydro_frac_plt['Height_m'], label="Hydrometeor Fraction", linewidth=3)
-    ax.legend(title='', fontsize=14, bbox_to_anchor=(1., 1.))
+    ax.legend(title='', fontsize=10, bbox_to_anchor=(1., 1.))
     ax.set_ylabel("Height [m]")
     ax.set_xlabel("Hydrometeor Fraction")
     ax.set_title(
@@ -155,7 +155,7 @@ if chunk_size == 'max':
     ax.yaxis.set_minor_locator(AutoMinorLocator(5))
     ax.xaxis.set_minor_locator(AutoMinorLocator(2))
     ax.yaxis.set_minor_formatter(FormatStrFormatter('%d'))
-    ax.tick_params(which='minor', length=4, labelsize=12)
+    ax.tick_params(which='minor', length=4, labelsize=10)
     plt.tight_layout()
     ax.grid(True, which='minor', color="grey", linestyle='-', linewidth=1)
     ax.xaxis.grid(True, which='major', color="k", linestyle='-', linewidth=2, alpha=0.5)
