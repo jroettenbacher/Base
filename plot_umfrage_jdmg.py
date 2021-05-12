@@ -18,6 +18,8 @@ df = pd.read_csv(f"{base_dir}/nachhaltigkeitsumfrage.csv", sep="\t", skipinitial
 # drop first and last two columns -> Zeitstempel and useless columns
 # drop empty columns (Öffis zum Veranstaltungsort)
 df = df.iloc[:, 1:-2].dropna(how='all', axis=1)
+# select only specific rows
+# df = df.iloc[[30, 31], :]
 
 # %% split data frame in Aufwand and Nutzen
 condition1 = ["Nutzen" in colname for colname in df.columns]
