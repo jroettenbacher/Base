@@ -29,7 +29,7 @@ if __name__ == '__main__':
     # Load LARDA
     larda = pyLARDA.LARDA().connect('eurec4a', build_lists=True)
 
-    begin_dts = pd.date_range("20200117", "20200227")
+    begin_dts = pd.date_range("20200201", "20200227")
     for begin_dt in begin_dts:
         end_dt = begin_dt + datetime.timedelta(hours=23, minutes=59, seconds=55)
 
