@@ -203,12 +203,14 @@ def read_wras_contamination(path, file, encoding="utf-8"):
 
 
 if __name__ == '__main__':
-    path = "C:/Users/Johannes/Documents/Studium/Hiwi_Kalesse/HATPRO_flag_eurec4a"
+    path = "C:/Users/Johannes/Documents/Hiwi_Kalesse/HATPRO_flag_eurec4a"
     file_dwd = "20200114_M161_Met-DWD_Instrument_Contamination_jr.txt"
     file_wras = "M161_WRAS_Stag_CPC_Jan-Feb2020_jr.csv"
     table1 = read_dwd_instrument_contamination(path, file_dwd)
     table2 = read_wras_contamination(path, file_wras)
     table = table1.append(table2).sort_values(axis=0, by=["startdate", "starttime"]).reset_index(drop=True)
+    table.to_csv(f"{path}/smoke_flag_WRAS_DWD_eurec4a.csv", index=False)
+    # manually delete the new line in the csv file!
     outfile = "filter_eurec4a.dat"
     write_manual_filter(path, outfile, table)  # write with both instrument flags
     outfile = "filter_eurec4a_dwd.dat"
