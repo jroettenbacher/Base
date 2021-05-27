@@ -18,13 +18,13 @@ PASS="pass4eurec4a!"  # define password
 #LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/upload_to_aeris_v1.1"  # LIMRAD94 heave corrected, original res data
 #LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_CEILOMETER/upload_to_aeris"  # ceilometer data (nc files)
 #LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/HATPRO/upload_to_aeris"  # HATPRO data and plots
-#LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP/upload_to_aeris"  # DSHIP data
-LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DWD/upload_to_aeris"  # DWD precip data
+LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP/upload_to_aeris"  # DSHIP data
+#LCD="/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DWD/upload_to_aeris"  # DWD precip data
 #define remote directory
 #RCD="/upload/SHIPS/RV-METEOR/cloudradar/ncfiles"  # cloud radar
 #RCD="/upload/SHIPS/RV-METEOR/cloudradar/heave_corr_high_res_ncfiles"  # cloud radar
 #RCD="/upload/SHIPS/RV-METEOR/ceilometer/ncfiles"  # ceilometer nc files
 #RCD="/upload/SHIPS/RV-METEOR/radiometer"  # HATPRO data and plots, level 1 + 2
-#RCD="/upload/SHIPS/RV-METEOR/DSHIP"  # DSHIP data
-RCD="/upload/SHIPS/RV-METEOR/weather_station"  # DWD weather station data
+RCD="/upload/SHIPS/RV-METEOR/DSHIP"  # DSHIP data
+#RCD="/upload/SHIPS/RV-METEOR/weather_station"  # DWD weather station data
 lftp -e "mirror -R $LCD $RCD " -u "$RUSER","$PASS" "$HOST"
