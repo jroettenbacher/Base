@@ -27,6 +27,7 @@ import pyLARDA.Transformations as Trans
 import matplotlib.pyplot as plt
 from pyLARDA.NcWrite import rpg_radar2nc_eurec4a
 from distutils.util import strtobool
+from functions_jr import find_bases_tops
 __author__ = "Willi Schimmel"
 __copyright__ = "Copyright 2020, Generates Calibrated RPG-Radar files for Cloudnetpy"
 __credits__ = ["Willi Schimmel", "Teresa Vogl", "Martin Radenz"]
@@ -49,7 +50,7 @@ if __name__ == '__main__':
     start_time = time.time()
 
     log = logging.getLogger('pyLARDA')
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
     log.addHandler(logging.StreamHandler())
 
     larda = pyLARDA.LARDA().connect('eurec4a')
@@ -64,13 +65,14 @@ if __name__ == '__main__':
         begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
         end_dt = datetime.datetime.strptime(date + ' 23:59:55', '%Y%m%d %H:%M:%S')
     else:
-        date = '20200202'
+        date = '20200211'
         begin_dt = datetime.datetime.strptime(date + ' 00:00:05', '%Y%m%d %H:%M:%S')
         end_dt = datetime.datetime.strptime(date + ' 00:59:55', '%Y%m%d %H:%M:%S')
 
-    PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/cloudnet/calibrated'
+    PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/' \
+                                                   f'instruments/LIMRAD94/cloudnet_input_testing'
     heave_corr_version = kwargs['heave_corr_version'] if 'heave_corr_version' in kwargs else 'ca'
-    for_aeris = strtobool(kwargs['for_aeris']) if 'for_aeris' in kwargs else False
+    for_aeris = strtobool(kwargs['for_aeris']) if 'for_aeris' in kwargs else True
 
     limrad94_settings = {
         'despeckle': True,  # 2D convolution (5x5 window), removes single non-zero values, very slow!
@@ -165,6 +167,9 @@ if __name__ == '__main__':
     radarMoments['Ze'].update({'var_unit': "dBZ", 'var_lims': [-60, 20]})
     #mask LDR=-100 (-100 means there is a signal, but not clear enough to calculate LDR)
     radarMoments['ldr']['var'] = np.ma.masked_less_equal(radarMoments['ldr']['var'], -100)
+    # add cloud bases and tops, and cloud mask
+    _, radarMoments['cloud_bases_tops'] = find_bases_tops(radarMoments["Ze"]["mask"], radarMoments["Ze"]["rg"])
+    radarMoments['cloud_mask'] = ~radarMoments["Ze"]["mask"]
 
     if for_aeris:
         # read in lat lon time series from RV Meteor
