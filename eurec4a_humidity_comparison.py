@@ -14,6 +14,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pyLARDA
 import pyLARDA.helpers as h
+import pyLARDA.Transformations as pltrans
 import datetime
 import numpy as np
 import logging
@@ -23,6 +24,8 @@ log.setLevel(logging.INFO)
 log.addHandler(logging.StreamHandler())
 
 larda = pyLARDA.LARDA().connect("eurec4a")
+
+plot_path = "../plots/eurec4a_humidity_comp"
 
 # %% read abs hum from LIMHAT
 begin_dt = datetime.datetime(2020, 1, 17, 0, 0, 5)
@@ -53,14 +56,14 @@ rh_limhat['name'] = "RH"
 # %% convert absolute humidity from kg to g / m3
 abs_hum_limhat['var'] = abs_hum_limhat['var'] * 1000
 abs_hum_limhat['var_unit'] = 'g m$^{-3}$'
-abs_hum_limhat['var_lims'] = [0.0, 20]
+abs_hum_limhat['var_lims'] = [0.0, 30]
 
 # %% plot abs hum LIMHAT
-fig, ax = pyLARDA.Transformations.plot_timeheight2(abs_hum_limhat)
-fig.savefig("../plots/eurec4a_humidity_comp/RV-METEOR_LIMHAT_abs-hum_20200117-20200219.png", dpi=100)
+fig, ax = pltrans.plot_timeheight2(abs_hum_limhat)
+fig.savefig(f"{plot_path}/RV-METEOR_LIMHAT_abs-hum_20200117-20200219.png", dpi=100)
 plt.close()
 
 # %% plot relative humidity LIMHAT
-fig, ax = pyLARDA.Transformations.plot_timeheight2(rh_limhat)
-fig.savefig("../plots/eurec4a_humidity_comp/RV-METEOR_LIMHAT_rel-hum_20200117-20200219.png", dpi=100)
+fig, ax = pltrans.plot_timeheight2(rh_limhat)
+fig.savefig(f"{plot_path}/RV-METEOR_LIMHAT_rel-hum_20200117-20200219.png", dpi=100)
 plt.close()
