@@ -80,10 +80,13 @@ rh_limhat_325 = pltrans.slice_container(rh_limhat, value={"range": [325]})
 rh_limhat_400 = pltrans.slice_container(rh_limhat, value={"range": [400]})
 
 # %% plot abs hum time series of certain height bins in one plot
+CB_color_cycle = ["#6699CC", "#117733", "#CC6677", "#DDCC77"]  # colorblind friendly color cycle
+plt.rcParams['axes.prop_cycle'] = plt.cycler(color=CB_color_cycle)
 fig, ax = plt.subplots(figsize=[14, 5.7])
 for plot_data, height in zip([abs_hum_limhat_50, abs_hum_limhat_100, abs_hum_limhat_325, abs_hum_limhat_400],
                              [50, 100, 325, 400]):
-    fig, ax = pltrans.plot_timeseries2(plot_data, figure=fig, axis=ax, label=f"{height}m")
+    fig, ax = pltrans.plot_timeseries2(plot_data, figure=fig, axis=ax, label=f"{height}m",
+                                       title="RV-Meteor LIMHAT Absolute Humidity")
     print(f"Done with {height}m")
 
 ax.grid()
@@ -94,7 +97,7 @@ plt.close()
 # %% plot abs hum time series of certain height bins in one plot each
 for plot_data, height in zip([abs_hum_limhat_50, abs_hum_limhat_100, abs_hum_limhat_325, abs_hum_limhat_400],
                              [50, 100, 325, 400]):
-    fig, ax = pltrans.plot_timeseries2(plot_data, label=f"{height}m")
+    fig, ax = pltrans.plot_timeseries2(plot_data, label=f"{height}m", title="RV-Meteor LIMHAT Absolute Humidity")
     ax.grid()
     ax.legend()
     fig.savefig(f"{plot_path}/RV-METEOR_LIMHAT_abs-hum_{height}m_20200117-20200219.png", dpi=100)
@@ -105,7 +108,8 @@ for plot_data, height in zip([abs_hum_limhat_50, abs_hum_limhat_100, abs_hum_lim
 fig, ax = plt.subplots(figsize=[14, 5.7])
 
 for plot_data, height in zip([rh_limhat_50, rh_limhat_100, rh_limhat_325, rh_limhat_400], [50, 100, 325, 400]):
-    fig, ax = pltrans.plot_timeseries2(plot_data, figure=fig, axis=ax, label=f"{height}m")
+    fig, ax = pltrans.plot_timeseries2(plot_data, figure=fig, axis=ax, label=f"{height}m",
+                                       title="RV-Meteor LIMHAT Relative Humidity")
     print(f"Done with {height}m")
 
 ax.grid()
@@ -115,7 +119,7 @@ plt.close()
 
 # %% plot rel hum time series of certain height bins in one plot each
 for plot_data, height in zip([rh_limhat_50, rh_limhat_100, rh_limhat_325, rh_limhat_400], [50, 100, 325, 400]):
-    fig, ax = pltrans.plot_timeseries2(plot_data, label=f"{height}m")
+    fig, ax = pltrans.plot_timeseries2(plot_data, label=f"{height}m", title="RV-Meteor LIMHAT Relative Humidity")
     ax.grid()
     ax.legend()
     fig.savefig(f"{plot_path}/RV-METEOR_LIMHAT_rel-hum_{height}m_20200117-20200219.png", dpi=100)
