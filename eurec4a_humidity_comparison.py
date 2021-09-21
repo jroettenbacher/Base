@@ -126,3 +126,14 @@ for plot_data, height in zip([rh_limhat_50, rh_limhat_100, rh_limhat_325, rh_lim
     plt.close()
     print(f"Done with {height}m")
 
+# %% save data to netcdf file
+abs_hum_limhat_nc = pltrans.container2DataArray(abs_hum_limhat)
+rh_limhat_nc = pltrans.container2DataArray(rh_limhat)
+
+for attr in ["ts", "paraminfo", "joints", "filename"]:
+    # delete unnecessary attributes from data array
+    abs_hum_limhat_nc.attrs.pop(attr)
+    rh_limhat_nc.attrs.pop(attr)
+
+abs_hum_limhat_nc.to_netcdf("./data/eurec4a_humidity_comp/RV-METEOR_LIMHAT_abs-hum_20200117-20200219.nc")
+rh_limhat_nc.to_netcdf("./data/eurec4a_humidity_comp/RV-METEOR_LIMHAT_rel-hum_20200117-20200219.nc")
