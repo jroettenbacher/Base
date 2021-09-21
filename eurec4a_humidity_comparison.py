@@ -67,3 +67,58 @@ plt.close()
 fig, ax = pltrans.plot_timeheight2(rh_limhat)
 fig.savefig(f"{plot_path}/RV-METEOR_LIMHAT_rel-hum_20200117-20200219.png", dpi=100)
 plt.close()
+
+# %% retrieve certain height ranges from abs hum; 60 (50), 120 (100), 300 (325) and 400 m
+abs_hum_limhat_50 = pltrans.slice_container(abs_hum_limhat, value={"range": [50]})
+abs_hum_limhat_100 = pltrans.slice_container(abs_hum_limhat, value={"range": [100]})
+abs_hum_limhat_325 = pltrans.slice_container(abs_hum_limhat, value={"range": [325]})
+abs_hum_limhat_400 = pltrans.slice_container(abs_hum_limhat, value={"range": [400]})
+# abs_hum_limhat["rg"]  # possible height bins
+rh_limhat_50 = pltrans.slice_container(rh_limhat, value={"range": [50]})
+rh_limhat_100 = pltrans.slice_container(rh_limhat, value={"range": [100]})
+rh_limhat_325 = pltrans.slice_container(rh_limhat, value={"range": [325]})
+rh_limhat_400 = pltrans.slice_container(rh_limhat, value={"range": [400]})
+
+# %% plot abs hum time series of certain height bins in one plot
+fig, ax = plt.subplots(figsize=[14, 5.7])
+for plot_data, height in zip([abs_hum_limhat_50, abs_hum_limhat_100, abs_hum_limhat_325, abs_hum_limhat_400],
+                             [50, 100, 325, 400]):
+    fig, ax = pltrans.plot_timeseries2(plot_data, figure=fig, axis=ax, label=f"{height}m")
+    print(f"Done with {height}m")
+
+ax.grid()
+ax.legend()
+fig.savefig(f"{plot_path}/RV-METEOR_LIMHAT_abs-hum_timeseries_20200117-20200219.png", dpi=100)
+plt.close()
+
+# %% plot abs hum time series of certain height bins in one plot each
+for plot_data, height in zip([abs_hum_limhat_50, abs_hum_limhat_100, abs_hum_limhat_325, abs_hum_limhat_400],
+                             [50, 100, 325, 400]):
+    fig, ax = pltrans.plot_timeseries2(plot_data, label=f"{height}m")
+    ax.grid()
+    ax.legend()
+    fig.savefig(f"{plot_path}/RV-METEOR_LIMHAT_abs-hum_{height}m_20200117-20200219.png", dpi=100)
+    plt.close()
+    print(f"Done with {height}m")
+
+# %% plot rel hum time series of certain height bins in one plot
+fig, ax = plt.subplots(figsize=[14, 5.7])
+
+for plot_data, height in zip([rh_limhat_50, rh_limhat_100, rh_limhat_325, rh_limhat_400], [50, 100, 325, 400]):
+    fig, ax = pltrans.plot_timeseries2(plot_data, figure=fig, axis=ax, label=f"{height}m")
+    print(f"Done with {height}m")
+
+ax.grid()
+ax.legend()
+fig.savefig(f"{plot_path}/RV-METEOR_LIMHAT_rel-hum_timeseries_20200117-20200219.png", dpi=100)
+plt.close()
+
+# %% plot rel hum time series of certain height bins in one plot each
+for plot_data, height in zip([rh_limhat_50, rh_limhat_100, rh_limhat_325, rh_limhat_400], [50, 100, 325, 400]):
+    fig, ax = pltrans.plot_timeseries2(plot_data, label=f"{height}m")
+    ax.grid()
+    ax.legend()
+    fig.savefig(f"{plot_path}/RV-METEOR_LIMHAT_rel-hum_{height}m_20200117-20200219.png", dpi=100)
+    plt.close()
+    print(f"Done with {height}m")
+
