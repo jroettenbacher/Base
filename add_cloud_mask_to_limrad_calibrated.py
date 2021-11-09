@@ -10,7 +10,7 @@ from tqdm import tqdm
 LARDA_PATH = '/projekt1/remsens/work/jroettenbacher/Base/larda'
 sys.path.append(LARDA_PATH)
 path = Path("/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/upload_to_aeris_v1.1")
-filepaths = path.glob('*.nc')
+filepaths = [f for f in path.glob('*.nc')]
 
 for filepath in tqdm(filepaths):
     ds = xr.open_dataset(filepath)
