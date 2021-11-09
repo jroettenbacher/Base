@@ -3,20 +3,22 @@
 author: Johannes Roettenbacher
 """
 import sys
-LARDA_PATH = '/projekt1/remsens/work/jroettenbacher/Base/larda'
-LARDA_PATH = 'C:/Users/Johannes/PycharmProjects/Base/larda'
-sys.path.append(LARDA_PATH)
 import xarray as xr
-from functions_jr import find_bases_tops
 import numpy as np
-path = "./data"
-file = "eurec4a_rv-meteor_cloudradar_20200211_v1.1.nc"
+from pathlib import Path
+LARDA_PATH = '/projekt1/remsens/work/jroettenbacher/Base/larda'
+sys.path.append(LARDA_PATH)
+path = Path("/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/upload_to_aeris_v1.1")
+filepaths = path.iterdir()
 
-ds = xr.open_dataset(f"{path}/{file}")
-mask = ~np.isnan(ds["Zh"])
-ds["cloud_mask"] = mask
-ds["cloud_mask"].attrs.update(dict(long_name="Cloud mask", units="1", comment="1: signal, 0: no signal"))
-ds["cloud_mask"].attrs.pop("plot_range")
-ds["cloud_mask"].attrs.pop("plot_scale")
+for filepath in filepaths:
+    ds = xr.open_dataset(filepath)
+    mask = ~np.isnan(ds["Zh"])
+    ds["hydrometeor_mask"] = mask
+    ds["hydrometeor_mask"].attrs.update(dict(long_name="Hydrometeor mask", units="1", comment="1: signal, 0: no signal"))
+    ds["hydrometeor_mask"].attrs.pop("plot_range")
+    ds["hydrometeor_mask"].attrs.pop("plot_scale")
+    ds.attrs["version"] = ds.attrs["version"] + ", 1.2: added hydrometeor_mask"
 
-ds.to_netcdf(f"{path}/{file.replace('.1.nc', '.2.nc')}", format="NETCDF4_CLASSIC")
+    outpath = Path(str(filepath).replace("1.1", "1.2"))
+    ds.to_netcdf(outpath, format="NETCDF4_CLASSIC")
