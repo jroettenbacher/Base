@@ -169,7 +169,7 @@ if __name__ == '__main__':
     radarMoments['ldr']['var'] = np.ma.masked_less_equal(radarMoments['ldr']['var'], -100)
     # add cloud bases and tops, and cloud mask
     _, radarMoments['cloud_bases_tops'] = find_bases_tops(radarMoments["Ze"]["mask"], radarMoments["Ze"]["rg"])
-    radarMoments['cloud_mask'] = ~radarMoments["Ze"]["mask"]
+    radarMoments['hydrometeor_mask'] = ~radarMoments["Ze"]["mask"]
 
     if for_aeris:
         # read in lat lon time series from RV Meteor
