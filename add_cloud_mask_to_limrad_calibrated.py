@@ -6,12 +6,13 @@ import sys
 import xarray as xr
 import numpy as np
 from pathlib import Path
+from tqdm import tqdm
 LARDA_PATH = '/projekt1/remsens/work/jroettenbacher/Base/larda'
 sys.path.append(LARDA_PATH)
 path = Path("/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/upload_to_aeris_v1.1")
-filepaths = path.iterdir()
+filepaths = path.glob('*.nc')
 
-for filepath in filepaths:
+for filepath in tqdm(filepaths):
     ds = xr.open_dataset(filepath)
     mask = ~np.isnan(ds["Zh"])
     ds["hydrometeor_mask"] = mask
