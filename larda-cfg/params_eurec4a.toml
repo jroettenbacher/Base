@@ -1,11 +1,11 @@
 
 [LIMRAD94]
   [LIMRAD94.path.l1]
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/'
     matching_subdirs = '(Y\d{4}.*M\d{2}.*D\d{2}.*\d{6}_\d{6}.*.LV1.(?i)NC)'
     date_in_filename = '(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [LIMRAD94.path.l0]
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/'
     matching_subdirs = '(Y\d{4}.*M\d{2}.*D\d{2}.*\d{6}_\d{6}.*.LV0.(?i)NC)'
     date_in_filename = '(?P<year>\d{2})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [LIMRAD94.generic]
@@ -410,7 +410,7 @@
 
 [LIMRAD94_cn_input]
   [LIMRAD94_cn_input.path.nc]
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/cloudnet_input/'
     matching_subdirs = '(.*\d{8}_\d{6}-\d{6}_LIMRAD94.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})_(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})'
   [LIMRAD94_cn_input.generic]
@@ -514,7 +514,7 @@
 
 [LIMRAD94_cni_hc]
   [LIMRAD94_cni_hc.path.nc]
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_corrected/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/cloudnet_input_heave_corrected/'
     matching_subdirs = '(.*\d{8}-.*-limrad94.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   [LIMRAD94_cni_hc.generic]
@@ -585,7 +585,7 @@
 
 [LIMRAD94_cni]
   [LIMRAD94_cni.path.nc]
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_new_processing/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/cloudnet_input_new_processing/'
     matching_subdirs = '(.*\d{8}-.*-limrad94.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   [LIMRAD94_cni.generic]
@@ -656,7 +656,7 @@
 
 [LIMRAD94_cni_hc_dea]
   [LIMRAD94_cni_hc_dea.path.nc]
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_dealiased/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/cloudnet_input_heave_cor_dealiased/'
     matching_subdirs = '(.*\d{8}-.*-limrad94.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   [LIMRAD94_cni_hc_dea.generic]
@@ -727,7 +727,7 @@
 
 [LIMRAD94_cni_hc_ca]
   [LIMRAD94_cni_hc_ca.path.nc]
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_ca/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/cloudnet_input_heave_cor_ca/'
     matching_subdirs = '(eurec4a_rv-meteor_cloudradar_\d{8}.*.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   [LIMRAD94_cni_hc_ca.generic]
@@ -828,7 +828,7 @@
 
 [LIMRAD94_cni_hc_jr]
   [LIMRAD94_cni_hc_jr.path.nc]
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/cloudnet_input_heave_cor_jr/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/cloudnet_input_heave_cor_jr/'
     matching_subdirs = '(eurec4a_rv-meteor_cloudradar_\d{8}.*.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   [LIMRAD94_cni_hc_jr.generic]
@@ -929,7 +929,7 @@
 
 [LIMRAD94_tmp]
   [LIMRAD94_tmp.path.nc]
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/tmp/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/tmp/'
     matching_subdirs = '(rv-meteor_cloudradar_\d{8}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
   [LIMRAD94_tmp.generic]
@@ -1000,7 +1000,7 @@
 
 [LIMRAD94_30s]
   [LIMRAD94_30s.path.nc]
-    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/LIMRAD94/30s_averages/'
+    base_dir = '/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/limrad94/30s_averages/'
     matching_subdirs = '(.*RV-METEOR_LIMRAD94_Ze_\d{8}.nc)'
     date_in_filename = '(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})'
     # _(?P<hour>\d{2})(?P<minute>\d{2})(?P<second>\d{2})
