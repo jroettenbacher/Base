@@ -338,8 +338,13 @@ if save_csv:
     # write a timeseries csv file with attributes for each timestep (ceilometer resolution)
     ts_out = dict(unix_time=ceilo_cbh['ts'], virga_flag=virga_flag, ceilo_cbh=ceilo_cbh['var'][:, 0],
                   lowest_virga_range_gate=lowest_rg, virga_depth=virga_depth, cloud_depth=cloud_depth,
-                  max_ze=max_ze, max_dbz=h.lin2z(max_ze), max_vel=max_vel,
-                  ze_gradient_std=ze_gradient_std, vel_gradient_std=vel_gradient_std, dbz_gradient_std=dbz_gradient_std,
+                  max_ze=h.z2lin(max_ze), max_dbz=max_ze,
+                  max_vel=max_vel, mean_vel=mean_vel, median_vel=median_vel, std_vel=std_vel,
+                  ze_gradient_mean=ze_gradient_mean, ze_gradient_median=ze_gradient_median, ze_gradient_std=ze_gradient_std,
+                  dbz_gradient_mean=dbz_gradient_mean, dbz_gradient_median=dbz_gradient_median,
+                  dbz_gradient_std=dbz_gradient_std,
+                  vel_gradient_mean=vel_gradient_mean, vel_gradient_median=vel_gradient_median,
+                  vel_gradient_std=vel_gradient_std,
                   first_gate=first_gate)
     ts_name = f"{csv_outpath}/time_series/RV-Meteor_virga-timeseries_{time_interval[0]:%Y%m%d}_v{version}.csv"
     pd.DataFrame(ts_out).to_csv(ts_name, sep=';', index=False)
