@@ -2,13 +2,16 @@
 """Plot RV Meteor DSHIP data
 author: Johannes Roettenbacher
 """
-
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
 # local path
-indir = "C:/Users/Johannes/Documents/EUREC4A/data/dship"
+# indir = "C:/Users/Johannes/Documents/EUREC4A/data/dship"
 file = "RV-Meteor_lat_lon_1Hz.dat"
+# server path
+indir = "/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/instruments/RV-METEOR_DSHIP/upload_to_aeris"
+files = [f for f in os.listdir(indir) if "1Hz" in f]
 
 df = pd.read_csv(f"{indir}/{file}")
 df.columns = ["datetime", "lon", "lat"]

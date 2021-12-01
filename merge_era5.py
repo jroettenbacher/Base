@@ -5,7 +5,6 @@
 import os
 from cdo import *
 cdo = Cdo()
-
 wkdir = "/poorgafile2/remsens/data/era5/leipzig"
 if not os.getcwd() == wkdir:
     os.chdir(wkdir)

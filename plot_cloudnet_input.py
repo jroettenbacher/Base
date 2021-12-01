@@ -37,13 +37,13 @@ if 'date_begin' in kwargs:
     date_begin = str(kwargs['date_begin'])
     begin_dt = datetime.datetime.strptime(date_begin + ' 00:00:05', '%Y%m%d %H:%M:%S')
 else:
-    begin_dt = datetime.datetime(2020, 2, 9, 15, 55, 0)
+    begin_dt = datetime.datetime(2020, 2, 18, 0, 0, 0)
 
 if 'date_end' in kwargs:
     date_end = str(kwargs['date_end'])
     end_dt = datetime.datetime.strptime(date_end + ' 23:59:55', '%Y%m%d %H:%M:%S')
 else:
-    end_dt = datetime.datetime(2020, 2, 9, 16, 15, 55)
+    end_dt = datetime.datetime(2020, 2, 18, 23, 59, 55)
 
 if 'plot_range' in kwargs:
     plot_range = [0, int(kwargs['plot_range'])]
@@ -70,9 +70,9 @@ radar_MDV["mask"] = radar_Z["var"].mask
 
 # heave_corr = larda.read(system, "heave_corr", [begin_dt, end_dt], plot_range)
 
-# radar_sw = larda.read(system, "sw", [begin_dt, end_dt], plot_range)
-# # overwrite mask in larda container
-# radar_sw["mask"] = radar_Z["var"].mask
+radar_sw = larda.read(system, "sw", [begin_dt, end_dt], plot_range)
+# overwrite mask in larda container
+radar_sw["mask"] = radar_Z["var"].mask
 # radar_vel = larda.read(system, "vm", [begin_dt, end_dt], plot_range)
 # radar_Inc_El = larda.read(system, "Inc_El", [begin_dt, end_dt])
 # radar_Inc_ElA = larda.read(system, "Inc_ElA", [begin_dt, end_dt])
@@ -97,8 +97,11 @@ name = f'{plot_path}/' \
 
 # radar_Z['var_unit'] = 'dBZ'
 # radar_Z['colormap'] = 'jet'
-fig, _ = pyLARDA.Transformations.plot_timeheight2(radar_Z)
-fig.savefig(name + '_Z.png', dpi=250)
+fig, axs = plt.subplots(nrows=3, figsize=[14, 5.7])
+fig1, axs[0] = pyLARDA.Transformations.plot_timeheight2(radar_Z, ax=axs[0], fig=fig, label="Radar Reflectivity Factor (dBZ)")
+fig2, axs[1] = pyLARDA.Transformations.plot_timeheight2(radar_MDV, ax=axs[1], fig=fig, label="Heave Corrected Mean Doppler Velocity $(m\,s^{-1})$")
+fig3, axs[2] = pyLARDA.Transformations.plot_timeheight2(radar_sw, ax=axs[2], fig=fig, label="Spectral Width $(m\,s^{-1}$")
+plt.savefig(name + '_Javier.png', dpi=250)
 print(f'figure saved :: {name}_Z.png')
 plt.close()
 #
@@ -165,3 +168,97 @@ print(f'figure saved :: {name}_heave_corr.png')
 # fig, _ = pyLARDA.Transformations.plot_timeheight(radar_PhiDP, rg_converter=True, title=True)
 # fig.savefig(name+'_PhiDP.png', dpi=250)
 # print(f'figure saved :: {name}_PhiDP.png')
+
+def remsens_limrad_quicklooks(container_dict, **kwargs):
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    from matplotlib.ticker import LogFormatter
+    import matplotlib.colors as mcolors
+    import time
+
+    tstart = time.time()
+    print('Plotting data...')
+
+    time_list = container_dict['Ze']['ts']
+    dt_list = [datetime.datetime.utcfromtimestamp(time) for time in time_list]
+
+    if 'timespan' in kwargs and kwargs['timespan'] == '24h':
+        dt_lim_left = datetime.datetime(dt_list[0].year, dt_list[0].month, dt_list[0].day, 0, 0)
+        dt_lim_right = datetime.datetime(dt_list[0].year, dt_list[0].month, dt_list[0].day, 0, 0) + datetime.timedelta(days=1)
+    else:
+        dt_lim_left = dt_list[0]
+        dt_lim_right = dt_list[-1]
+
+    range_list = container_dict['Ze']['rg'] * 1.e-3  # convert to km
+    ze = h.lin2z(container_dict['Ze']['var']).copy().T
+    mdv = container_dict['VEL']['var'].copy().T
+    sw = container_dict['sw']['var'].copy().T
+
+    plot_range = kwargs['plot_range'] if 'plot_range' in kwargs else [0, 12.0]
+
+    # create figure
+
+    fig, ax = plt.subplots(3, figsize=(13, 16))
+
+    # reflectivity plot
+    ax[0].text(.015, .87, 'Radar reflectivity factor', horizontalalignment='left',
+               transform=ax[0].transAxes, fontsize=14, bbox=dict(facecolor='white', alpha=0.75))
+    cp = ax[0].pcolormesh(dt_list, range_list, ze,
+                          vmin=container_dict['Ze']['var_lims'][0],
+                          vmax=container_dict['Ze']['var_lims'][1],
+                          cmap=container_dict['Ze']['colormap'])
+    divider = make_axes_locatable(ax[0])
+    cax0 = divider.append_axes("right", size="3%", pad=0.3)
+    cbar = fig.colorbar(cp, cax=cax0, ax=ax[0])
+    cbar.set_label('dBZ')
+    ax[0].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(3))
+    print('Plotting data... Ze')
+
+    # mean doppler velocity plot
+    ax[1].text(.015, .87, 'Mean Doppler velocity', horizontalalignment='left', transform=ax[1].transAxes,
+               fontsize=14, bbox=dict(facecolor='white', alpha=0.75))
+    cp = ax[1].pcolormesh(dt_list, range_list, mdv,
+                          vmin=container_dict['VEL']['var_lims'][0],
+                          vmax=container_dict['VEL']['var_lims'][1],
+                          cmap=container_dict['VEL']['colormap'])
+    divider2 = make_axes_locatable(ax[1])
+    cax2 = divider2.append_axes("right", size="3%", pad=0.3)
+    cbar = fig.colorbar(cp, cax=cax2, ax=ax[1])
+    cbar.set_label('m/s')
+    ax[1].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(3))
+    print('Plotting data... mdv')
+
+    # spectral width plot
+    ax[2].text(.015, .87, 'Spectral width', horizontalalignment='left', transform=ax[2].transAxes,
+               fontsize=14, bbox=dict(facecolor='white', alpha=0.75))
+    cp = ax[2].pcolormesh(dt_list, range_list, sw,
+                          norm=mcolors.LogNorm(vmin=0.1,
+                                               vmax=container_dict['sw']['var_lims'][1]),
+                          cmap=container_dict['sw']['colormap'])
+    divider3 = make_axes_locatable(ax[2])
+    cax3 = divider3.append_axes("right", size="3%", pad=0.3)
+    formatter = LogFormatter(10, labelOnlyBase=False)
+    cbar = fig.colorbar(cp, cax=cax3, ax=ax[2], format=formatter, ticks=[0.1, 0.2, 0.5, 1, 2])
+    cbar.set_ticklabels([0.1, 0.2, 0.5, 1, 2])
+    cbar.set_label('m/s')
+    ax[2].xaxis.set_minor_locator(matplotlib.ticker.AutoMinorLocator(3))
+    print('Plotting data... sw')
+
+    yticks = np.arange(plot_range[0] / 1000., plot_range[1] / 1000. + 1, 2)  # y-axis ticks
+
+    for iax in range(3):
+        ax[iax].grid(linestyle=':')
+        ax[iax].set_yticks(yticks)
+        ax[iax].axes.tick_params(axis='both', direction='inout', length=10, width=1.5)
+        ax[iax].set_ylabel('Height (km)', fontsize=14)
+        ax[iax].set_xlim(left=dt_lim_left, right=dt_lim_right)
+        ax[iax].set_ylim(top=plot_range[1] / 1000., bottom=plot_range[0] / 1000.)
+        ax[iax].xaxis.set_major_formatter(matplotlib.dates.DateFormatter('%H:%M'))
+
+    fig.subplots_adjust(left=0.06, bottom=0.05, right=0.95, top=0.95, wspace=0, hspace=0.20)
+
+    print('plotting done, elapsed time = {:.3f} sec.'.format(time.time() - tstart))
+
+    return fig, ax
+
+container = dict(Ze=radar_Z, VEL=radar_MDV, sw=radar_sw)
+remsens_limrad_quicklooks(container)
