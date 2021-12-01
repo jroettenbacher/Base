@@ -96,14 +96,18 @@ def find_bases_tops(mask, rg_list):
         cloud_prop (list) : list containing a dict for every time step consisting of cloud bases/top indices, range and width
         cloud_mask (np.array) : integer array, containing +1 for cloud tops, -1 for cloud bases and 0 for fill_value
     """
+    # bug fix: add an emtpy first range gate to detect cloud bases of clouds which start at the first range gate
+    mask = np.hstack((np.full_like(mask, fill_value=True)[:, 0:1], mask))
     cloud_prop = []
     cloud_mask = np.full(mask.shape, 0, dtype=np.int)
     for iT in range(mask.shape[0]):
         cloud = [(k, sum(1 for j in g)) for k, g in groupby(mask[iT, :])]
         idx_cloud_edges = np.cumsum([prop[1] for prop in cloud])
         bases, tops = idx_cloud_edges[0:][::2][:-1], idx_cloud_edges[1:][::2]
-        if tops.size>0 and tops[-1] == mask.shape[1]:
+        if tops.size > 0 and tops[-1] == mask.shape[1]:
             tops[-1] = mask.shape[1]-1
+        if bases.size > 0:
+            bases[0] = bases[0] - 1  # reduce first base index by 1 to account for the introduced row
         cloud_mask[iT, bases] = -1
         cloud_mask[iT, tops] = +1
         cloud_prop.append({'idx_cb': bases, 'val_cb': rg_list[bases],  # cloud bases
