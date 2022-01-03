@@ -70,7 +70,7 @@ if __name__ == '__main__':
         end_dt = datetime.datetime.strptime(date + ' 00:59:55', '%Y%m%d %H:%M:%S')
 
     PATH = kwargs['path'] if 'path' in kwargs else f'/projekt2/remsens/data_new/site-campaign/rv_meteor-eurec4a/' \
-                                                   f'instruments/LIMRAD94/cloudnet_input_testing'
+                                                   f'instruments/limrad94/cloudnet_input_testing'
     heave_corr_version = kwargs['heave_corr_version'] if 'heave_corr_version' in kwargs else 'ca'
     for_aeris = strtobool(kwargs['for_aeris']) if 'for_aeris' in kwargs else True
 
