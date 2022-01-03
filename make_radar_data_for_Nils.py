@@ -20,7 +20,7 @@ ceilo_files.pop(10)
 ceilo_files.pop(11)
 ceilo_files.pop(11)
 ceilo_files.pop(11)
-variables = ["Zh", "hydrometeor_mask", "latitude", "longitude", "lwp", "v"]
+variables = ["Zh", "hydrometeor_mask", "cloud_bases_tops", "latitude", "longitude", "lwp", "v"]
 
 for i in tqdm(range(len(files))):
     ds = xr.open_dataset(f"{inpath}/{files[i]}")
