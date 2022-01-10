@@ -45,7 +45,7 @@ if 'date' in kwargs:
     date = str(kwargs['date'])
     begin_dt = dt.datetime.strptime(date, "%Y%m%d")
 else:
-    begin_dt = dt.datetime(2020, 2, 9, 0, 0, 0)
+    begin_dt = dt.datetime(2020, 2, 15, 0, 0, 0)
 
 end_dt = begin_dt + dt.timedelta(hours=23, minutes=59, seconds=59)
 time_interval = [begin_dt, end_dt]
@@ -160,7 +160,6 @@ first_gate = np.full(ceilo_cbh['ts'].shape, False)
 for i in np.where(virga_flag)[0]:
     lower_rg = rg_radar_all[i][0]
     upper_rg = h.argnearest(radar_ze_ip['rg'], h_ceilo[i])
-    assert lower_rg < upper_rg, f"Lower range gate ({lower_rg}) higher than upper range gate ({upper_rg})"
     # double check for minimal vertical extent
     if (upper_rg - lower_rg) >= min_vert_ext:
         virga_mask[i, lower_rg:upper_rg] = True
